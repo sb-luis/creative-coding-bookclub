@@ -1,0 +1,54 @@
+---
+import '../styles/global.css';
+import '../styles/page.css';
+import headerLogo from '../assets/header-2025-01-27.png';
+import Metadata from '../components/Metadata.astro'
+import Fonts from '../components/Fonts.astro'
+import Favicon from '../components/Favicon.astro'
+---
+
+<!doctype html>
+<html lang='en'>
+  <head>
+    <Favicon />
+    <Metadata />
+    <Fonts />
+  </head>
+  <body>
+    <header class='max-w-screen-md m-auto mb-12'>
+      <img
+        id='header-logo'
+        alt='Creative Coding Bookclub Logo'
+        src={headerLogo.src}
+        fetchpriority='high'
+      />
+      <canvas class='absolute -z-1 top-0 left-0'></canvas>
+    </header>
+    <main class='max-w-screen-sm m-auto px-8 space-y-10 pb-30'>
+      <slot />
+    </main>
+    <footer></footer>
+    <script>
+      // Import npm and local modules
+      import { default as P5Sketch } from 'p5';
+      import headerSketch from '../members/example/p5.js';
+
+      // Find DOM components
+      const headerLogo = document.getElementById('header-logo');
+      const canvas = document.querySelector('canvas');
+      if (!canvas || !headerLogo)
+        throw new Error('Missing canvas or header logo');
+
+      function getHeight() {
+        return headerLogo?.clientHeight;
+      }
+
+      // Instantiate P5 sketch
+      new P5Sketch((p5) => {
+        // You can pass functions or data as options
+        headerSketch(p5, { getHeight, canvas });
+      });
+    </script>
+  </body>
+</html>
+

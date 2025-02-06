@@ -1,0 +1,46 @@
+---
+import MemberPage from '../../layouts/MemberPage.astro';
+
+export const getStaticPaths = () => {
+  const memberPages = import.meta.glob('../../members/**/*.astro', {
+    eager: true,
+  });
+  const memberPagesMetadata = import.meta.glob(`../../members/**/**.json`, {
+    eager: true,
+  });
+
+  const routes = Object.keys(memberPages).map((key) => {
+    const alias = key.split('/')[3];
+    const page = key.split('/')[4].split('.')[0];
+    const metadataOverrides =
+      memberPagesMetadata[`../../members/${alias}/${page}.json`] ?? {};
+
+    const metadata = {
+      title: 'member page',
+      description: 'member page description',
+      keywords: 'Creative Coding, Bookclub, Member',
+      ...metadataOverrides,
+    };
+
+    delete metadata.default;
+
+    return {
+      params: {
+        alias,
+        page,
+      },
+      props: { component: memberPages[key], metadata },
+    };
+  });
+  return routes;
+};
+
+const { alias, page } = Astro.params;
+const { component, metadata } = Astro.props;
+
+const Component = component.default;
+---
+
+<MemberPage metadata={metadata}>
+  <Component metadata={metadata} />
+</MemberPage>

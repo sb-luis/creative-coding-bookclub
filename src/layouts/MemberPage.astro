@@ -1,0 +1,33 @@
+---
+import '../styles/global.css';
+import Metadata from '../components/Metadata.astro'
+import Favicon from '../components/Favicon.astro';
+const { metadata } = Astro.props;
+---
+
+<!doctype html>
+<html lang='en'>
+  <head>
+    <Favicon emoji="🪄" />
+    <Metadata 
+      title={metadata.title} 
+      description={metadata.description} 
+      keywords={metadata.keywords} 
+    />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style>
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+</style>

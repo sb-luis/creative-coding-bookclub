@@ -1,0 +1,58 @@
+@import 'tailwindcss';
+
+a {
+  color: black;
+  text-decoration: none;
+  white-space: nowrap;
+  position: relative;
+}
+
+a:hover{
+  color: white;
+}
+
+a::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 90%;
+  left: -0.1em;
+  right: -0.1em;
+  bottom: 0;
+  transition: top 200ms cubic-bezier(0, 0.8, 0.13, 1);
+  background-color: #FF0052 
+}
+
+a:hover::after {
+  top: 0%;
+}
+
+html {
+  @apply text-neutral-800 bg-neutral-300;
+  z-index: -2;
+  font-size: 18px;
+  font-family: var(--font-text-1);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply italic text-black;
+}
+
+h2 {
+  @apply font-extrabold text-3xl;
+  font-family: var(--font-display-1);
+}
+
+h3 {
+  @apply text-2xl;
+  font-family: var(--font-display-2);
+}
+
+p{
+  @apply my-6;
+}

@@ -1,0 +1,11 @@
+{
+  "title": "luis",
+  "description": "Example of how to pass metadata to one sketch",
+  "keywords": "Creative Coding, Bookclub, Tutorial",
+  "exampleBoolean": true,
+  "exampleArray": [1, 2, 3],
+  "exampleObject": {
+    "foo": "bar",
+    "bar": "foo"
+  }
+}
