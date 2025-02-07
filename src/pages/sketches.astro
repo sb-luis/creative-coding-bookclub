@@ -1,0 +1,26 @@
+---
+import MainPage from '../layouts/MainPage.astro';
+import { DOMAIN } from '../constants.js';
+import { getMemberPagesRoutes } from '../utils/index.js';
+const routes = getMemberPagesRoutes();
+const sketches = routes.filter((p) =>
+  p.props.metadata.tags?.includes('sketch')
+);
+---
+
+<MainPage>
+  <section>
+    <h2 class='mb-4'>sketches</h2>
+    <ul class='space-y-2'>
+      {
+        sketches.map((data) => (
+          <li>
+            <a href={`${DOMAIN}/${data.params.alias}/${data.params.page}`}>
+              {data.params.alias + '/' + data.params.page}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</MainPage>

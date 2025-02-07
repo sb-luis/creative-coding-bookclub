@@ -1,13 +1,15 @@
 ---
+import { DOMAIN } from '../constants.js'
+
 // Canonical URL
-const canonicalUrl = `https://creativecodingbook.club${Astro.url.pathname}`;
+const canonicalUrl = `${DOMAIN}${Astro.url.pathname}`;
 
 // Open Graph
 const title = Astro.props.title ?? 'Creative Coding Bookclub'
 const description = Astro.props.description ?? 'The Creative Coding Bookclub is a new event to challenge and inspire eachother with practical coding challenges, by following a book yearly, and sharing our journey online and in-person';
 const keywords = Astro.props.keywords ?? 'Creative Coding, Bookclub, JavaScript'
 const ogType = Astro.props.ogType ?? 'article';
-const ogImage = Astro.props.ogImage ?? 'https://creativecodingbook.club/ogimage-2025-01-27.jpeg';
+const ogImage = Astro.props.ogImage ?? `${DOMAIN}/ogimage-2025-01-27.jpeg`;
 const ogImageWidth = Astro.props.ogImageWidth ?? '940';
 const ogImageHeight = Astro.props.ogImageHeight ?? '470';
 const ogLocale = Astro.props.ogLocale ?? 'en_GB';
