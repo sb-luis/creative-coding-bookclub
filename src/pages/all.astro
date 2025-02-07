@@ -1,0 +1,22 @@
+---
+import MainPage from '../layouts/MainPage.astro';
+import { getMemberPagesRoutes } from '../utils/index.js';
+const routes = getMemberPagesRoutes();
+---
+
+<MainPage>
+  <section>
+    <h2 class="mb-8">member pages</h2>
+    <ul class='flex flex-col space-y-1'>
+      {
+        routes.map((data) => (
+          <a
+            href={`https://creativecodingbook.club/${data.params.alias}/${data.params.page}`}
+          >
+            {data.params.alias + '/' + data.params.page}
+          </a>
+        ))
+      }
+    </ul>
+  </section>
+</MainPage>
