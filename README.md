@@ -23,9 +23,11 @@ Start by creating a folder under `src/members/{your-github-handle}`.
 
 Every `.astro` file you create in that directory will be automatically routed to have its own page under [/{your-github-handle}/{page-name}](https://creativecodingbook.club/example/p5) - see [the source code of this page](https://github.com/sb-luis/creative-coding-bookclub/tree/main/src/members/example) as an example.
 
-Every `.json` file that [shares the filename](https://github.com/sb-luis/creative-coding-bookclub/blob/main/src/members/sb-luis/hola.json) with your `.astro` file will be used as [metadata](https://creativecodingbook.club/sb-luis/hola). This way you can set the `title`, `description`, and `keywords` of your page - for instance to help with SEO. We'll also use metadata in the future to organize the pages per book and chapter.
+To have your `.astro` page properly routed there is just one more step for you to do: you need to add a `.json` file [with the same filename as your page](https://github.com/sb-luis/creative-coding-bookclub/blob/main/src/members/sb-luis/hola.json) to be used as [page metadata](https://creativecodingbook.club/sb-luis/hola). This way you can set at least the `title`, `description`, and `keywords` of your page to help with SEO. We'll also use this metadata in the future to organize the pages per book and chapter.
 
-Any `.js` and other file types won't be processed as pages, but you can use them to organize your code, and import those files in your `.astro` page. 
+Any `.js` files in your folder will be ignored, but you can use it to organize your code.
+
+To keep things simple try only uploading `.astro`, `.js` or `.json` files for now. No images, or other assets. We can have a think later about how to organise these if we need them.
 
 That's all! Go ahead and [fork this repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo), make your own folder and start [creating PRs](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork) to upload your creative coding sketches and custom pages to our site! 
 
