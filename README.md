@@ -21,7 +21,7 @@ We're using [Astro](https://docs.astro.build/en/concepts/why-astro/) to build th
 
 Start by creating a folder under `src/members/{your-handle}`. 
 
-Every `.astro` file you create in that directory will be automatically routed to have its own page under [/{your-handle}/{page-name}](https://creativecodingbook.club/example/p5js-cdn) - see [the source code of this page](https://github.com/sb-luis/creative-coding-bookclub/tree/main/src/members/example) as an example.
+Every `.astro` file you create in that directory will be automatically routed to have its own page under [/{your-handle}/{page-name}](https://creativecodingbook.club/_example/p5js-cdn) - see [the source code of this page](https://github.com/sb-luis/creative-coding-bookclub/tree/main/src/members/_example) as an example.
 
 To have your `.astro` page properly routed there is just one more step for you to do: you need to add a `.json` file [with the same filename as your page](https://github.com/sb-luis/creative-coding-bookclub/blob/main/src/members/sb-luis/hola.json) to be used as [page metadata](https://creativecodingbook.club/sb-luis/hola). This way you can set at least the `title`, `description`, and `keywords` of your page to help with SEO. We'll also use this metadata in the future to organize the pages per book and chapter.
 
@@ -34,6 +34,15 @@ That's all! Go ahead and [fork this repository](https://docs.github.com/en/pull-
 If you post any bookclub-related content in social media feel free to mention us or tag the[#CreativeCodingBookclub](https://bsky.app/hashtag/CreativeCodingBookclub) hashtag for us to see your posts! 
 
 If you get stuck or have any questions, join [C3S's Discord server](https://discord.gg/ggYbapqx) and message us at the `#creative-coding-bookclub` channel in it. 
+
+# external libraries 
+
+If you're using [P5JS](https://p5js.org/) in your sketches, you have two options:
+
+- Install it from a CDN - for which you'll need to add the [following line](https://github.com/sb-luis/creative-coding-bookclub/blob/main/src/members/_example/p5js-cdn.json#L6) to your `.json` file specifying which version are you importing.
+- Import it from NPM - in which case you'll use the [bundled version](https://github.com/sb-luis/creative-coding-bookclub/blob/main/package.json#L14) that comes with our site.
+
+If you're using [ThreeJS](https://threejs.org/) we'll only support importing from NPM for now.
 
 # resources 
 

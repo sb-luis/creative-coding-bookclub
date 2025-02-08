@@ -1,6 +1,6 @@
 {
-  "title": "esm test",
-  "description": "esm p5 sketch",
+  "title": "P5 JS sketch",
+  "description": "example P5 JS sketch (using NPM)",
   "keywords": "Creative Coding, Bookclub, P5, Processing",
   "tags": ["sketch"]
 }
