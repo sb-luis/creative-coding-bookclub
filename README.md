@@ -19,9 +19,9 @@ If you're part of the bookclub and want to upload your work (or any other HTML p
 
 We're using [Astro](https://docs.astro.build/en/concepts/why-astro/) to build the site, but its [template syntax](https://docs.astro.build/en/reference/astro-syntax/) should be very easy to grasp even if you have never played with it.
 
-Start by creating a folder under `src/members/{your-github-handle}`. 
+Start by creating a folder under `src/members/{your-handle}`. 
 
-Every `.astro` file you create in that directory will be automatically routed to have its own page under [/{your-github-handle}/{page-name}](https://creativecodingbook.club/example/p5) - see [the source code of this page](https://github.com/sb-luis/creative-coding-bookclub/tree/main/src/members/example) as an example.
+Every `.astro` file you create in that directory will be automatically routed to have its own page under [/{your-handle}/{page-name}](https://creativecodingbook.club/example/p5js-cdn) - see [the source code of this page](https://github.com/sb-luis/creative-coding-bookclub/tree/main/src/members/example) as an example.
 
 To have your `.astro` page properly routed there is just one more step for you to do: you need to add a `.json` file [with the same filename as your page](https://github.com/sb-luis/creative-coding-bookclub/blob/main/src/members/sb-luis/hola.json) to be used as [page metadata](https://creativecodingbook.club/sb-luis/hola). This way you can set at least the `title`, `description`, and `keywords` of your page to help with SEO. We'll also use this metadata in the future to organize the pages per book and chapter.
 

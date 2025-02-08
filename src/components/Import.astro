@@ -1,0 +1,13 @@
+---
+import Empty from './Empty.astro';
+import ImportP5 from './ImportP5.astro';
+
+const { metadata } = Astro.props;
+let Component = Empty;
+
+if (metadata.import?.p5) {
+  Component = ImportP5;
+}
+---
+
+<Component metadata={metadata} />

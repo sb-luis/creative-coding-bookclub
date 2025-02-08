@@ -1,0 +1,8 @@
+---
+const { metadata } = Astro.props;
+const version = metadata.import?.p5;
+---
+<script
+  is:inline
+  src=`https://cdn.jsdelivr.net/npm/p5@${version}/lib/p5.min.js`
+></script>

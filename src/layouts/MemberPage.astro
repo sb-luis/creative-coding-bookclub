@@ -1,23 +1,23 @@
 ---
 import '../styles/global.css';
-import Metadata from '../components/Metadata.astro'
+import Metadata from '../components/Metadata.astro';
 import Favicon from '../components/Favicon.astro';
+import Import from '../components/Import.astro';
 const { metadata } = Astro.props;
 ---
 
 <!doctype html>
 <html lang='en'>
   <head>
-    <Favicon emoji="🪄" />
-    <Metadata 
-      title={metadata.title} 
-      description={metadata.description} 
-      keywords={metadata.keywords} 
+    <Favicon emoji='🪄' />
+    <Metadata
+      title={metadata.title}
+      description={metadata.description}
+      keywords={metadata.keywords}
     />
   </head>
-  <body>
-    <slot />
-  </body>
+  <Import metadata={metadata} />
+  <slot />
 </html>
 
 <style>

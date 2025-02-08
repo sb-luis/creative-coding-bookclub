@@ -21,10 +21,8 @@ export function getMemberPagesRoutes() {
       title: 'member page',
       description: 'member page description',
       keywords: 'Creative Coding, Bookclub, Member',
-      ...metadataOverrides,
+      ...metadataOverrides.default,
     };
-
-    delete metadata.default;
 
     if (!Object.keys(metadataOverrides).length) {
       metadata.isValidPage = true;
