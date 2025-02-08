@@ -21,7 +21,7 @@ We're using [Astro](https://docs.astro.build/en/concepts/why-astro/) to build th
 
 Start by creating a folder under `src/members/{your-handle}`. 
 
-Every `.astro` file you create in that directory will be automatically routed to have its own page under [/{your-handle}/{page-name}](https://creativecodingbook.club/_example/p5js-cdn) - see [the source code of this page](https://github.com/sb-luis/creative-coding-bookclub/tree/main/src/members/_example) as an example.
+Every `.astro` file you create in that directory will be automatically routed to have its own page under [/{your-handle}/{page-name}](https://creativecodingbook.club/_example/p5js-cdn) - check the [example pages](https://github.com/sb-luis/creative-coding-bookclub/tree/main/src/members/_example) to get a better idea.
 
 To have your `.astro` page properly routed there is just one more step for you to do: you need to add a `.json` file [with the same filename as your page](https://github.com/sb-luis/creative-coding-bookclub/blob/main/src/members/luis/hola.json) to be used as [page metadata](https://creativecodingbook.club/luis/hola). This way you can set at least the `title`, `description`, and `keywords` of your page to help with SEO. We'll also use this metadata in the future to organize the pages per book and chapter.
 
