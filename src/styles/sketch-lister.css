@@ -6,14 +6,9 @@
     margin: 0;
     padding: 0;
     width: 100%;
-  }
-  @media min-width(1024px) {
-    html,
-    body {
-      height: 100%;
-      overflow: hidden;
-      overscroll-behavior: none;
-    }
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;  
   }
 
   button {
