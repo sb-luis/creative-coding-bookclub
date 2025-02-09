@@ -2,30 +2,20 @@
 @import 'tailwindcss';
 
 a {
-  color: black;
-  text-decoration: none;
-  white-space: nowrap;
-  position: relative;
+  @apply text-black no-underline whitespace-nowrap relative;
 }
 
-a:hover{
-  color: white;
+a:hover {
+  @apply text-white;
 }
 
 a::after {
-  @apply bg-brand-1; 
-  content: '';
-  position: absolute;
-  z-index: -1;
-  top: 90%;
-  left: -0.1em;
-  right: -0.1em;
-  bottom: 0;
+  @apply bg-brand-1 absolute -z-1 top-[90%] -left-0.5 -right-0.5 bottom-0 content-[''];
   transition: top 200ms cubic-bezier(0, 0.8, 0.13, 1);
 }
 
 a:hover::after {
-  top: 0%;
+  @apply top-[0%];
 }
 
 html {
