@@ -2,13 +2,5 @@
   import p5 from 'p5';
 
   // https://github.com/processing/p5.js/blob/main/src/core/init.js
-  window.addEventListener('load', (event) => {
-    if (
-      (window.setup && typeof window.setup === 'function') ||
-      (window.draw && typeof window.draw === 'function')
-    ) {
-      console.log('P5 is running in global mode');
-      new p5();
-    } 
-  });
+  console.log(`Running P5 ${p5.VERSION}`);
 </script>
