@@ -1,6 +1,6 @@
 {
   "title": "P5 JS sketch",
-  "description": "example P5 JS sketch (using NPM)",
+  "description": "example P5 JS sketch (using instance mode)",
   "keywords": "Creative Coding, Bookclub, P5, Processing",
   "tags": ["sketch"]
 }

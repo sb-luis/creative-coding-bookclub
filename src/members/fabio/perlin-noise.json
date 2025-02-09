@@ -3,5 +3,5 @@
   "description": "Perlin Noise Walker",
   "keywords": "Creative Coding, Bookclub, P5, Processing",
   "tags": ["sketch"],
-  "import": { "p5": "1.11.3" }
+  "import": { "p5": true }
 }

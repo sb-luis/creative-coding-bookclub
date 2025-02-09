@@ -1,8 +1,14 @@
----
-const { metadata } = Astro.props;
-const version = metadata.import?.p5;
----
-<script
-  is:inline
-  src=`https://cdn.jsdelivr.net/npm/p5@${version}/lib/p5.min.js`
-></script>
+<script>
+  import p5 from 'p5';
+
+  // https://github.com/processing/p5.js/blob/main/src/core/init.js
+  window.addEventListener('load', (event) => {
+    if (
+      (window.setup && typeof window.setup === 'function') ||
+      (window.draw && typeof window.draw === 'function')
+    ) {
+      console.log('P5 is running in global mode');
+      new p5();
+    } 
+  });
+</script>
