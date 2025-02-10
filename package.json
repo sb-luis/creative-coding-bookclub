@@ -6,13 +6,17 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "format": "prettier --write src/"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.3",
     "astro": "^5.2.3",
-    "p5": "^1.11.3" ,
-    "three": "^0.173.0",
-    "tailwindcss": "^4.0.3"
+    "p5": "^1.11.3",
+    "tailwindcss": "^4.0.3",
+    "three": "^0.173.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2"
   }
 }
