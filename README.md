@@ -1,6 +1,6 @@
 # creative coding bookclub
 
-The home of the [creativecodingbook.club](https://creativecodingbook.club) website
+The home of the [creativecodingbook.club](https://creativecodingbook.club) website.
 
 # set up local development 
 
