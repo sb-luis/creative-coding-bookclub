@@ -1,13 +1,12 @@
 ---
-import SketchListerPage from '../layouts/SketchListerPage.astro';
-import { DOMAIN } from '../constants.js';
-import { getMemberPagesRoutes } from '../utils/index.js';
-const routes = getMemberPagesRoutes();
+import SketchListerPage from '../layouts/SketchListerPage.astro'
+import { DOMAIN } from '../constants.js'
+import { getMemberPagesRoutes } from '../utils/index.js'
+const routes = getMemberPagesRoutes()
 
 const sketches = routes.filter(
-  (p) =>
-    p.props.metadata.tags?.includes('sketch') && p.params.alias !== '_example'
-);
+  (p) => p.props.metadata.tags?.includes('sketch') && p.params.alias !== '_example'
+)
 ---
 
 <SketchListerPage>
@@ -15,60 +14,53 @@ const sketches = routes.filter(
     <div class='h-full flex flex-col md:flex-row'>
       <div class='p-4 flex flex-col md:py-8'>
         <div class='flex justify-between items-start md:flex-col'>
-          <a href='/' class='mb-4 hidden md:block'>Back</a>
+          <a href='/' class='ccb-link mb-4 hidden md:block'>Back</a>
           <h2 class='mb-4'>sketches</h2>
-          <a href='/' class="mr-4 md:hidden">Back</a>
+          <a href='/' class='ccb-link mr-4 md:hidden'>Back</a>
         </div>
         <ul id='sketch-lister' class='space-y-2 max-h-30 overflow-y-scroll md:flex-1 md:max-h-full'>
           {
             sketches.map((sketch) => (
               <li>
-                <button>
-                  {sketch.params.alias + '/' + sketch.params.page}
-                </button>
+                <button class='ccb-link'>{sketch.params.alias + '/' + sketch.params.page}</button>
               </li>
             ))
           }
         </ul>
       </div>
       <div class='m-2 flex-1 shadow-2xl rounded-2xl flex flex-col md:m-8'>
-        <iframe
-          id='sketch-viewport'
-          src='/_example/loading'
-          class='flex-1 rounded-t-2xl'></iframe>
+        <iframe id='sketch-viewport' src='/_example/loading' class='flex-1 rounded-t-2xl'></iframe>
         <div class='p-4 border-t-3 border-neutral-400 border-dashed'>
           <p id='sketch-title'>...</p>
           <p id='sketch-description'>...</p>
-          <a id='sketch-link' href='/_example/loading' target='_blank'
-            >open</a
-          >
+          <a id='sketch-link' href='/_example/loading' target='_blank' class='ccb-link'>open</a>
         </div>
       </div>
     </div>
     <script define:vars={{ sketches }} is:inline>
-      const sketchListerEl = document.getElementById('sketch-lister');
-      const sketchViewportEl = document.getElementById('sketch-viewport');
-      const sketchTitleEl = document.getElementById('sketch-title');
-      const sketchDescriptionEl = document.getElementById('sketch-description');
-      const sketchLinkEl = document.getElementById('sketch-link');
-      const sketchButtons = sketchListerEl.querySelectorAll('button');
+      const sketchListerEl = document.getElementById('sketch-lister')
+      const sketchViewportEl = document.getElementById('sketch-viewport')
+      const sketchTitleEl = document.getElementById('sketch-title')
+      const sketchDescriptionEl = document.getElementById('sketch-description')
+      const sketchLinkEl = document.getElementById('sketch-link')
+      const sketchButtons = sketchListerEl.querySelectorAll('button')
 
       function loadSketch(s) {
-        const url = `/${s.params.alias}/${s.params.page}`;
-        sketchViewportEl.setAttribute('src', url);
-        sketchTitleEl.innerHTML = s.props?.metadata?.title;
-        sketchDescriptionEl.innerHTML = s.props?.metadata?.description;
-        sketchLinkEl.setAttribute('href', url);
+        const url = `/${s.params.alias}/${s.params.page}`
+        sketchViewportEl.setAttribute('src', url)
+        sketchTitleEl.innerHTML = s.props?.metadata?.title
+        sketchDescriptionEl.innerHTML = s.props?.metadata?.description
+        sketchLinkEl.setAttribute('href', url)
       }
 
       for (let i = 0; i < sketchButtons.length; i++) {
         sketchButtons[i].addEventListener('click', () => {
-          const s = sketches[i];
-          loadSketch(s);
-        });
+          const s = sketches[i]
+          loadSketch(s)
+        })
       }
 
-      const randomIndex = Math.floor(Math.random() * sketches.length);
+      const randomIndex = Math.floor(Math.random() * sketches.length)
       loadSketch(sketches[randomIndex])
     </script>
   </section>

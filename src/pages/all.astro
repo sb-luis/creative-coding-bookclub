@@ -1,10 +1,10 @@
 ---
-import MainPage from '../layouts/MainPage.astro';
+import OtherPage from '../layouts/OtherPage.astro';
 import { getMemberPagesRoutes } from '../utils/index.js';
 const routes = getMemberPagesRoutes();
 ---
 
-<MainPage>
+<OtherPage>
   <section>
     <h2 class="mb-4">member pages</h2>
     <ul class="space-y-2">
@@ -13,6 +13,7 @@ const routes = getMemberPagesRoutes();
           <li>
           <a
             href={`/${data.params.alias}/${data.params.page}`}
+            class="ccb-link"
           >
             {data.params.alias + '/' + data.params.page}
           </a>
@@ -21,4 +22,4 @@ const routes = getMemberPagesRoutes();
       }
     </ul>
   </section>
-</MainPage>
+</OtherPage>

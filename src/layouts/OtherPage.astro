@@ -1,0 +1,28 @@
+---
+import '../styles/global.css'
+import '../styles/page.css'
+import headerLogo from '../assets/header-hor-2025-01-27.png'
+import Metadata from '../components/Metadata.astro'
+import Fonts from '../components/Fonts.astro'
+import Favicon from '../components/Favicon.astro'
+---
+
+<!doctype html>
+<html lang='en'>
+  <head>
+    <Favicon />
+    <Metadata />
+    <Fonts />
+  </head>
+  <body>
+    <header class='max-w-screen-sm m-auto px-8 my-4 flex justify-between items-start'>
+      <a href='/' class='ccb-link'> Back </a>
+      <img id='header-logo' class='w-60' alt='Creative Coding Bookclub Logo' src={headerLogo.src} fetchpriority='high' />
+      <canvas class='absolute -z-1 top-0 left-0'></canvas>
+    </header>
+    <main class='max-w-screen-sm m-auto px-8 space-y-10 pb-30'>
+      <slot />
+    </main>
+    <footer></footer>
+  </body>
+</html>

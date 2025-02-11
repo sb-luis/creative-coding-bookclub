@@ -1,28 +1,8 @@
 @import './global.css';
 @import 'tailwindcss';
 
-a {
-  @apply text-black no-underline whitespace-nowrap relative;
-}
-
-a:hover {
-  @apply text-white;
-}
-
-a::after {
-  @apply bg-brand-1 absolute -z-1 top-[90%] -left-0.5 -right-0.5 bottom-0 content-[''];
-  transition: top 200ms cubic-bezier(0, 0.8, 0.13, 1);
-}
-
-a:hover::after {
-  @apply top-[0%];
-}
-
 html {
-  @apply text-neutral-800 bg-neutral-300;
-  z-index: -2;
-  font-size: 18px;
-  font-family: var(--font-text-1);
+  @apply text-neutral-800 bg-neutral-300 text-lg font-text-1;
 }
 
 h1,
@@ -35,11 +15,13 @@ h6 {
 }
 
 h2 {
-  @apply font-extrabold text-3xl;
-  font-family: var(--font-display-1);
+  @apply font-extrabold text-3xl font-display-1;
 }
 
 h3 {
-  @apply text-2xl;
-  font-family: var(--font-display-2);
+  @apply text-2xl font-display-2;
+}
+
+.ccb-link {
+  @apply cursor-pointer text-black no-underline whitespace-nowrap relative hover:text-white z-2 after:-z-1 after:bg-brand-1 after:absolute after:top-[90%] after:-left-0.5 after:-right-0.5 after:bottom-0 after:content-[''] after:transition-[top] after:duration-200 after:ease-out hover:after:top-0;
 }
