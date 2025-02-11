@@ -1,11 +1,94 @@
 ---
 import OtherPage from '../../layouts/OtherPage.astro'
 import { getMemberPagesRoutes } from '../../utils/index.js'
+
+const metadata = {
+  title: 'The Nature of Code',
+  description: `This 2025 we're reading The Nature of Code by Daniel Shiffman`,
+  keywords: 'Creative Coding, Bookclub, Page',
+  emoji: '📄',
+}
+
+const bookDomain = 'https://natureofcode.com'
+
+const chapters = [
+  { title: 'Randomness', path: 'random' },
+  { title: 'Vectors', path: 'vectors' },
+  { title: 'Forces', path: 'forces' },
+  { title: 'Oscillation', path: 'oscillation' },
+  { title: 'Particle Systems', path: 'particles' },
+  { title: 'Autonomous Libraries', path: 'autonomous-agents' },
+  { title: 'Physics Libraries', path: 'physics-libraries' },
+  { title: 'Cellular Automata', path: 'cellular-automata' },
+  { title: 'Fractals', path: 'fractals' },
+  { title: 'Evolutionary Computing', path: 'genetic-algorithms' },
+  { title: 'Neural Networks', path: 'neural-networks' },
+  { title: 'Neuroevolution', path: 'neuroevolution' },
+]
+
 const routes = getMemberPagesRoutes()
+
+const sketches = routes.filter(
+  (p) => p.props.metadata.tags?.includes('sketch') && p.params.alias !== '_example'
+)
+
+function hasChapterStarted(i) {
+  return sketches.filter((s) => s.props.metadata.tags?.includes(`book-2025-${i}`)).length
+}
+
+function bookChapterClasses(i) {
+  const baseClasses = 'mt-8 shadow-2xl px-8 p-4 rounded-2xl min-h-40'
+  const chapterNotStarted = hasChapterStarted(i) ? '' : ' opacity-50'
+  return baseClasses + chapterNotStarted
+}
 ---
 
-<OtherPage>
-  <section>
-    <h2 class='mb-4'>the nature of code</h2>
-  </section>
+<OtherPage metadata={metadata}>
+  <div class='pt-6 space-y-6'>
+    <p>
+      <a href='https://natureofcode.com/' class='ccb-link'>"The Nature of Code" (2024)</a> by
+      <a href='https://thecodingtrain.com/about' class='ccb-link'>Daniel Shiffman</a> is full of recurrent
+      concepts used in creative coding, the book breaks down patterns to visually represent the behavior
+      of natural systems, from inanimate objects to living beings, and the dynamics that emerge from
+      their interactions.
+    </p>
+    <p>
+      Our goal is to read it at a pace of one chapter a month, but the rhythm might change if
+      attendants find a section particularly interesting or challenging.
+    </p>
+    <p>Here is an index of all the sketches we've been doing while reading it!</p>
+  </div>
+  {
+    chapters.map((chapter, i) => (
+      <section class={bookChapterClasses(i)}>
+        <div class='flex items-center space-x-4 border-b-2 border-neutral-400 border-dashed py-4 mb-4'>
+          <h2 class='ccb-h3 w-full'>
+            {i} - {chapter.title}
+          </h2>
+          <a href={`${bookDomain}/${chapter.path}`} class='ccb-link text-xs' target='_blank'>
+            read the chapter
+          </a>
+        </div>
+        <ul class='space-y-2 max-h-30 overflow-y-scroll md:flex-1 md:max-h-full'>
+          {hasChapterStarted(i) ? (
+            sketches
+              .filter((s) => s.props.metadata.tags?.includes(`book-2025-${i}`))
+              .map((sketch) => (
+                <li>
+                  <a
+                    class='ccb-link'
+                    href={`/${sketch.params.alias}/${sketch.params.page}`}
+                    target='_blank'
+                  >
+                    {sketch.params.alias + '/' + sketch.params.page}
+                  </a>
+                </li>
+              ))
+          ) : (
+            <p class='text-neutral-600'>Looks like we have not started this chapter yet!</p>
+          )}
+        </ul>
+      </section>
+    ))
+  }
 </OtherPage>

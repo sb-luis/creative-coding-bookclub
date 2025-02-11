@@ -1,5 +1,14 @@
+---
+const contactCards = [
+  { title: 'Mickey', text: 'mickeymarse@tuta.io', href: 'mailto:mickeymarse@tuta.io' },
+  { title: 'Luis', text: 'hey@luis.earth', href: 'mailto:hey@luis.earth' },
+  { title: 'C3S London', text: 'discord server', href: 'mailto:hey@luis.earth' },
+  { title: 'Github', text: 'upload your work!', href: 'mailto:hey@luis.earth' },
+]
+---
+
 <section class='space-y-6'>
-  <h2>online️️</h2>
+  <h2 class='ccb-h2'>online️️</h2>
   <p class='pb-2'>
     If you post any bookclub-related content in social media feel free to mention us or tag the <a
       href='https://bsky.app/hashtag/CreativeCodingBookclub'
@@ -8,33 +17,17 @@
     hashtag for us to see your posts!
   </p>
   <ul class='flex flex-wrap space-x-4 space-y-4'>
-    <li class='p-4 w-50 h-30 shadow-2xl'>
-      <h3>Mickey</h3>
-      <div class='flex flex-col'>
-        <a href='mailto:mickeymarse@tuta.io' class='ccb-link'>mickeymarse@tuta.io</a>
-        <a href='https://bsky.app/profile/mickeymarse.dev' class='ccb-link'>@mickeymarse.dev</a>
-      </div>
-    </li>
-    <li class='p-4 w-50 h-30 shadow-2xl'>
-      <h3>Luis</h3>
-      <div class='flex flex-col'>
-        <a href='mailto:hey@luis.earth' class='ccb-link'>hey@luis.earth</a>
-        <a href='https://bsky.app/profile/luis.earth' class='ccb-link'>@luis.earth</a>
-      </div>
-    </li>
-    <li class='p-4 w-50 h-30 shadow-2xl'>
-      <h3>C3S London</h3>
-      <div class='flex flex-col'>
-        <a href='https://discord.gg/ggYbapqx' class='ccb-link'>discord server</a>
-      </div>
-    </li>
-    <li class='p-4 w-50 h-30 shadow-2xl'>
-      <h3>Github</h3>
-      <div class='flex flex-col'>
-        <a href='https://github.com/sb-luis/creative-coding-bookclub' class='ccb-link'
-          >upload your work!</a
-        >
-      </div>
-    </li>
+    {
+      contactCards.map((card) => (
+        <li class='p-4 w-50 h-30 shadow-2xl'>
+          <h3 class='ccb-h3'>{card.title}</h3>
+          <div class='flex flex-col'>
+            <a href={card.href} target="_blank" class='ccb-link'>
+              {card.text}
+            </a>
+          </div>
+        </li>
+      ))
+    }
   </ul>
 </section>

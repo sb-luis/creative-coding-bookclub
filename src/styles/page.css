@@ -1,25 +1,16 @@
 @import './global.css';
 @import 'tailwindcss';
 
-html {
+body {
   @apply text-neutral-800 bg-neutral-300 text-lg font-text-1;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  @apply italic text-black;
+.ccb-h2 {
+  @apply text-black text-3xl font-extrabold font-display-1;
 }
 
-h2 {
-  @apply font-extrabold text-3xl font-display-1;
-}
-
-h3 {
-  @apply text-2xl font-display-2;
+.ccb-h3 {
+  @apply text-black text-2xl font-display-2;
 }
 
 .ccb-link {
