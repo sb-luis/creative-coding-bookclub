@@ -1,55 +1,18 @@
 @import './global.css';
 @import 'tailwindcss';
 
-a {
-  color: black;
-  text-decoration: none;
-  white-space: nowrap;
-  position: relative;
+body {
+  @apply text-neutral-800 bg-neutral-300 text-lg font-text-1;
 }
 
-a:hover{
-  color: white;
+.ccb-h2 {
+  @apply text-black text-3xl font-extrabold font-display-1;
 }
 
-a::after {
-  @apply bg-brand-1; 
-  content: '';
-  position: absolute;
-  z-index: -1;
-  top: 90%;
-  left: -0.1em;
-  right: -0.1em;
-  bottom: 0;
-  transition: top 200ms cubic-bezier(0, 0.8, 0.13, 1);
+.ccb-h3 {
+  @apply text-black text-2xl font-display-2;
 }
 
-a:hover::after {
-  top: 0%;
-}
-
-html {
-  @apply text-neutral-800 bg-neutral-300;
-  z-index: -2;
-  font-size: 18px;
-  font-family: var(--font-text-1);
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  @apply italic text-black;
-}
-
-h2 {
-  @apply font-extrabold text-3xl;
-  font-family: var(--font-display-1);
-}
-
-h3 {
-  @apply text-2xl;
-  font-family: var(--font-display-2);
+.ccb-link {
+  @apply cursor-pointer text-black no-underline whitespace-nowrap relative hover:text-white z-2 after:-z-1 after:bg-brand-1 after:absolute after:top-[90%] after:-left-0.5 after:-right-0.5 after:bottom-0 after:content-[''] after:transition-[top] after:duration-200 after:ease-out hover:after:top-0;
 }
