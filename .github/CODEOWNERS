@@ -3,8 +3,7 @@
 # review when someone opens a pull request. 
 *       @sb-luis @mickeymarse
 
-# members folder
-/src/members/luis @sb-luis
-/src/members/mickeymarse @mickeymarse
-/src/members/fabio @fabcreative
-/src/members/davide @davidelanfranchi
+# more rules...
+
+# codeownders file 
+/.github/CODEOWNERS @sb-luis @mickeymarse
