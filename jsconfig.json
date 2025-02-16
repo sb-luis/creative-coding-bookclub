@@ -2,6 +2,6 @@
   "include": [
     "./**/*.js",
     "./**/*.astro",
-    "src/typings/global.d.ts"
+    "src/types/p5types/global.d.ts"
   ]
 }
