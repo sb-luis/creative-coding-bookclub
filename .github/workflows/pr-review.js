@@ -41,7 +41,7 @@ function main() {
 
     // Ensure Author of the PR is a bookclub member
     if (!member) {
-      console.log(`Skipping PR ${prNumber} - Author '${prAuthor.login}' is not a trusted member`)
+      console.log(`Skipping PR ${prNumber} - Author '${prAuthor.login}' (${prAuthor.id}) is not a trusted member`)
       continue
     }
 
