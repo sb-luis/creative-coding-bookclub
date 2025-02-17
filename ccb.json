@@ -1,9 +1,9 @@
 {
   "members": [
-    { "id": "49455134", "alias": "luis" },
-    { "id": "139342313", "alias": "mickeymarse" },
-    { "id": "13507672", "alias": "davide" },
-    { "id": "96312583", "alias": "fabio" },
-    { "id": "198389792", "alias": "ak" }
+    { "id": 49455134, "alias": "luis" },
+    { "id": 139342313, "alias": "mickeymarse" },
+    { "id": 13507672, "alias": "davide" },
+    { "id": 96312583, "alias": "fabio" },
+    { "id": 198389792, "alias": "ak" }
   ]
 }
