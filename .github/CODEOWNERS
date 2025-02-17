@@ -4,6 +4,8 @@
 *       @sb-luis @mickeymarse
 
 # more rules...
+/src/members
 
-# codeownders file 
-/.github/CODEOWNERS @sb-luis @mickeymarse
+# github files
+/.github @sb-luis @mickeymarse
+/ccb.json @sb-luis @mickeymarse
