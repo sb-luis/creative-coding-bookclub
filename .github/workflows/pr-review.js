@@ -31,17 +31,17 @@ function main() {
     console.log(`Checking PR ${prNumber}...`)
 
     const prInfo = JSON.parse(execSync(`gh pr view ${prNumber} --json headRefOid`).toString())
-    const prAuthor = execSync(`gh api "/repos/${REPO_PATH}/pulls/${prNumber}" --jq ".user.id"`)
-      .toString()
-      .trim()
+    const prAuthor = JSON.parse(
+      execSync(`gh api "/repos/${REPO_PATH}/pulls/${prNumber}" --jq ".user"`).toString(),
+    )
     const prHeadSha = prInfo.headRefOid
     const prBaseSha = execSync(`git merge-base origin/main ${prHeadSha}`).toString().trim()
 
-    const member = ccbConfig.members.find((member) => member.id === prAuthor)
+    const member = ccbConfig.members.find((member) => member.id === prAuthor.id)
 
     // Ensure Author of the PR is a bookclub member
     if (!member) {
-      console.log(`Skipping PR ${prNumber} - Author '${prAuthor}' is not a trusted member`)
+      console.log(`Skipping PR ${prNumber} - Author '${prAuthor.login}' is not a trusted member`)
       continue
     }
 
@@ -50,7 +50,7 @@ function main() {
       reviewMemberPR(member, prHeadSha, prBaseSha)
       console.log(`PR ${prNumber} passed checks.`)
       const msg = [
-        `${GREETINGS[randomGreeting]} @${prAuthor}! ${GREETING_MSG}`,
+        `${GREETINGS[randomGreeting]} @${prAuthor.login}! ${GREETING_MSG}`,
         'This PR was made by a trusted member and only modifies files under their scope.',
         'All modified files passed the automated test ✅',
         "Merging to 'main' branch ✨",
@@ -61,7 +61,7 @@ function main() {
     } catch (error) {
       console.log(`PR ${prNumber} failed checks`)
       const msg = [
-        `${GREETINGS[randomGreeting]} @${prAuthor}! ${GREETING_MSG}`,
+        `${GREETINGS[randomGreeting]} @${prAuthor.login}! ${GREETING_MSG}`,
         'Sorry, but this PR has failed validation, and cannot be automatically merged',
         ' ',
         '```',
