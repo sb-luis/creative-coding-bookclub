@@ -1,0 +1,7 @@
+{
+  "include": [
+    "./**/*.js",
+    "./**/*.astro",
+    "src/types/p5types/global.d.ts"
+  ]
+}
