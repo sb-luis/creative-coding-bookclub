@@ -2,5 +2,6 @@
   "title": "@mickeymarse",
   "description": "mickeymarse test sketch page",
   "keywords": "Creative Coding, Bookclub, sketch, p5.js",
-  "tags": ["sketch"] 
+  "tags": ["sketch"],
+  "source": "test.js"
 }
