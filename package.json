@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node copySourceFiles.js",
+    "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "test": "node --test ./**/*spec.js",
@@ -19,7 +19,7 @@
     "three": "^0.173.0"
   },
   "devDependencies": {
-    "glob": "^11.0.1",
-    "prettier": "^3.4.2"
+    "prettier": "^3.4.2",
+    "vite-plugin-static-copy": "^2.2.0"
   }
 }

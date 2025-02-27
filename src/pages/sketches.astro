@@ -52,9 +52,8 @@ const sketches = routes.filter(
         if (s.props.metadata.source) {
           source = window.location.href.includes('localhost')
             ? `/src/members/${s.params.alias}/${s.props.metadata.source}`
-            : `/source-${s.params.alias}-${s.props.metadata.source}`
+            : `/sketch-files/${s.props.metadata.source}`
         } else {
-          debugger
           document.querySelector(".code").innerHTML = ""
         }
         if (source) {
