@@ -1,0 +1,7 @@
+{
+  "title": "00.2",
+  "description": "Sunday Sketch with Three.js, another Walker.",
+  "keywords": "Creative Coding, Bookclub, P5, Processing, Three.js",
+  "tags": ["sketch", "book-2025-0"],
+  "import": { "p5": true }
+}
