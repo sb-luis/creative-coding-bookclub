@@ -30,18 +30,22 @@ function main() {
     const prNumber = openPullRequests[i]
     console.log(`Checking PR ${prNumber}...`)
 
-    const prInfo = JSON.parse(execSync(`gh pr view ${prNumber} --json headRefOid`).toString())
+    const prInfo = JSON.parse(
+      execSync(`gh pr view ${prNumber} --json headRefOid,baseRefOid`).toString(),
+    )
     const prAuthor = JSON.parse(
       execSync(`gh api "/repos/${REPO_PATH}/pulls/${prNumber}" --jq ".user"`).toString(),
     )
     const prHeadSha = prInfo.headRefOid
-    const prBaseSha = execSync(`git merge-base origin/main ${prHeadSha}`).toString().trim()
+    const prBaseSha = prInfo.baseRefOid
 
     const member = ccbConfig.members.find((member) => member.id === prAuthor.id)
 
     // Ensure Author of the PR is a bookclub member
     if (!member) {
-      console.log(`Skipping PR ${prNumber} - Author '${prAuthor.login}' (${prAuthor.id}) is not a trusted member`)
+      console.log(
+        `Skipping PR ${prNumber} - Author '${prAuthor.login}' (${prAuthor.id}) is not a trusted member`,
+      )
       continue
     }
 
