@@ -57,18 +57,15 @@ test('validation - validateFilePath', async (t) => {
   });
 
   await t.test(
-    'should throw if folder or file name does not stick to convention',
+    'should throw if folder or file name does not stick to alphanumeric, hyphens and underscores only',
     () => {
       const filePaths = [
-        'notKebab/correct-file.js',
-        'not kebab/correct-file.js',
+        'no space/correct-file.js',
         ' no-space-before.js',
         'no-space-after.js ',
         '//root/sub/dir/correct.js',
-        '?correct.js',
-        'notKebab.js',
-        'not_kebab.js',
-        'Not Kebab.js',
+        '?incorrect.js',
+        'No Spaces.js',
         'inv@lid.js',
       ];
 
@@ -120,6 +117,9 @@ test('validation - validateFilePath', async (t) => {
     const filePaths = [
       'correct.js',
       'correct-as-well.json',
+      'correctAsWell.js',
+      'correct_as_well.js',
+      'CorrectYesCorrect.js',
       'corret-page.astro',
       'corret-page-2.astro',
       'sketch-001-99.astro',
