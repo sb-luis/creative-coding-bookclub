@@ -39,12 +39,16 @@ function main() {
     const prHeadSha = prInfo.headRefOid
     const prBaseSha = prInfo.baseRefOid
 
-    // Fetch git history of the head repo as well (needed for forks to work)
-    const cloneUrl = execSync(
+    // Fetch git history of the head repo if missing (needed for forks to work)
+    const remoteUrl = execSync(
       `gh api "/repos/${REPO_PATH}/pulls/${prNumber}" --jq ".head.repo.clone_url"`,
     ).toString()
-    execSync(`git remote add fork ${cloneUrl}`)
-    execSync(`git fetch fork`)
+    const remotes = execSync('git remote -v').toString()
+    if (!remotes.includes(remoteUrl)) {
+      const remoteName = `pr-${i}`
+      execSync(`git remote add ${remoteName} ${remoteUrl}`)
+      execSync(`git fetch ${remoteName}`)
+    }
 
     const member = ccbConfig.members.find((member) => member.id === prAuthor.id)
 
