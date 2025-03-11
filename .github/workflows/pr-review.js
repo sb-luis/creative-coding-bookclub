@@ -31,13 +31,11 @@ function main() {
     console.log(`Checking PR ${prNumber}...`)
 
     const prInfo = JSON.parse(
-      execSync(`gh pr view ${prNumber} --json headRefOid,baseRefOid`).toString(),
+      execSync(`gh pr view ${prNumber} --json headRefOid,baseRefOid,files`).toString(),
     )
     const prAuthor = JSON.parse(
       execSync(`gh api "/repos/${REPO_PATH}/pulls/${prNumber}" --jq ".user"`).toString(),
     )
-    const prHeadSha = prInfo.headRefOid
-    const prBaseSha = prInfo.baseRefOid
 
     // Fetch git history of the head repo if missing (needed for forks to work)
     const remoteUrl = execSync(
@@ -62,7 +60,7 @@ function main() {
 
     const randomGreeting = Math.floor(Math.random() * GREETINGS.length)
     try {
-      reviewMemberPR(member, prHeadSha, prBaseSha)
+      reviewMemberPR(member, prInfo)
       console.log(`PR ${prNumber} passed checks.`)
       const msg = [
         `${GREETINGS[randomGreeting]} @${prAuthor.login}! ${GREETING_MSG}`,
@@ -91,14 +89,19 @@ function main() {
   }
 }
 
-function reviewMemberPR(member, prHeadSha, prBaseSha) {
+function reviewMemberPR(member, prInfo) {
   const scope = `src/members/${member.alias}`
   console.log(`PR Author '${member.id}' is a member with scope: '${scope}'`)
 
+  /*
+  const prHeadSha = prInfo.headRefOid
+  const prBaseSha = prInfo.baseRefOid
   const modifiedFiles = execSync(`git diff --name-only ${prBaseSha} ${prHeadSha}`)
     .toString()
     .split('\n')
     .filter(Boolean)
+  */
+  const modifiedFiles = prInfo.files.map((f) => f.path)
 
   validatePathsAreInScope(modifiedFiles, scope)
   console.log(`Running path checks for ${modifiedFiles.length} path/s`)
