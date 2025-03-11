@@ -44,7 +44,7 @@ function main() {
       `gh api "/repos/${REPO_PATH}/pulls/${prNumber}" --jq ".head.repo.clone_url"`,
     ).toString()
     execSync(`git remote add fork ${cloneUrl}`)
-    execSync(`git remote fetch fork`)
+    execSync(`git fetch fork`)
 
     const member = ccbConfig.members.find((member) => member.id === prAuthor.id)
 
