@@ -40,11 +40,9 @@ function main() {
     const prBaseSha = prInfo.baseRefOid
 
     // Fetch git history of the head repo as well (needed for forks to work)
-    const cloneUrl = JSON.parse(
-      execSync(
-        `gh api "/repos/${REPO_PATH}/pulls/${prNumber}" --jq ".head.repo.clone_url"`,
-      ).toString(),
-    )
+    const cloneUrl = execSync(
+      `gh api "/repos/${REPO_PATH}/pulls/${prNumber}" --jq ".head.repo.clone_url"`,
+    ).toString()
     execSync(`git remote add fork ${cloneUrl}`)
     execSync(`git remote fetch fork`)
 
