@@ -1,0 +1,7 @@
+{
+  "title": "Hydra painter",
+  "description": " This sketch uses a Hydra brush texture for drawing on the canvas. Inspired by Siiri Tännler: paint.stx - CC Fest 2025",
+  "keywords": "Creative Coding, Bookclub, P5, Processing",
+  "tags": ["sketch", "hydra"],
+  "import": { "p5": true }
+}
