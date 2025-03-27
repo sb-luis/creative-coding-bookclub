@@ -1,0 +1,42 @@
+---
+import OtherPage from '../../layouts/OtherPage.astro'
+import MeetTimePlace from '../../components/MeetTimePlace.astro'
+
+const metadata = {
+  title: 'CCB meetup #2',
+  description: 'Second Creative Coding Bookclub meetup. The Nature of Code - Randomness',
+  keywords:
+    'Creative Coding, Bookclub, Meetup, The Nature of Code, Randomness, Gaussian Distribution, Perlin Noise',
+  emoji: '📄',
+}
+
+const date = '2025-02-26'
+const time = '6-8pm'
+const place = 'Borough Road Gallery, London South Bank University, 103 Borough Road, SE1 0AA'
+---
+
+<OtherPage metadata={metadata}>
+  <div class='py-4'>
+    <MeetTimePlace date={date} time={time} place={place} />
+  </div>
+  <h2 class='text-4xl max-w-md'>the nature of code</h2>
+  <section class='py-2 space-y-6'>
+    <h3 class='text-3xl'>chapter 0 - randomness</h3>
+    <p>
+      Our second meet up took place at the <a
+        class='ccb-link'
+        href='https://www.lsbu.ac.uk/student-life/facilities/facility-finder/borough-road-gallery'
+        target='_blank'>Borough Road Gallery</a
+      > (many many thanks to <b>Bea</b> from <a
+        class='ccb-link'
+        href='https://www.peckhamdigital.org/'
+        target='_blank'>Pekcham Digital</a
+      > who helped us securing the new space). Around 20 people attended and it was the first meetup
+      in which we actually started discussing <b>Daniel Shiffman</b>'s <a
+        class='ccb-link'
+        href='https://natureofcode.com/'
+        target='_blank'>book</a
+      >.
+    </p>
+  </section>
+</OtherPage>

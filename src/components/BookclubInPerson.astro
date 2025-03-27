@@ -1,3 +1,7 @@
+---
+import LinkButton from './base/LinkButton.astro'
+---
+
 <section class='space-y-6'>
   <h2 class='ccb-h2'>irl <span class='text-2xl'>🌳</span></h2>
   <p>
@@ -17,15 +21,16 @@
   </p>
   <iframe
     src='https://lu.ma/embed/calendar/cal-l8dqsc8YHhI2Fbi/events?lt=light'
-    class='rounded-2xl w-full h-[290px]'
+    class='rounded-xl w-full h-[290px]'
     aria-hidden='false'
     tabindex='0'></iframe>
-  <p>
+  <p class="mb-8">
     The idea for this event originated at the <b>Creative Coding Craft Space.</b> Which also occurs monthly
     at Hackney Wick. Find more about them <a
-      href='https://www.eventbrite.com/o/creativecodingcrafts-space-90303892113'
+      href='https://creativecodingcrafts.space'
       target='_blank'
       class='ccb-link'>here</a
     >.
   </p>
+  <LinkButton href='/meet' content='Browse our events!' />
 </section>

@@ -1,0 +1,167 @@
+---
+import OtherPage from '../../layouts/OtherPage.astro'
+import MeetTimePlace from '../../components/MeetTimePlace.astro'
+
+const metadata = {
+  title: 'CCB meetup #2',
+  description: 'Second Creative Coding Bookclub meetup. The Nature of Code - Randomness',
+  keywords:
+    'Creative Coding, Bookclub, Meetup, The Nature of Code, Randomness, Gaussian Distribution, Perlin Noise',
+  emoji: '📄',
+}
+
+const date = '2025-02-26'
+const time = '6.15-8.15pm'
+const place = 'Borough Road Gallery, London South Bank University, 103 Borough Road, SE1 0AA'
+---
+
+<OtherPage metadata={metadata}>
+  <div class='py-4'>
+    <h2 class='text-4xl max-w-md'>the nature of code</h2>
+    <h3 class='text-3xl'>chapter 1 - vectors</h3>
+  </div>
+  <div class='py-4'>
+    <MeetTimePlace date={date} time={time} place={place} />
+  </div>
+  <div class='py-2 space-y-8'>
+    <section class='p-4 border-l-4 border-l-neutral-200 rounded-r-2xl shadow-2xl space-y-6'>
+      <h4 class='text-2xl'>intro 👋</h4>
+      <p>Welcome! Thanks for coming 🙏⭐</p>
+      <p>
+        We likely don't have enough chairs 🪑🪑🪑 in the space today to fit everyone. If that's the
+        case please be kind and leave the available chairs to whoever needs them most. Feel free to
+        sit in the floor, stand and move around the room to keep the blood in your legs flowing!
+      </p>
+      <p>
+        This event is for anyone who is curious about creative coding - whether you are a beginner
+        or a seasoned developer.
+      </p>
+      <p class='pb-2'>
+        <a href='/book/2025' class='ccb-link' target='_blank'>This 2025</a> we started <b
+          >"The Nature of Code" (2024)</b
+        > by
+        <a href='https://thecodingtrain.com/about' class='ccb-link' target='_blank'
+          >Daniel Shiffman</a
+        >.
+      </p>
+      <p>
+        Last time we talk about <b>chapter 0</b> which was about Randomness. Today we're talking about
+        <a class='ccb-link' href='https://natureofcode.com/vectors/' target='_blank'>chapter 1</a>,
+        which teaches how to work with <b>vectors</b>.
+      </p>
+      <p>
+        Today we will use Etherpad during the meetup to collect ideas, notes, feedback and anything
+        that you want to communicate publicly by text. The link for today's shared environment is <a
+          class='ccb-link'
+          href='https://pad.riseup.net/p/CRer5nWFY-_TFS4eHYja'
+          target='_blank'>here</a
+        >. The document will vanish 60 days after the meetup.
+      </p>
+      <p>
+        You can also raise your hand 🙋 and share anything at any point during the meeting. Don't be
+        shy! (or be shy! whatever you want!)
+      </p>
+      <p>A couple more things before we begin</p>
+      <ul class='space-y-6'>
+        <li class='border-l-4 border-neutral-400 pl-4'>
+          Keep an eye on <a class='ccb-link' href='https://www.pastagang.cc/london/' target='_blank'
+            >#pastagang
+          </a>'s curated London coding scene list, to find out about other events.
+        </li>
+        <li class='border-l-4 border-neutral-400 pl-4'>
+          <p>
+            Remember to check out the <a class='ccb-link' href='https://lu.ma/c3s' target='_blank'
+              >C3S meetup #5</a
+            >
+          </p>
+          <p>April 5th @The Cave (Hackney)</p>
+        </li>
+      </ul>
+    </section>
+    <section class='p-4 border-l-4 border-l-neutral-200 rounded-r-2xl shadow-2xl space-y-6'>
+      <h4 class='text-2xl'>lets talk vectors 🏹</h4>
+      <p>
+        If you bumped into any resources that complemented your reading of the chapter, please <a
+          class='ccb-link'
+          href='https://pad.riseup.net/p/CRer5nWFY-_TFS4eHYja'
+          target='_blank'
+        >
+          share them!</a
+        >
+      </p>
+      <p>
+        What were the main takeaways for you from reading this chapter? What things did you struggle
+        with? What things did you learn?
+      </p>
+      <p>Here is a 10min video about vectors that I think is worth sharing:</p>
+      <iframe
+        class='w-full h-[315px]'
+        src='https://www.youtube.com/embed/fNk_zzaMoSs?si=W4yarF6-G0goFycD'
+        title='YouTube video player'
+        frameborder='0'
+        allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+        referrerpolicy='strict-origin-when-cross-origin'
+        allowfullscreen></iframe>
+      <p>
+        "Think about an arrow inside a coordinate system, with its tail sitting at the origin"
+        (3Blue1Brown)
+      </p>
+      <p>
+        "Each vector represents a certain <b>movement</b>, a step with a certain <b
+          >distance (magnitude)</b
+        > and direction in space."
+      </p>
+      <p><b>Vector Addition</b></p>
+      <p>
+        Can be visualized as simply moving through each of the vectors, after placing the tail of
+        the latter sitting on the tip of the former.
+      </p>
+      <p><b>Scalar multiplication</b></p>
+      <p>
+        Can be visualized as stretching (*2) or compressing (*0.5) a vector. Multiplying by a
+        negative number (*-1.8) can be visualized as flipping the vector first, and then scaling it
+        in the new direction by that number
+      </p>
+      <p>
+        Multiplying a vector by a scalar means multiplying each of its component by that scalar.
+        (e.g. [3, 4] * 2 = [6, 8])
+      </p>
+    </section>
+    <section class='p-4 border-l-4 border-l-neutral-200 rounded-r-2xl shadow-2xl space-y-6'>
+      <h4 class='text-2xl'>lil break ⌛</h4>
+      <p>Go mingle!</p>
+    </section>
+    <section class='p-4 border-l-4 border-l-neutral-200 rounded-r-2xl shadow-2xl space-y-6'>
+      <h4 class='text-2xl'>sketches! 🎨</h4>
+      <p>
+        Share the links to your sketches in the <a
+          class='ccb-link'
+          href='https://pad.riseup.net/p/CRer5nWFY-_TFS4eHYja'
+          target='_blank'>shared environment</a
+        >. Feel free to also paste them in <a
+          class='ccb-link'
+          href='https://discord.gg/ggYbapqx'
+          target='_blank'
+        >
+          C3S discord</a
+        > if you want people who are not here today to see them as well!
+      </p>
+    </section>
+    <section class='p-4 border-l-4 border-l-neutral-200 rounded-r-2xl shadow-2xl space-y-6'>
+      <h4 class='text-2xl'>q&a / coding time / pub 💻</h4>
+      <p>
+        If you have any questions about this or previous chapters, the website, or the bookclub in
+        general, please ask them!
+      </p>
+      <p>
+        If you're feeling inspired. Go to the <a
+          class='ccb-link'
+          href='https://editor.p5js.org/'
+          target='_blank'>P5JS WebEditor</a
+        > and try making something now. If you are sitting next to a stranger maybe say 'hi' and try
+        some pair-programming.
+      </p>
+      <p>We need to leave by 8.15pm, but some people like hanging at a nearby pub afterwards, feel free to join! 🍺</p>
+    </section>
+  </div>
+</OtherPage>

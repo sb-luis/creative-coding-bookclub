@@ -1,0 +1,43 @@
+<script is:inline>
+  function drawSketch() {
+    background('lightgrey')
+    noFill()
+
+    const stepSize = 5
+    const circleSize = constrain(height * 0.25, 30, 55)
+    const steps = (windowWidth + circleSize) / stepSize
+    const yOffset = height * 0.4
+    const waveAmplitude1 = random(60, 100)
+    const waveAmplitude2 = random(20, 30)
+    const waveAmplitude3 = random(5, 10)
+    const wavePeriodOffset1 = random(0, 10000)
+    const wavePeriodOffset2 = random(0, 10000)
+    const wavePeriodOffset3 = random(0, 10000)
+
+    const makeWave = (amplitude, period) => {
+      return amplitude * sin(period)
+    }
+
+    for (let i = 0; i < steps; i++) {
+      const x = stepSize * i
+      const wave1 = makeWave(waveAmplitude1, (TWO_PI * i + wavePeriodOffset1) / 300)
+      const wave2 = makeWave(waveAmplitude2, (TWO_PI * i + wavePeriodOffset2) / 58)
+      const wave3 = makeWave(waveAmplitude3, (TWO_PI * i + wavePeriodOffset3) / 23)
+
+      circle(x - circleSize * 0.5, yOffset + wave1 + wave2 + wave3, circleSize)
+    }
+  }
+
+  // https://p5js.org/reference/p5/setup/
+  function setup() {
+    createCanvas(windowWidth, windowHeight)
+    drawSketch()
+  }
+
+  // https://p5js.org/reference/p5/windowResized/
+  function windowResized() {
+    if (windowWidth !== width) {
+      drawSketch()
+    }
+  }
+</script>

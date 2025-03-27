@@ -1,0 +1,45 @@
+---
+import OtherPage from '../layouts/OtherPage.astro'
+
+const metadata = {
+  title: 'CCB Meetups',
+  description:
+    'A list of all the events that we ever hosted, with the resources we shared and a recap of what we did',
+  keywords: 'Creative Coding, Bookclub, Meetup',
+  emoji: '📄',
+}
+
+const meetups = [
+  { date: '2025-03-27', book: 'The Nature of Code - Daniel Shiffman' },
+  { date: '2025-02-26', book: 'The Nature of Code - Daniel Shiffman' },
+  { date: '2025-01-27', book: 'The Nature of Code - Daniel Shiffman' },
+]
+---
+
+<OtherPage metadata={metadata}>
+  <div class='pt-6 space-y-6'>
+    <p>Our next meetup:</p>
+    <iframe
+      src='https://lu.ma/embed/calendar/cal-l8dqsc8YHhI2Fbi/events?lt=light'
+      class='rounded-xl w-full h-[290px]'
+      aria-hidden='false'
+      tabindex='0'></iframe>
+    <p>
+      A list of all the events that we ever hosted, with the resources we shared (if any) and a recap of what
+      we did (from the most recent to the oldest)
+    </p>
+  </div>
+  <ul class='py-4 space-y-4'>
+    {
+      meetups.map((meetup, i) => (
+        <li>
+          <a class='flex flex-col border-l-4 px-4 hover:text-brand-1 hover:bg-neutral-50 focus:bg-neutral-50' href={'/meet/' + meetup.date}>
+            <span class="font-bold">{'CCB meetup #' + (meetups.length - i)}</span>
+            <span>Date: {meetup.date}</span>
+            <span>Book: {meetup.book}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</OtherPage>
