@@ -1,0 +1,7 @@
+{
+  "title": "Easing vectors",
+  "description": "This sketch defines a Mover class that uses vectors for position, velocity, and acceleration to simulate spring-damped bouncing circles between two vertical limits. Inspired by Sai Ram Ved Vijapurapu: Delightful Motion Loops - CC Fest 2025 ",
+  "keywords": "Creative Coding, Bookclub, P5, Processing",
+  "tags": ["sketch", "book-2025-1"],
+  "import": { "p5": true }
+}
