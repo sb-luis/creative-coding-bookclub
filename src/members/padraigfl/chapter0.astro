@@ -1,0 +1,12 @@
+
+<script>
+  // Import p5 from NPM
+  import { default as P5Sketch } from "p5";
+  import { sketch0 } from "./chapter0.ts";
+  import type p5 from "../../types/p5types";
+
+  // Instantiate P5 sketch
+  new P5Sketch((p5: p5) => {
+    sketch0(p5);
+  });
+</script>
