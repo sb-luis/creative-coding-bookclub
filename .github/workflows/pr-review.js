@@ -64,27 +64,15 @@ function main() {
       console.log(`PR ${prNumber} passed checks.`)
       const msg = [
         `${GREETINGS[randomGreeting]} @${prAuthor.login}! ${GREETING_MSG}`,
-        'This PR was made by a trusted member and only modifies files under their scope.',
-        'All modified files passed the automated test ✅',
+        'Thanks for contributing!',
         "Merging to 'main' branch ✨",
       ].join('\n')
       fs.writeFileSync('pr-comment.md', msg)
       execSync(`gh pr comment ${prNumber} --body-file pr-comment.md`)
       execSync(`gh pr merge ${prNumber} --merge --admin`)
     } catch (error) {
-      console.log(`PR ${prNumber} failed checks`)
-      const msg = [
-        `${GREETINGS[randomGreeting]} @${prAuthor.login}! ${GREETING_MSG}`,
-        'Sorry, but this PR has failed validation, and cannot be automatically merged',
-        ' ',
-        '```',
-        error,
-        '```',
-        "I'll be back for another review in 12 hours!",
-        'See ya!',
-      ].join('\n')
-      fs.writeFileSync('pr-comment.md', msg)
-      execSync(`gh pr comment ${prNumber} --body-file pr-comment.md`)
+      console.log(`PR ${prNumber} threw an error. Likely because the PR didn't passed validation. Review it manually`)
+      // TODO: Add Mickey and Luis as reviewers if they are not already
     }
   }
 }
@@ -92,15 +80,6 @@ function main() {
 function reviewMemberPR(member, prInfo) {
   const scope = `src/members/${member.alias}`
   console.log(`PR Author '${member.id}' is a member with scope: '${scope}'`)
-
-  /*
-  const prHeadSha = prInfo.headRefOid
-  const prBaseSha = prInfo.baseRefOid
-  const modifiedFiles = execSync(`git diff --name-only ${prBaseSha} ${prHeadSha}`)
-    .toString()
-    .split('\n')
-    .filter(Boolean)
-  */
   const modifiedFiles = prInfo.files.map((f) => f.path)
 
   validatePathsAreInScope(modifiedFiles, scope)
