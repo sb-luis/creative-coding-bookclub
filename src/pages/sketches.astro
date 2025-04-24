@@ -9,66 +9,122 @@ const sketches = routes.filter(
 ---
 
 <SketchListerPage>
-  <section class='h-full'>
-    <div class='h-full flex flex-col md:flex-row'>
-      <div class='p-4 flex flex-col md:py-8'>
-        <div class='flex justify-between items-start md:flex-col'>
-          <a href='/' class='ccb-link mb-4 hidden md:block'>Back</a>
-          <h1 class='mb-4 ccb-h2'>sketches</h1>
-          <a href='/' class='ccb-link mr-4 md:hidden'>Back</a>
+  <section class="h-full">
+    <div class="h-full flex flex-col md:flex-row">
+      <div class="p-4 flex flex-col md:py-8">
+        <div class="flex justify-between items-start md:flex-col">
+          <a href="/" class="ccb-link mb-4 hidden md:block">Back</a>
+          <h1 class="mb-4 ccb-h2">sketches</h1>
+          <a href="/" class="ccb-link mr-4 md:hidden">Back</a>
         </div>
-        <ul id='sketch-lister' class='space-y-2 max-h-30 overflow-y-scroll md:max-w-50  md:flex-1 md:max-h-full'>
+        <ul
+          id="sketch-lister"
+          class="space-y-2 max-h-30 overflow-y-scroll md:max-w-50 md:flex-1 md:max-h-full"
+        >
           {
             sketches.map((sketch) => (
               <li>
-                <button class='ccb-link'>{sketch.params.alias + '/' + sketch.params.page}</button>
+                <button class="ccb-link">{sketch.params.alias + '/' + sketch.params.page}</button>
               </li>
             ))
           }
         </ul>
       </div>
-      <div class='m-2 flex-1 shadow-2xl rounded-2xl flex flex-col md:m-8'>
-        <iframe id='sketch-viewport' src='/_example/loading' class='flex-1 rounded-t-2xl'></iframe>
-        <div class='p-4 border-t-3 border-neutral-400 border-dashed max-h-[300px] overflow-auto'>
-          <p id='sketch-title'>...</p>
-          <p id='sketch-description'>...</p>
-          <pre class="code bg-gray-900 text-white" />
-          <a id='sketch-link' href='/_example/loading' target='_blank' class='ccb-link'>open</a>
+      <div class="m-2 flex-1 shadow-2xl rounded-2xl flex flex-col md:m-8">
+        <div id="viewport" class="flex-1 rounded-t-2xl relative max-h-[55vh] md:max-h-[75vh]">
+          <div id="toggle-group" class="absolute top-2 right-6 justify-end">
+            <button id="toggle-code" class="ccb-link mr-2">Code</button>
+            <button id="toggle-sketch" class="ccb-link">Sketch</button>
+          </div>
+          <pre id="code-view" class="code p-5 hidden h-full overflow-auto text-xs md:text-base">
+          </pre>
+          <iframe id="sketch-view" src="/_example/loading" class="w-full h-full"></iframe>
+        </div>
+        <div class="p-4 border-t-3 border-neutral-400 border-dashed max-h-[20vh] overflow-auto">
+          <p id="sketch-title">...</p>
+          <p id="sketch-description">...</p>
+          <a id="sketch-link" href="/_example/loading" target="_blank" class="ccb-link">open</a>
         </div>
       </div>
     </div>
     <script define:vars={{ sketches }} is:inline>
       const sketchListerEl = document.getElementById('sketch-lister')
-      const sketchViewportEl = document.getElementById('sketch-viewport')
+      const viewportEl = document.getElementById('viewport')
+      const sketchViewEl = document.getElementById('sketch-view')
       const sketchTitleEl = document.getElementById('sketch-title')
       const sketchDescriptionEl = document.getElementById('sketch-description')
       const sketchLinkEl = document.getElementById('sketch-link')
       const sketchButtons = sketchListerEl.querySelectorAll('button')
+      const codeViewEl = document.getElementById('code-view')
+      const toggleCodeBtn = document.getElementById('toggle-code')
+      const toggleSketchBtn = document.getElementById('toggle-sketch')
+      const toggleGroupEl = document.getElementById('toggle-group')
+
+      toggleCodeBtn.addEventListener('click', () => {
+        codeViewEl.classList.remove('hidden')
+        codeViewEl.classList.add('block')
+        sketchViewEl.classList.remove('block')
+        sketchViewEl.classList.add('hidden')
+      })
+
+      toggleSketchBtn.addEventListener('click', () => {
+        sketchViewEl.classList.remove('hidden')
+        sketchViewEl.classList.add('block')
+        codeViewEl.classList.remove('block')
+        codeViewEl.classList.add('hidden')
+      })
+
+      function hideToggleViewButtons() {
+        const toggleGroupEl = document.getElementById('toggle-group')
+        const codeViewEl = document.getElementById('code-view')
+        const sketchViewEl = document.getElementById('sketch-view')
+
+        // Ensure the 'hidden' class is present and not duplicated on toggleGroupEl
+        if (!toggleGroupEl.classList.contains('hidden')) {
+          toggleGroupEl.classList.add('hidden')
+        }
+
+        // Hide the code view and show the sketch view
+        codeViewEl.classList.add('hidden')
+        codeViewEl.classList.remove('block')
+        sketchViewEl.classList.add('block')
+        sketchViewEl.classList.remove('hidden')
+      }
 
       // grabs the code file and dumps the plain text into the page
       function loadSketchCode(s) {
-        let source;
+        let source
         if (s.props.metadata.source) {
           source = window.location.href.includes('localhost')
             ? `/src/members/${s.params.alias}/${s.props.metadata.source}`
             : `/sketch-files/${s.props.metadata.source}`
         } else {
-          document.querySelector(".code").innerHTML = ""
+          codeViewEl.innerHTML = ''
         }
         if (source) {
-          window.fetch(source).then(res => res.text()).then(res => {
-            document.querySelector(".code").innerHTML = res.split('//# sourceMappingURL')[0]?.trim();
-          });
+          window
+            .fetch(source)
+            .then((res) => res.text())
+            .then((res) => {
+              codeViewEl.innerHTML = res.split('//# sourceMappingURL')[0]?.trim()
+            })
         }
+        return source
       }
 
       function loadSketch(s) {
+        const sourceCode = loadSketchCode(s)
+        if (!sourceCode) {
+          hideToggleViewButtons()
+        } else {
+          toggleGroupEl.classList.remove('hidden')
+        }
+
         const url = `/${s.params.alias}/${s.params.page}`
-        sketchViewportEl.setAttribute('src', url)
+        sketchViewEl.setAttribute('src', url)
         sketchTitleEl.innerHTML = s.props?.metadata?.title
         sketchDescriptionEl.innerHTML = s.props?.metadata?.description
         sketchLinkEl.setAttribute('href', url)
-        loadSketchCode(s)
       }
 
       for (let i = 0; i < sketchButtons.length; i++) {
