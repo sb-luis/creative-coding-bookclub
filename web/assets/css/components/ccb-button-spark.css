@@ -1,37 +1,37 @@
 .ccb-button-spark {
-  background-color: var(--base-200); 
-  font-size: 1.125rem; 
-  line-height: 1.75rem; 
-  font-weight: 800; 
-  padding: 0.5rem; 
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); 
-  transition-property: all; 
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); 
-  transition-duration: 100ms; 
-  text-decoration: none; 
-  color: var(--base-900); 
-  display: inline-block; 
+  background-color: var(--base-200);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 800;
+  padding: 0.5rem;
+  box-shadow: 0 1px 3px 0 color-mix(in srgb, var(--shadow-color) 10%, transparent), 0 1px 2px -1px color-mix(in srgb, var(--shadow-color) 10%, transparent);
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 100ms;
+  text-decoration: none;
+  color: var(--base-900);
+  display: inline-block;
 }
 
 .ccb-button-spark:hover {
-  padding-left: 1.5rem; 
-  padding-right: 1.5rem; 
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 .ccb-button-spark span {
-  display: inline-block; 
-  transition-property: transform, visibility; 
+  display: inline-block;
+  transition-property: transform, visibility;
 }
 
 .ccb-button-spark span:first-child,
 .ccb-button-spark span:last-child {
-  visibility: hidden; 
+  visibility: hidden;
 }
 
 .ccb-button-spark:hover span:first-child,
 .ccb-button-spark:hover span:last-child {
-  visibility: visible; 
-  transform: rotate(-360deg); 
+  visibility: visible;
+  transform: rotate(-360deg);
 }
 
 /* Transform animates, visibility changes instantly upon appearing */
@@ -45,14 +45,15 @@
 
 /* Transform animates back, visibility changes instantly to hidden */
 .ccb-button-spark span:first-child {
-  transition-duration: 500ms, 0s; 
+  transition-duration: 500ms, 0s;
 }
 
 .ccb-button-spark span:nth-child(2) {
-  padding-left: 0.5rem; 
-  padding-right: 0.5rem; 
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .ccb-button-spark span:last-child {
-  transition-duration: 300ms, 0s; /* Ensures visibility becomes hidden instantly */
+  transition-duration: 300ms, 0s;
+  /* Ensures visibility becomes hidden instantly */
 }

@@ -2,6 +2,9 @@
 _ignore/
 tmp/
 
+# Ignore development SQLite database 
+local.db
+
 # dotenv environment variable files
 .env
 .env.development.local

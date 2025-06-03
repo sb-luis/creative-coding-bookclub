@@ -59,6 +59,31 @@ func RegisterRoutes(router *utils.Router) {
 	router.HandleFunc("/preferences/theme", handlers.ThemePreferencesPostHandler, "POST")
 	router.HandleFunc("/preferences/locale", handlers.LocalePreferencesPostHandler, "POST")
 
+	// Authentication routes
+	router.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
+		currentLang := utils.GetCurrentLanguage(r)
+		pageData := preparePageData(r, w, currentLang)
+		tmpl, err := masterTmpl.Clone()
+		if err != nil {
+			log.Printf("Error cloning master template for register: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		handlers.RegisterGetHandler(w, r, tmpl, pageData)
+	}, "GET")
+
+	router.HandleFunc("/sign-in", func(w http.ResponseWriter, r *http.Request) {
+		currentLang := utils.GetCurrentLanguage(r)
+		pageData := preparePageData(r, w, currentLang)
+		tmpl, err := masterTmpl.Clone()
+		if err != nil {
+			log.Printf("Error cloning master template for sign-in: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		handlers.SignInGetHandler(w, r, tmpl, pageData)
+	}, "GET")
+
 	// Member's sketch page
 	router.HandleFunc("/members/{memberName}/{sketchName}", func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)

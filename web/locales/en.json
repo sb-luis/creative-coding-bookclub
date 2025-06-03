@@ -37,6 +37,34 @@
         "description": "Browse all the sketches created by the Creative Coding Bookclub community.",
         "keywords": "creative coding, sketches, p5.js, processing, art, design, bookclub"
       }
+    },
+    "signIn": {
+      "meta": {
+        "title": "Sign in",
+        "description": "Sign in to your Creative Coding Bookclub account"
+      },
+      "heading": "Sign in",
+      "nameLabel": "Name",
+      "namePlaceholder": "Enter your name",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "submitButton": "Sign in",
+      "noAccountText": "Don't have an account?",
+      "registerLink": "Register"
+    },
+    "register": {
+      "meta": {
+        "title": "Register",
+        "description": "Create your Creative Coding Bookclub account"
+      },
+      "heading": "Register",
+      "nameLabel": "Name",
+      "namePlaceholder": "Enter your name",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "submitButton": "Register",
+      "haveAccountText": "Already have an account?",
+      "signInLink": "Sign in"
     }
   },
   "components": {
@@ -56,6 +84,8 @@
       "navigationLabel": "navigation",
       "homeLink": "home",
       "sketchesLink": "sketches",
+      "signInLink": "sign in",
+      "registerLink": "register",
       "settingsLabel": "settings",
       "themeLabel": "theme",
       "languageLabel": "language"

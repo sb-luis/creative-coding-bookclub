@@ -1,9 +1,10 @@
 @import url("./utils/reset.css");
 @import url("variables.css");
 @import url("utils.css");
-@import url("./components/sidebar.css");
+@import url("./components/ccb-sidebar.css");
 @import url("./components/ccb-link.css");
 @import url("./components/ccb-select.css");
+@import url("./components/ccb-button.css");
 @import url("./components/ccb-button-spark.css");
 
 html {
