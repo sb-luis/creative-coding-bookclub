@@ -3,9 +3,5 @@
 # review when someone opens a pull request. 
 *       @sb-luis @mickeymarse
 
-# more rules...
-/src/members
-
 # github files
 /.github @sb-luis @mickeymarse
-/ccb.json @sb-luis @mickeymarse
