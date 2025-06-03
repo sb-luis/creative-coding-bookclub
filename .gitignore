@@ -1,5 +1,6 @@
 # Ignore directory 
 _ignore/
+tmp/
 
 # dotenv environment variable files
 .env

@@ -1,0 +1,3 @@
+{{ block "luma-embed" . }}
+<iframe src="https://lu.ma/embed/calendar/cal-l8dqsc8YHhI2Fbi/events?lt={{ if eq .Theme "dark" }}dark{{ else if eq .Theme "light" }}light{{ else }}system{{ end }}" height="290" class="rounded-xl border-none w-full" aria-hidden="false" tabindex="0"></iframe>
+{{ end }}

@@ -1,0 +1,72 @@
+/* Inspired by https://tailwindcss.com/docs/preflight */
+
+/* Remove user-agent styles */
+*,
+::after,
+::before,
+::backdrop,
+::file-selector-button {
+  /* Margin and padding reset */
+  margin: 0;
+  padding: 0;
+
+  /* Border style reset */
+  box-sizing: border-box;
+  border: 0 solid;
+}
+
+/* Heading elements are unstyled by default */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* Lists are unstyled */
+ol,
+ul,
+menu {
+  list-style: none;
+}
+
+/* Images and other media elements display as block elements */
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block;
+  vertical-align: middle;
+}
+
+/* Preserves image aspect ratio, responsive by default */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Inherit fonts for inputs and buttons */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* Buttons are unstyled */
+button {
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: inherit;
+}

@@ -1,0 +1,24 @@
+{{ block "not-found" . }}
+<!DOCTYPE html>
+<html lang="{{ .Lang }}" {{ if and .Theme (ne .Theme "system" ) }}data-theme="{{ .Theme }}" {{ end }}>
+
+<head>
+  {{ template "html-head" . }}
+</head>
+
+<body class="max-w-sm m-auto pl-4">
+  {{ template "sidebar" . }}
+  <header class='max-w-screen-md m-auto px-8 py-2 mb-4'>
+    <h1 class="font-display">{{ i18nText .Lang "pages.notFound.meta.title" }}</h1>
+  </header>
+  <main class="max-w-screen-md m-auto px-8 py-2 space-y-9 pb-30">
+    <section>
+      <p>{{ i18nHtml .Lang "pages.notFound.message" }} <a class="ccb-link" href="/">{{ i18nText .Lang "pages.notFound.messageLink" }}</a>
+      </p>
+    </section>
+  </main>
+  <footer></footer>
+</body>
+
+</html>
+{{ end }}

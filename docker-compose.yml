@@ -1,0 +1,17 @@
+services:
+  backend:
+    container_name: creative-coding-bookclub
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - HOST=0.0.0.0
+      - PORT=4000
+      - LOG_LEVEL=debug
+      - REVERSE_PROXY_ENDPOINT=http://frontend:8000
+      - DATABASE_URL=file:///app/local.db
+    env_file: '.env'
+    volumes:
+      - ./apps/backend/src/:/app/src
+    ports:
+      - '8000:4000' # host:container

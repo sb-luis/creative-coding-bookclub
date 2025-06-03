@@ -1,0 +1,88 @@
+{{ block "page-index" . }}
+<!DOCTYPE html>
+<html lang="{{ .Lang }}" {{ if and .Theme (ne .Theme "system" ) }}data-theme="{{ .Theme }}" {{ end }}>
+
+<head>
+  {{ template "html-head" . }}
+  <!-- third-Party Creative Coding libraries -->
+  <script defer src="https://cdn.jsdelivr.net/npm/p5@1.11.7/lib/p5.min.js"></script>
+</head>
+
+<body class="max-w-sm m-auto pl-4">
+  {{ template "sidebar" . }}
+  <header class='max-w-screen-md m-auto mb-4'>
+    <img id='header-logo' alt='Creative Coding Bookclub Logo' src="/assets/header.png" class="w-full" />
+    <canvas class='absolute -z-1 top-0 left-0 max-w-full'></canvas>
+  </header>
+  <main class="max-w-screen-md m-auto px-8 py-2 space-y-9 pb-30">
+    <section class="space-y-6">
+      <h2 class="text-2xl font-bold">{{ i18nText .Lang "pages.homepage.introHeading" }}</h2>
+      <p>{{ i18nHtml .Lang "pages.homepage.introWhoAreWe" }}</p>
+      <p>{{ i18nHtml .Lang "pages.homepage.introThis2025" }}</p>
+      <p>{{ template "button-spark" i18nText .Lang "pages.homepage.introCheckSketchesButton" }}</p>
+    </section>
+    <section class="space-y-6">
+      <h2 class="text-2xl font-bold">{{ i18nText .Lang "pages.homepage.joinUsHeading" }}</h2>
+      <p>{{ i18nHtml .Lang "pages.homepage.joinUsIntro" }}</p>
+      <p>{{ i18nHtml .Lang "pages.homepage.joinUsForEveryone" }}</p>
+      <p>{{ i18nHtml .Lang "pages.homepage.joinUsMotivation" }}</p>
+    </section>
+    <section class="space-y-6">
+      <h2 class="text-2xl font-bold">{{ i18nText .Lang "pages.homepage.inRealLifeHeading" }}</h2>
+      <p>{{ i18nHtml .Lang "pages.homepage.inRealLifeVenue" }}</p>
+      <p>{{ i18nHtml .Lang "pages.homepage.inRealLifeLuma" }}</p>
+      <p>{{ template "luma-embed" . }}</p>
+      <p>{{ i18nHtml .Lang "pages.homepage.inRealLifeCraftSpace" }}</p>
+    </section>
+    <section class="space-y-6">
+      <h2 class="text-2xl font-bold">{{ i18nText .Lang "pages.homepage.onlineHeading" }}</h2>
+      <p>{{ i18nHtml .Lang "pages.homepage.onlineHashtag" }}</p>
+      <ul class="px-4 shadow-2xl rounded-2xl">
+        <li class="py-2 flex justify-between">
+          <span class="mr-2">Mickey 👉</span>
+          <a href="mailto:mickeymarse@tuta.io" target="_blank" class="ccb-link"> mickeymarse@tuta.io </a>
+        </li>
+        <li class="py-2 flex justify-between">
+          <span class="mr-2">Luis 👉</span>
+          <a href="mailto:hey@luis.earth" target="_blank" class="ccb-link"> hey@luis.earth </a>
+        </li>
+        <li class="py-2 flex justify-between">
+          <span class="mr-2">C3S london 👉</span>
+          <a href="https://discord.gg/ggYbapqx" target="_blank" class="ccb-link">{{ i18nHtml .Lang
+            "pages.homepage.onlineDiscord" }}</a>
+        </li>
+        <li class="py-2 flex justify-between">
+          <span class="mr-2">Github 👉</span>
+          <a href="https://github.com/sb-luis/creative-coding-bookclub" target="_blank" class="ccb-link">{{ i18nHtml
+            .Lang "pages.homepage.onlineGithub" }}</a>
+        </li>
+      </ul>
+    </section>
+  </main>
+  <footer class="py-9"></footer>
+  <script type="module">
+    // Import sketch 
+    import headerSketch from '/assets/js/sketches/_example/p5js-instance-mode.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Find DOM components
+      const headerLogo = document.getElementById('header-logo');
+      const canvas = document.querySelector('canvas');
+      if (!canvas || !headerLogo)
+        throw new Error('Missing canvas or header logo');
+
+      function getHeight() {
+        return headerLogo?.clientHeight;
+      }
+
+      // Instantiate P5 sketch
+      new p5((p5Instance) => {
+        headerSketch(p5Instance, { getHeight, canvas });
+      });
+    });
+
+  </script>
+</body>
+
+</html>
+{{ end }}

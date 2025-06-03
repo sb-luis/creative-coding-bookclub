@@ -1,0 +1,30 @@
+@import url("./utils/reset.css");
+@import url("variables.css");
+@import url("utils.css");
+@import url("./components/sidebar.css");
+@import url("./components/ccb-link.css");
+@import url("./components/ccb-select.css");
+@import url("./components/ccb-button-spark.css");
+
+html {
+  height: 100%;
+}
+
+body {
+  background-color: var(--base-50);
+  color: var(--base-900);
+  font: 1.25em sans-serif;
+  line-height: 1.5em;
+  height: 100%;
+}
+
+.invisible {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}

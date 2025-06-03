@@ -1,0 +1,25 @@
+.ccb-link {
+  white-space: nowrap;
+  color: var(--primary-500);
+  position: relative;
+}
+
+.ccb-link:hover {
+  color: var(--base-50);
+  text-decoration: none;
+}
+
+.ccb-link:after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 100%;
+  left: -0.1em;
+  right: -0.1em;
+  bottom: 0;
+  transition: top 150ms cubic-bezier(0, 0.8, 0.13, 1);
+  background-color: var(--primary-500);
+}
+.ccb-link:hover:after {
+  top: 5%;
+}

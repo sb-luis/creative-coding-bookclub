@@ -1,0 +1,25 @@
+/* Background and text color utility classes */
+.bg-primary {
+  background-color: var(--primary-500);
+}
+.text-primary {
+  color: var(--primary-500);
+}
+.bg-secondary {
+  background-color: var(--secondary-500);
+}
+.text-secondary {
+  color: var(--secondary-500);
+}
+.bg-danger {
+  background-color: var(--error-500);
+}
+.text-danger {
+  color: var(--error-500);
+}
+.bg-transparent {
+  background-color: transparent;
+}
+.text-transparent {
+  color: transparent;
+}

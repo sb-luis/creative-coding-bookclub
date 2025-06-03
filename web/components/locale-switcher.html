@@ -1,0 +1,17 @@
+{{ block "locale-switcher" . }}
+<form method="POST" action="/preferences/locale" class="locale-switcher-form">
+  <input type="hidden" name="redirectURL" value="{{ .CurrentURL }}">
+  <label for="locale" class="invisible">{{ i18nText .Lang "components.localeSwitcher.hiddenLabel" }}</label>
+  <select name="locale" id="locale" class="ccb-select" onchange="this.form.submit()">
+    {{ $currentLang := .Lang }}
+    {{ range .SupportedLanguages }}
+    <option value="{{ .Code }}" {{ if eq .Code $currentLang }}selected{{ end }}>{{ .NameNative }} ({{ .NameEn }})
+    </option>
+    {{ end }}
+  </select>
+  <noscript>
+    <button class="border rounded-2xl px-2 mt-2" type="submit">{{ i18nText .Lang "components.localeSwitcher.applyButton"
+      }}</button>
+  </noscript>
+</form>
+{{ end }}

@@ -1,0 +1,64 @@
+{
+  "pages": {
+    "homepage": {
+      "meta": {
+        "title": "Creative Coding Bookclub",
+        "description": "The Creative Coding Bookclub is a new event to inspire eachother with practical coding challenges, by following a book yearly, and sharing our journey online and in-person"
+      },
+      "introHeading": "who are we?",
+      "introWhoAreWe": "The Creative Coding Bookclub is a new event, organised by [Mickey](https://mickeymarse.dev/) and [Luis](https://luis.earth/), in which we aim to actively work our way through writings that inspire the reader with practical coding challenges, while sharing our journey online and in-person. ",
+      "introThis2025": "[This 2025](https://creativecodingbook.club/book/2025) we started **'The Nature of Code' (2024)** by [Daniel Shiffman](https://thecodingtrain.com/about).",
+      "introCheckSketchesButton": "Check our sketches!",
+      "joinUsHeading": "join us",
+      "joinUsIntro": " This event is for anyone who is curious about creative coding - whether you are a beginner or a seasoned developer.",
+      "joinUsForEveryone": "If you're a beginner and you follow along, you will gain practice with fundamentals that will prove useful in your future coding endeavours, and if you're an experienced developer this is a chance to recap some theory and a great opportunity to help others. ",
+      "joinUsMotivation": "Even if you've never written a line of code, as long as you're motivated enough to put the time and effort you can make it!",
+      "inRealLifeHeading": "IRL 🌳",
+      "inRealLifeVenue": "Future events will take place at the [Borough Road Gallery](https://www.lsbu.ac.uk/student-life/facilities/facility-finder/borough-road-gallery), part of London South Bank University, which kindly agreed to host us on a regular basis.",
+      "inRealLifeLuma": "We'll meet on the last Thursday of each month - find out more about upcoming events at [Luma](https://lu.ma/calendar/cal-l8dqsc8YHhI2Fbi)!",
+      "inRealLifeCraftSpace": "The idea for this event originated at the Creative Coding Craft Space. Which also occurs monthly at Hackney Wick. Find more about them here.",
+      "onlineHeading": "online",
+      "onlineHashtag": " If you post any bookclub-related content in social media feel free to mention us or tag the [#CreativeCodingBookclub](https://bsky.app/hashtag/CreativeCodingBookclub) hashtag for us to see your posts!",
+      "onlineDiscord": "discord server",
+      "onlineGithub": "upload your work!"
+    },
+    "notFound": {
+      "meta": {
+        "title": "Not Found",
+        "description": "The page you are looking for could not be found.",
+        "keywords": "not found, 404, missing page"
+      },
+      "message": "Woops! Nothing here, go back to the",
+      "messageLink": "homepage"
+    },
+    "sketchLister": {
+      "meta": {
+        "title": "CCB Sketches",
+        "description": "Browse all the sketches created by the Creative Coding Bookclub community.",
+        "keywords": "creative coding, sketches, p5.js, processing, art, design, bookclub"
+      }
+    }
+  },
+  "components": {
+    "backlink": {},
+    "themeSwitcher": {
+      "hiddenLabel": "Theme:",
+      "systemOption": "System ☁️",
+      "lightOption": "Light ☀️",
+      "darkOption": "Dark 🌙",
+      "applyButton": "Apply Theme"
+    },
+    "localeSwitcher": {
+      "hiddenLabel": "Language:",
+      "applyButton": "Set Language"
+    },
+    "sidebar": {
+      "navigationLabel": "navigation",
+      "homeLink": "home",
+      "sketchesLink": "sketches",
+      "settingsLabel": "settings",
+      "themeLabel": "theme",
+      "languageLabel": "language"
+    }
+  }
+}
