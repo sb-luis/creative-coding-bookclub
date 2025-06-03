@@ -1,3 +1,4 @@
+{{ block "page-sketch-lister" . }}
 <!DOCTYPE html>
 <html lang="{{ .Lang }}" {{ if and .Theme (ne .Theme "system" ) }}data-theme="{{ .Theme }}" {{ end }}>
 
@@ -111,3 +112,4 @@
 </body>
 
 </html>
+{{ end }}

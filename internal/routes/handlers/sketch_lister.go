@@ -106,9 +106,9 @@ func SketchListerPageHandler(w http.ResponseWriter, r *http.Request, tmpl *templ
 		Members:  membersData, // Renamed from MembersData
 	}
 
-	err = tmpl.ExecuteTemplate(w, "sketch-lister.html", templateData)
+	err = tmpl.ExecuteTemplate(w, "page-sketch-lister", templateData)
 	if err != nil {
-		log.Printf("Error executing sketch-lister.html template: %v", err)
+		log.Printf("Error executing page-sketch-lister template: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }

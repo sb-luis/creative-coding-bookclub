@@ -62,9 +62,22 @@
       "namePlaceholder": "Enter your name",
       "passwordLabel": "Password",
       "passwordPlaceholder": "Enter your password",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
       "submitButton": "Register",
       "haveAccountText": "Already have an account?",
       "signInLink": "Sign in"
+    },
+    "profile": {
+      "meta": {
+        "title": "Profile",
+        "description": "Your Creative Coding Bookclub profile"
+      },
+      "heading": "Profile",
+      "nameLabel": "Name",
+      "memberIdLabel": "Member ID",
+      "backToHomeButton": "Back to Home",
+      "signOutLink": "Sign out"
     }
   },
   "components": {
@@ -84,6 +97,8 @@
       "navigationLabel": "navigation",
       "homeLink": "home",
       "sketchesLink": "sketches",
+      "profileLink": "profile",
+      "signOutLink": "sign out",
       "signInLink": "sign in",
       "registerLink": "register",
       "settingsLabel": "settings",

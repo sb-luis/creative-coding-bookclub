@@ -17,7 +17,7 @@ func HomePageGetHandler(w http.ResponseWriter, r *http.Request, tmpl *template.T
 	}
 
 	if err := tmplClone.ExecuteTemplate(w, "page-index", pageData); err != nil {
-		http.Error(w, "Error rendering index template", http.StatusInternalServerError)
-		log.Printf("Error rendering index template: %v", err)
+		http.Error(w, "Error rendering page-index template", http.StatusInternalServerError)
+		log.Printf("Error rendering page-index template: %v", err)
 	}
 }

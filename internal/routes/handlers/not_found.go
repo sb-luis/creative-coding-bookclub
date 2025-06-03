@@ -25,9 +25,9 @@ func NotFoundHandler(w http.ResponseWriter, r *http.Request, tmpl *template.Temp
 	}
 
 	// Execute the specific page template, passing pageData directly.
-	err = clonedMasterTmpl.ExecuteTemplate(w, "not-found.html", pageData)
+	err = clonedMasterTmpl.ExecuteTemplate(w, "page-not-found", pageData)
 	if err != nil {
-		log.Printf("Error executing not-found.html template: %v", err)
+		log.Printf("Error executing page-not-found template: %v", err)
 		// Fallback to a simpler error if the 404 template itself fails
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}

@@ -1,0 +1,38 @@
+{{ block "page-profile" . }}
+<!DOCTYPE html>
+<html lang="{{ .Lang }}" {{ if and .Theme (ne .Theme "system" ) }}data-theme="{{ .Theme }}" {{ end }}>
+{{ template "html-head" . }}
+
+<body>
+    {{ template "sidebar" . }}
+    <main class="p-4 max-w-md mx-auto">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold mb-4 text-center">{{ i18nText .Lang "pages.profile.heading" }}</h1>
+
+            <div class="bg-base-100 border border-base-300 rounded-lg p-6 space-y-4">
+                <div>
+                    <label class="block text-base-600 mb-1">{{ i18nText .Lang "pages.profile.nameLabel" }}</label>
+                    <div class="text-base-900">{{ .Name }}</div>
+                </div>
+
+                <div>
+                    <label class="block text-base-600 mb-1">{{ i18nText .Lang "pages.profile.memberIdLabel" }}</label>
+                    <div class="text-base-900">#{{ .MemberID }}</div>
+                </div>
+            </div>
+
+            <div class="mt-6 space-y-3">
+                <a href="/" class="ccb-button block text-center">
+                    {{ i18nText .Lang "pages.profile.backToHomeButton" }}
+                </a>
+                
+                <a href="/sign-out" class="block text-center">
+                    {{ i18nText .Lang "pages.profile.signOutLink" }}
+                </a>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
+{{ end }}

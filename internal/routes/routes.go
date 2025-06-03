@@ -19,6 +19,15 @@ func preparePageData(r *http.Request, w http.ResponseWriter, currentLang string)
 	pageData := utils.GetDefaultPageData(r.URL.Path, currentLang, theme, r.RequestURI)
 	pageData.SupportedLanguages = utils.GetSupportedLanguages()
 
+	// Check authentication status
+	if member, err := utils.GetCurrentMember(r); err == nil {
+		pageData.IsAuthenticated = true
+		pageData.MemberName = member.Name
+	} else {
+		pageData.IsAuthenticated = false
+		pageData.MemberName = ""
+	}
+
 	return pageData
 }
 
@@ -59,7 +68,7 @@ func RegisterRoutes(router *utils.Router) {
 	router.HandleFunc("/preferences/theme", handlers.ThemePreferencesPostHandler, "POST")
 	router.HandleFunc("/preferences/locale", handlers.LocalePreferencesPostHandler, "POST")
 
-	// Authentication routes
+	// Authentication routes - GET handlers
 	router.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang)
@@ -83,6 +92,50 @@ func RegisterRoutes(router *utils.Router) {
 		}
 		handlers.SignInGetHandler(w, r, tmpl, pageData)
 	}, "GET")
+
+	// Authentication routes - POST handlers
+	router.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
+		currentLang := utils.GetCurrentLanguage(r)
+		pageData := preparePageData(r, w, currentLang)
+		tmpl, err := masterTmpl.Clone()
+		if err != nil {
+			log.Printf("Error cloning master template for register: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		handlers.RegisterPostHandler(w, r, tmpl, pageData)
+	}, "POST")
+
+	router.HandleFunc("/sign-in", func(w http.ResponseWriter, r *http.Request) {
+		currentLang := utils.GetCurrentLanguage(r)
+		pageData := preparePageData(r, w, currentLang)
+		tmpl, err := masterTmpl.Clone()
+		if err != nil {
+			log.Printf("Error cloning master template for sign-in: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		handlers.SignInPostHandler(w, r, tmpl, pageData)
+	}, "POST")
+
+	// Logout route
+	router.HandleFunc("/logout", handlers.LogoutHandler, "POST")
+
+	// Member profile route (authenticated only)
+	router.HandleFunc("/me", func(w http.ResponseWriter, r *http.Request) {
+		currentLang := utils.GetCurrentLanguage(r)
+		pageData := preparePageData(r, w, currentLang)
+		tmpl, err := masterTmpl.Clone()
+		if err != nil {
+			log.Printf("Error cloning master template for me: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		handlers.ProfileHandler(w, r, tmpl, pageData)
+	}, "GET")
+
+	// Sign out route (authenticated only)
+	router.HandleFunc("/sign-out", handlers.SignOutHandler, "GET")
 
 	// Member's sketch page
 	router.HandleFunc("/members/{memberName}/{sketchName}", func(w http.ResponseWriter, r *http.Request) {

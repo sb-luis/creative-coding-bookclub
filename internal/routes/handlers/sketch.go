@@ -83,9 +83,9 @@ func SketchPageGetHandler(w http.ResponseWriter, r *http.Request, tmpl *template
 	log.Printf("Rendering sketch page for member: %s, sketch: %s (JS file: %s, JSON data file: %s)",
 		memberName, sketchName, templateData.SketchJsPath, sketchJsonFilePath)
 
-	err := tmpl.ExecuteTemplate(w, "sketch.html", templateData)
+	err := tmpl.ExecuteTemplate(w, "page-sketch", templateData)
 	if err != nil {
-		log.Printf("Error executing sketch.html template: %v", err)
+		log.Printf("Error executing page-sketch template: %v", err)
 		http.Error(w, "Internal Server Error executing template", http.StatusInternalServerError)
 	}
 }

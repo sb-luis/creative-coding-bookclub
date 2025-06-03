@@ -16,6 +16,18 @@ func main() {
 	// Initialize i18n
 	utils.I18nInit()
 
+	// Initialize database
+	if err := utils.InitDatabase(); err != nil {
+		log.Fatal("Failed to initialize database:", err)
+	}
+
+	// Ensure database is properly closed on shutdown
+	defer func() {
+		if err := utils.CloseDatabase(); err != nil {
+			log.Printf("Error closing database: %v", err)
+		}
+	}()
+
 	// Create a new custom router
 	router := utils.NewRouter()
 

@@ -17,6 +17,8 @@ type PageData struct {
 	CanonicalUrl       string
 	SupportedLanguages []LanguageInfo
 	CurrentLanguage    string
+	IsAuthenticated    bool   // Whether the current request is from an authenticated member
+	MemberName         string // Name of the authenticated member (if any)
 }
 
 // GetDefaultPageData initializes PageData with default values.
