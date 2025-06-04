@@ -133,6 +133,7 @@ func (d *Database) CreateMember(name, passwordHash string) (*Member, error) {
 	var count int
 	err := d.db.QueryRow("SELECT COUNT(*) FROM members WHERE name = ?", name).Scan(&count)
 	if err != nil {
+		log.Printf("Database error while checking if member exists for name '%s': %v", name, err)
 		return nil, fmt.Errorf("failed to check if member exists: %w", err)
 	}
 	if count > 0 {
@@ -145,11 +146,13 @@ func (d *Database) CreateMember(name, passwordHash string) (*Member, error) {
 		VALUES (?, ?, ?, ?)`,
 		name, passwordHash, time.Now(), time.Now())
 	if err != nil {
+		log.Printf("Database error while creating member '%s': %v", name, err)
 		return nil, fmt.Errorf("failed to create member: %w", err)
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
+		log.Printf("Database error while getting member ID for '%s': %v", name, err)
 		return nil, fmt.Errorf("failed to get member ID: %w", err)
 	}
 
@@ -170,6 +173,7 @@ func (d *Database) GetMemberByName(name string) (*Member, error) {
 		return nil, errors.New("member not found")
 	}
 	if err != nil {
+		log.Printf("Database error while getting member by name '%s': %v", name, err)
 		return nil, fmt.Errorf("failed to get member by name: %w", err)
 	}
 
@@ -189,6 +193,7 @@ func (d *Database) GetMemberByID(id int) (*Member, error) {
 		return nil, errors.New("member not found")
 	}
 	if err != nil {
+		log.Printf("Database error while getting member by ID %d: %v", id, err)
 		return nil, fmt.Errorf("failed to get member by ID: %w", err)
 	}
 
@@ -200,6 +205,7 @@ func (d *Database) CreateSession(memberID int) (*Session, error) {
 	// Generate session ID
 	sessionID, err := generateSessionID()
 	if err != nil {
+		log.Printf("Error generating session ID for member %d: %v", memberID, err)
 		return nil, fmt.Errorf("failed to generate session ID: %w", err)
 	}
 
@@ -212,6 +218,7 @@ func (d *Database) CreateSession(memberID int) (*Session, error) {
 		VALUES (?, ?, ?, ?)`,
 		sessionID, memberID, createdAt, expiresAt)
 	if err != nil {
+		log.Printf("Database error while creating session for member %d: %v", memberID, err)
 		return nil, fmt.Errorf("failed to create session: %w", err)
 	}
 
@@ -235,6 +242,7 @@ func (d *Database) GetSession(sessionID string) (*Session, error) {
 		return nil, errors.New("session not found")
 	}
 	if err != nil {
+		log.Printf("Database error while getting session '%s': %v", sessionID, err)
 		return nil, fmt.Errorf("failed to get session: %w", err)
 	}
 
@@ -252,6 +260,7 @@ func (d *Database) GetSession(sessionID string) (*Session, error) {
 func (d *Database) DeleteSession(sessionID string) error {
 	_, err := d.db.Exec("DELETE FROM sessions WHERE id = ?", sessionID)
 	if err != nil {
+		log.Printf("Database error while deleting session '%s': %v", sessionID, err)
 		return fmt.Errorf("failed to delete session: %w", err)
 	}
 	return nil

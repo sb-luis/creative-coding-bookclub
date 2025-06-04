@@ -77,7 +77,11 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request, tmpl *template.
 		// Try to create the account
 		_, err := utils.CreateMemberAccount(name, password)
 		if err != nil {
-			templateData.Error = err.Error()
+			// Log the actual error for debugging
+			log.Printf("Failed to create member account for name '%s': %v", name, err)
+
+			// Show generic error message to user
+			templateData.Error = "Unable to create account. Please try again."
 		} else {
 			templateData.Success = "Account created successfully! Please sign in."
 		}
