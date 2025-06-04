@@ -13,6 +13,15 @@ func main() {
 	// Configure logger to write to stdout
 	log.SetOutput(os.Stdout)
 
+	// Load .env file during development only
+	// In production, use environment variables that are already set
+	appEnv := os.Getenv("APP_ENV")
+	if appEnv != "production" {
+		if err := utils.LoadEnvFile(); err != nil {
+			log.Printf("Note: Could not load .env file (this is normal in production): %v", err)
+		}
+	}
+
 	// Initialize i18n
 	utils.I18nInit()
 
