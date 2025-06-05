@@ -1,5 +1,5 @@
 {{ block "theme-switcher" . }}
-<form method="POST" action="/preferences/theme" class="theme-switcher-form">
+<form method="POST" action="/api/preferences/theme" class="theme-switcher-form">
   <input type="hidden" name="redirectURL" value="{{ .CurrentURL }}">
   <label for="theme" class="invisible"> {{ i18nText .Lang "components.themeSwitcher.hiddenLabel" }} </label>
   <select name="theme" id="theme" class="ccb-select" onchange="this.form.submit()">

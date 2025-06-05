@@ -31,6 +31,23 @@ func preparePageData(r *http.Request, w http.ResponseWriter, currentLang string)
 	return pageData
 }
 
+// apiMiddleware sets appropriate headers for API endpoints
+func apiMiddleware(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Route-Type", "api")
+		handler(w, r)
+	}
+}
+
+// webMiddleware sets appropriate headers for HTML page endpoints
+func webMiddleware(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Route-Type", "web")
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		handler(w, r)
+	}
+}
+
 // renderNotFound renders the custom 404 page.
 func renderNotFound(w http.ResponseWriter, r *http.Request, masterTmpl *template.Template, pageData *utils.PageData) {
 	handlers.NotFoundHandler(w, r, masterTmpl, pageData)
@@ -64,37 +81,22 @@ func RegisterRoutes(router *utils.Router) {
 
 	router.PathPrefix("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(staticAssetsDir))))
 
-	// Preference handlers
-	router.HandleFunc("/preferences/theme", handlers.ThemePreferencesPostHandler, "POST")
-	router.HandleFunc("/preferences/locale", handlers.LocalePreferencesPostHandler, "POST")
+	// =============================================================================
+	// API ROUTES - Backend data endpoints
+	// =============================================================================
 
-	// Authentication routes - GET handlers
-	router.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
-		currentLang := utils.GetCurrentLanguage(r)
-		pageData := preparePageData(r, w, currentLang)
-		tmpl, err := masterTmpl.Clone()
-		if err != nil {
-			log.Printf("Error cloning master template for register: %v", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-		handlers.RegisterGetHandler(w, r, tmpl, pageData)
-	}, "GET")
+	// Member API endpoints
+	router.HandleFunc("/api/members", apiMiddleware(handlers.GetMembersHandler), "GET")
+	router.HandleFunc("/api/sketches/{member}", apiMiddleware(handlers.GetMemberSketchesHandler), "GET")
 
-	router.HandleFunc("/sign-in", func(w http.ResponseWriter, r *http.Request) {
-		currentLang := utils.GetCurrentLanguage(r)
-		pageData := preparePageData(r, w, currentLang)
-		tmpl, err := masterTmpl.Clone()
-		if err != nil {
-			log.Printf("Error cloning master template for sign-in: %v", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-		handlers.SignInGetHandler(w, r, tmpl, pageData)
-	}, "GET")
+	// Preference API endpoints
+	router.HandleFunc("/api/preferences/theme", apiMiddleware(handlers.ThemePreferencesPostHandler), "POST")
+	router.HandleFunc("/api/preferences/locale", apiMiddleware(handlers.LocalePreferencesPostHandler), "POST")
 
-	// Authentication routes - POST handlers
-	router.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
+	// Authentication API endpoints
+	router.HandleFunc("/api/auth/logout", apiMiddleware(handlers.LogoutHandler), "POST")
+	router.HandleFunc("/api/auth/sign-out", apiMiddleware(handlers.SignOutHandler), "GET")
+	router.HandleFunc("/api/auth/register", apiMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang)
 		tmpl, err := masterTmpl.Clone()
@@ -104,9 +106,8 @@ func RegisterRoutes(router *utils.Router) {
 			return
 		}
 		handlers.RegisterPostHandler(w, r, tmpl, pageData)
-	}, "POST")
-
-	router.HandleFunc("/sign-in", func(w http.ResponseWriter, r *http.Request) {
+	}), "POST")
+	router.HandleFunc("/api/auth/sign-in", apiMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang)
 		tmpl, err := masterTmpl.Clone()
@@ -116,13 +117,43 @@ func RegisterRoutes(router *utils.Router) {
 			return
 		}
 		handlers.SignInPostHandler(w, r, tmpl, pageData)
-	}, "POST")
+	}), "POST")
 
-	// Logout route
-	router.HandleFunc("/logout", handlers.LogoutHandler, "POST")
+	// Sketch data API endpoints
+	router.HandleFunc("/api/sketches/{member}/{sketch}/js", apiMiddleware(handlers.SketchCodeHandler), "GET")
 
-	// Member profile route (authenticated only)
-	router.HandleFunc("/me", func(w http.ResponseWriter, r *http.Request) {
+	// =============================================================================
+	// WEB ROUTES - Frontend HTML page rendering
+	// =============================================================================
+
+	// Register page
+	router.HandleFunc("/register", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		currentLang := utils.GetCurrentLanguage(r)
+		pageData := preparePageData(r, w, currentLang)
+		tmpl, err := masterTmpl.Clone()
+		if err != nil {
+			log.Printf("Error cloning master template for register: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		handlers.RegisterGetHandler(w, r, tmpl, pageData)
+	}), "GET")
+
+	// Sign-in page
+	router.HandleFunc("/sign-in", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		currentLang := utils.GetCurrentLanguage(r)
+		pageData := preparePageData(r, w, currentLang)
+		tmpl, err := masterTmpl.Clone()
+		if err != nil {
+			log.Printf("Error cloning master template for sign-in: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		handlers.SignInGetHandler(w, r, tmpl, pageData)
+	}), "GET")
+
+	// Member's profile (requires authentication)
+	router.HandleFunc("/me", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang)
 		tmpl, err := masterTmpl.Clone()
@@ -132,13 +163,10 @@ func RegisterRoutes(router *utils.Router) {
 			return
 		}
 		handlers.ProfileHandler(w, r, tmpl, pageData)
-	}, "GET")
-
-	// Sign out route (authenticated only)
-	router.HandleFunc("/sign-out", handlers.SignOutHandler, "GET")
+	}), "GET")
 
 	// Member's sketch page
-	router.HandleFunc("/members/{memberName}/{sketchName}", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/members/{memberName}/{sketchSlug}", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang)
 		tmpl, err := masterTmpl.Clone()
@@ -148,10 +176,10 @@ func RegisterRoutes(router *utils.Router) {
 			return
 		}
 		handlers.SketchPageGetHandler(w, r, tmpl, pageData)
-	}, "GET")
+	}), "GET")
 
-	// Route for the sketch lister page
-	router.HandleFunc("/sketches", func(w http.ResponseWriter, r *http.Request) {
+	// Sketch lister page
+	router.HandleFunc("/sketches", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang)
 		tmpl, err := masterTmpl.Clone()
@@ -161,10 +189,10 @@ func RegisterRoutes(router *utils.Router) {
 			return
 		}
 		handlers.SketchListerPageHandler(w, r, tmpl, pageData)
-	}, "GET")
+	}), "GET")
 
 	// Homepage
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang)
 		tmpl, err := masterTmpl.Clone()
@@ -174,7 +202,7 @@ func RegisterRoutes(router *utils.Router) {
 			return
 		}
 		handlers.HomePageGetHandler(w, r, tmpl, pageData)
-	}, "GET")
+	}), "GET")
 
 	// Set the NotFoundHandler on the router
 	router.NotFoundHandler = func(w http.ResponseWriter, r *http.Request) {

@@ -20,9 +20,9 @@
                     {{ if .Sketches }}
                     {{ range .Sketches }}
                     <li>
-                        <button class="ccb-link" data-alias="{{ .Alias }}" data-page="{{ .Name }}"
+                        <button class="ccb-link" data-alias="{{ .Alias }}" data-page="{{ .Slug }}"
                             data-title="{{ .Title }}"
-                            data-description="{{ .Description }}">{{ .Alias }}/{{ .Name }}</button>
+                            data-description="{{ .Description }}">{{ .Alias }}/{{ .Slug }}</button>
                     </li>
                     {{ end }}
                     {{ else }}

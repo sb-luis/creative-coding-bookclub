@@ -2,6 +2,7 @@ package utils
 
 import (
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -40,4 +41,27 @@ func GetFullURL(path string) string {
 	}
 
 	return baseURL + path
+}
+
+// GenerateSlug creates a URL-friendly slug from a title
+// It converts to lowercase, replaces spaces and special characters with hyphens,
+// and removes any consecutive hyphens
+func GenerateSlug(title string) string {
+	if title == "" {
+		return ""
+	}
+
+	// Convert to lowercase
+	slug := strings.ToLower(title)
+
+	// Replace spaces and non-alphanumeric characters with hyphens
+	slug = regexp.MustCompile(`[^a-z0-9]+`).ReplaceAllString(slug, "-")
+
+	// Remove leading and trailing hyphens
+	slug = strings.Trim(slug, "-")
+
+	// Remove consecutive hyphens
+	slug = regexp.MustCompile(`-+`).ReplaceAllString(slug, "-")
+
+	return slug
 }

@@ -11,7 +11,7 @@
         {{if .IsAuthenticated}}
         <!-- Authenticated member links -->
         <li><a class="ccb-link" href="/me">{{ i18nText .Lang "components.sidebar.profileLink" }}</a></li>
-        <li><a class="ccb-link" href="/sign-out">{{ i18nText .Lang "components.sidebar.signOutLink" }}</a></li>
+        <li><a class="ccb-link" href="/api/auth/sign-out">{{ i18nText .Lang "components.sidebar.signOutLink" }}</a></li>
         {{else}}
         <!-- Non-authenticated visitor links -->
         <li><a class="ccb-link" href="/sign-in">{{ i18nText .Lang "components.sidebar.signInLink" }}</a></li>

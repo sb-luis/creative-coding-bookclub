@@ -15,8 +15,10 @@
             overscroll-behavior: none;
         }
     </style>
-    <!-- third-Party Creative Coding libraries -->
-    <script defer src="https://cdn.jsdelivr.net/npm/p5@1.11.7/lib/p5.min.js"></script>
+    <!-- External libraries from sketch metadata -->
+    {{ range .ExternalLibs }}
+    <script defer src="{{ . }}"></script>
+    {{ end }}
 </head>
 
 <body>

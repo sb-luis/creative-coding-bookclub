@@ -1,5 +1,5 @@
 {{ block "locale-switcher" . }}
-<form method="POST" action="/preferences/locale" class="locale-switcher-form">
+<form method="POST" action="/api/preferences/locale" class="locale-switcher-form">
   <input type="hidden" name="redirectURL" value="{{ .CurrentURL }}">
   <label for="locale" class="invisible">{{ i18nText .Lang "components.localeSwitcher.hiddenLabel" }}</label>
   <select name="locale" id="locale" class="ccb-select" onchange="this.form.submit()">
