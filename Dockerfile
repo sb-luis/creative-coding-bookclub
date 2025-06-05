@@ -1,19 +1,35 @@
-FROM golang:1.24-alpine
+# Build stage (bigger debian image for building)
+FROM golang:1.24-bookworm AS build 
 
 WORKDIR /app
 
+# Copy go.mod and go.sum for dependency management
 COPY go.mod ./
+COPY go.sum ./
 
-# Uncomment lines below if using external dependencies
-# COPY go.sum ./
-# RUN go mod download
+# Download dependencies
+RUN go mod download
 
-# COPY application code
+# Copy application code
 COPY . .
 
-# Build Go application
+# Build the Go application
 RUN go build -o main ./cmd/server/main.go
 
-EXPOSE 4000 
+# Runtime stage (smaller debian image for runtime)
+FROM debian:bookworm-slim
+
+WORKDIR /app
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+
+# Copy the binary from build stage
+COPY --from=build /app/main .
+
+# Copy web assets 
+COPY --from=build /app/web ./web
+
+EXPOSE 4000
 
 CMD ["./main"]
