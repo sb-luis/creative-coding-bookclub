@@ -1,7 +1,0 @@
-{
-  "title": "Rushed by a river of random remarks",
-  "description": "What happens when you're late with your social media posting. Don't worry, it refreshes at some point.",
-  "keywords": "Creative Coding, Bookclub, P5, Processing, Random",
-  "tags": ["sketch", "book-2025-0"],
-  "import": { "p5": true }
-}

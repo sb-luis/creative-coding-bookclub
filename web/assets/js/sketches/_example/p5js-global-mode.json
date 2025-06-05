@@ -1,7 +1,0 @@
-{
-  "title": "P5 JS sketch",
-  "description": "example P5 JS sketch (using global mode)",
-  "keywords": "Creative Coding, Bookclub, P5, Processing",
-  "tags": ["sketch"],
-  "import": { "p5": true }
-}

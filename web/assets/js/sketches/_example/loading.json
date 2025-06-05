@@ -1,7 +1,0 @@
-{
-  "title": "P5 JS loading screen",
-  "description": "loading screen",
-  "keywords": "Creative Coding, Bookclub, P5, Processing",
-  "tags": ["sketch"],
-  "import": { "p5": true }
-}

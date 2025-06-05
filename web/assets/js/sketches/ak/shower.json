@@ -1,6 +1,0 @@
-{
-    "title": "shower",
-    "description": "Sketch 00.1",
-    "tags": ["sketch", "book-2025-0"],
-    "import": { "p5": true }
-}
