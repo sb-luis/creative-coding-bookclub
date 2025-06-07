@@ -104,13 +104,18 @@
       "applyButton": "Set Language"
     },
     "sidebar": {
+      "toggleAriaLabel": "Toggle sidebar"
+    },
+    "sidebarNav": {
       "navigationLabel": "navigation",
       "homeLink": "home",
       "sketchesLink": "sketches",
       "profileLink": "profile",
       "signOutLink": "sign out",
       "signInLink": "sign in",
-      "registerLink": "register",
+      "registerLink": "register"
+    },
+    "sidebarSettings": {
       "settingsLabel": "settings",
       "themeLabel": "theme",
       "languageLabel": "language"

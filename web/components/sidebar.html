@@ -1,35 +1,10 @@
 {{ block "sidebar" . }}
 <input type="checkbox" id="sidebar-toggle-checkbox" class="invisible" aria-controls="sidebar">
 <aside id="sidebar" class="ccb-sidebar flex">
-  <label for="sidebar-toggle-checkbox" id="sidebar-toggle" aria-label="Toggle sidebar"></label>
+  <label for="sidebar-toggle-checkbox" id="sidebar-toggle" aria-label="{{ i18nText .Lang "components.sidebar.toggleAriaLabel" }}"></label>
   <div class="flex flex-col space-y-4 p-4">
-    <nav aria-label="{{ i18nText .Lang " components.sidebar.navigationLabel" }}">
-      <ul class="space-y-2">
-        <li><a class="ccb-link" href="/">{{ i18nText .Lang "components.sidebar.homeLink" }}</a></li>
-        <li><a class="ccb-link" href="/sketches">{{ i18nText .Lang "components.sidebar.sketchesLink" }}</a></li>
-
-        {{if .IsAuthenticated}}
-        <!-- Authenticated member links -->
-        <li><a class="ccb-link" href="/me">{{ i18nText .Lang "components.sidebar.profileLink" }}</a></li>
-        <li><a class="ccb-link" href="/api/auth/sign-out">{{ i18nText .Lang "components.sidebar.signOutLink" }}</a></li>
-        {{else}}
-        <!-- Non-authenticated visitor links -->
-        <li><a class="ccb-link" href="/sign-in">{{ i18nText .Lang "components.sidebar.signInLink" }}</a></li>
-        <li><a class="ccb-link" href="/register">{{ i18nText .Lang "components.sidebar.registerLink" }}</a></li>
-        {{end}}
-      </ul>
-    </nav>
-    <div class="sidebar-settings">
-      <!-- <hr>
-      <div class="setting-item">
-        <h3>{{ i18nText .Lang "components.sidebar.languageLabel" }}</h3>
-        {{ template "locale-switcher" . }}
-      </div>
-      <hr> -->
-      <div class="setting-item">
-        {{ template "theme-switcher" . }}
-      </div>
-    </div>
+    {{ template "sidebar-nav" . }}
+    {{ template "sidebar-settings" . }}
   </div>
 </aside>
 {{ end }}

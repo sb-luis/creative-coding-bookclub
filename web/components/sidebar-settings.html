@@ -1,0 +1,13 @@
+{{ block "sidebar-settings" . }}
+<div class="sidebar-settings">
+  <!-- <hr>
+  <div class="setting-item">
+    <h3>{{ i18nText .Lang "components.sidebarSettings.languageLabel" }}</h3>
+    {{ template "locale-switcher" . }}
+  </div>
+  <hr> -->
+  <div class="setting-item">
+    {{ template "theme-switcher" . }}
+  </div>
+</div>
+{{ end }}

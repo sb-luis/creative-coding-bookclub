@@ -3,40 +3,41 @@
 <html lang="{{ .Lang }}" {{ if and .Theme (ne .Theme "system" ) }}data-theme="{{ .Theme }}" {{ end }}>
 
 <head>
-  {{ template "html-head" . }}
+    {{ template "html-head" . }}
 </head>
 
 <body class="pl-8">
-    {{ template "sidebar" . }}
-    <main class="h-full">
-        <div class="h-full flex flex-col md:flex-row">
-            {{ $hasSketchMembers := false }}
-            {{ range .Members }}
-                {{ if .Sketches }}
-                    {{ $hasSketchMembers = true }}
-                {{ end }}
-            {{ end }}
-            {{ if $hasSketchMembers }}
-            <div class="p-4 flex flex-col md:py-8">
-                <div class="flex justify-between items-start md:flex-col">
-                    <h1 class="mb-4 ccb-h2">sketches</h1>
-                </div>
-                <ul id="sketch-lister" class="space-y-2 max-h-30 overflow-y-scroll md:max-w-50 md:flex-1 md:max-h-full">
+    <!-- Sidebar -->
+    <input type="checkbox" id="sidebar-toggle-checkbox" class="invisible" aria-controls="sidebar">
+    <aside id="sidebar" class="ccb-sidebar flex">
+        <label for="sidebar-toggle-checkbox" id="sidebar-toggle" aria-label="{{ i18nText .Lang 
+            "components.sidebar.toggleAriaLabel" }}"></label>
+        <div class="flex flex-col space-y-4 p-4">
+            {{ template "sidebar-nav" . }}
+            {{ template "sidebar-settings" . }}
+            <!-- Sketch List -->
+            <div class="flex flex-col py-8">
+                <h1 class="mb-4 ccb-h2">sketches</h1>
+                <ul id="sketch-lister" class="space-y-2 overflow-y-scroll max-w-50">
                     {{ range .Members }}
                     {{ if .Sketches }}
                     {{ range .Sketches }}
                     <li>
                         <button class="ccb-link" data-alias="{{ .Alias }}" data-page="{{ .Slug }}"
-                            data-title="{{ .Title }}"
-                            data-description="{{ .Description }}">{{ .Alias }}/{{ .Slug }}</button>
+                            data-title="{{ if .Title }}{{ .Title | html }}{{ end }}"
+                            data-description="{{ if .Description }}{{ .Description | html }}{{ end }}">{{ .Alias }}/{{
+                            .Slug }}</button>
                     </li>
                     {{ end }}
                     {{ end }}
                     {{ end }}
                 </ul>
             </div>
-            {{ end }}
-            <div class="m-2 flex-1 shadow-2xl rounded-2xl flex flex-col md:m-8">
+        </div>
+    </aside>
+    <main class="h-full">
+        <div class="h-full flex flex-col md:flex-row">
+            <div class="flex-1 shadow-2xl rounded-2xl flex flex-col m-2">
                 <div id="viewport" class="flex-1 rounded-t-2xl relative max-h-[55vh] md:max-h-[75vh]">
                     <iframe id="sketch-view" src="/empty-iframe" class="w-full h-full z-10"></iframe>
                 </div>
