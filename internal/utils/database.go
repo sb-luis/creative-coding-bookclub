@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 
-	"github.com/tursodatabase/go-libsql"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 var (
@@ -16,58 +15,17 @@ var (
 
 // InitDatabase initializes the database connection
 func InitDatabase() error {
-	tursoURL := os.Getenv("TURSO_DATABASE_URL")
-	tursoToken := os.Getenv("TURSO_AUTH_TOKEN")
+	databaseURL := os.Getenv("DATABASE_URL")
 
-	var dbConn *sql.DB
-	var err error
+	if databaseURL == "" {
+		return fmt.Errorf("DATABASE_URL environment variable is required")
+	}
 
-	if tursoURL != "" && tursoToken != "" {
-		// Production: Use Turso with embedded replica for better performance
-		log.Printf("Connecting to Turso database with embedded replica")
+	log.Printf("Connecting to PostgreSQL database")
 
-		// Create data directory for local replica
-		if err := os.MkdirAll("data", 0755); err != nil {
-			return fmt.Errorf("failed to create data directory: %w", err)
-		}
-
-		dbPath := filepath.Join("data", "replica.db")
-
-		connector, err := libsql.NewEmbeddedReplicaConnector(
-			dbPath,
-			tursoURL,
-			libsql.WithAuthToken(tursoToken),
-		)
-		if err != nil {
-			return fmt.Errorf("failed to create Turso connector: %w", err)
-		}
-
-		dbConn = sql.OpenDB(connector)
-
-		// Sync with remote database
-		frames, syncErr := connector.Sync()
-		if syncErr != nil {
-			log.Printf("Warning: failed to sync with remote database: %v", syncErr)
-		} else {
-			log.Printf("Synced %d frames from remote database", frames)
-		}
-	} else {
-		// Development: Use local SQLite only
-		log.Printf("Using local SQLite database")
-
-		if err := os.MkdirAll("data", 0755); err != nil {
-			return fmt.Errorf("failed to create data directory: %w", err)
-		}
-
-		dbPath := filepath.Join("data", "bookclub.db")
-
-		// For local-only development, use the standard sql.Open with file: scheme
-		dbConn, err = sql.Open("libsql", "file:"+dbPath)
-		if err != nil {
-			return fmt.Errorf("failed to open local database: %w", err)
-		}
-
-		log.Printf("Local database setup complete (no remote sync)")
+	dbConn, err := sql.Open("pgx", databaseURL)
+	if err != nil {
+		return fmt.Errorf("failed to open database connection: %w", err)
 	}
 
 	// Test the connection
@@ -107,12 +65,12 @@ func createTables(db *sql.DB) error {
 	// Members table
 	membersTable := `
 	CREATE TABLE IF NOT EXISTS members (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		id SERIAL PRIMARY KEY,
 		name TEXT NOT NULL UNIQUE,
 		password_hash TEXT NOT NULL,
 		verified BOOLEAN DEFAULT FALSE,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);`
 
 	if _, err := db.Exec(membersTable); err != nil {
@@ -124,8 +82,8 @@ func createTables(db *sql.DB) error {
 	CREATE TABLE IF NOT EXISTS sessions (
 		id TEXT PRIMARY KEY,
 		member_id INTEGER NOT NULL,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-		expires_at DATETIME NOT NULL,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		expires_at TIMESTAMP NOT NULL,
 		FOREIGN KEY (member_id) REFERENCES members (id) ON DELETE CASCADE
 	);`
 
@@ -136,7 +94,7 @@ func createTables(db *sql.DB) error {
 	// Sketches table
 	sketchesTable := `
 	CREATE TABLE IF NOT EXISTS sketches (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		id SERIAL PRIMARY KEY,
 		member_id INTEGER NOT NULL,
 		slug TEXT NOT NULL,
 		title TEXT NOT NULL,
@@ -145,8 +103,8 @@ func createTables(db *sql.DB) error {
 		tags TEXT DEFAULT '[]',
 		external_libs TEXT DEFAULT '[]',
 		source_code TEXT NOT NULL,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY (member_id) REFERENCES members (id) ON DELETE CASCADE,
 		UNIQUE(member_id, slug)
 	);`

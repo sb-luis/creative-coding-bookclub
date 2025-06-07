@@ -67,7 +67,7 @@ func (s *Service) CreateSketch(memberID int, req *model.CreateSketchRequest) (*m
 
 	// Check if sketch slug already exists for this member
 	var count int
-	err := s.db.QueryRow("SELECT COUNT(*) FROM sketches WHERE member_id = ? AND slug = ?", memberID, slug).Scan(&count)
+	err := s.db.QueryRow("SELECT COUNT(*) FROM sketches WHERE member_id = $1 AND slug = $2", memberID, slug).Scan(&count)
 	if err != nil {
 		log.Printf("Database error while checking if sketch slug exists for member %d, slug '%s': %v", memberID, slug, err)
 		return nil, fmt.Errorf("failed to check if sketch slug exists: %w", err)
@@ -87,22 +87,17 @@ func (s *Service) CreateSketch(memberID int, req *model.CreateSketchRequest) (*m
 	}
 
 	now := time.Now()
-	result, err := s.db.Exec(`
+	var id int
+	err = s.db.QueryRow(`
 		INSERT INTO sketches (member_id, slug, title, description, keywords, tags, external_libs, source_code, created_at, updated_at) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		memberID, slug, req.Title, req.Description, req.Keywords, string(tagsJSON), string(externalLibsJSON), req.SourceCode, now, now)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
+		memberID, slug, req.Title, req.Description, req.Keywords, string(tagsJSON), string(externalLibsJSON), req.SourceCode, now, now).Scan(&id)
 	if err != nil {
 		log.Printf("Database error while creating sketch for member %d: %v", memberID, err)
 		return nil, fmt.Errorf("failed to create sketch: %w", err)
 	}
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		log.Printf("Database error while getting sketch ID for member %d: %v", memberID, err)
-		return nil, fmt.Errorf("failed to get sketch ID: %w", err)
-	}
-
-	return s.GetSketchByID(int(id))
+	return s.GetSketchByID(id)
 }
 
 // GetSketchByID returns a sketch by ID
@@ -114,7 +109,7 @@ func (s *Service) GetSketchByID(id int) (*model.Sketch, error) {
 	sketch := &model.Sketch{}
 	err := s.db.QueryRow(`
 		SELECT id, member_id, slug, title, description, keywords, tags, external_libs, source_code, created_at, updated_at 
-		FROM sketches WHERE id = ?`, id).Scan(
+		FROM sketches WHERE id = $1`, id).Scan(
 		&sketch.ID, &sketch.MemberID, &sketch.Slug, &sketch.Title, &sketch.Description,
 		&sketch.Keywords, &sketch.TagsJSON, &sketch.ExternalLibsJSON, &sketch.SourceCode,
 		&sketch.CreatedAt, &sketch.UpdatedAt)
@@ -152,7 +147,7 @@ func (s *Service) GetSketchByMemberAndSlug(memberID int, slug string) (*model.Sk
 	sketch := &model.Sketch{}
 	err := s.db.QueryRow(`
 		SELECT id, member_id, slug, title, description, keywords, tags, external_libs, source_code, created_at, updated_at 
-		FROM sketches WHERE member_id = ? AND slug = ?`, memberID, slug).Scan(
+		FROM sketches WHERE member_id = $1 AND slug = $2`, memberID, slug).Scan(
 		&sketch.ID, &sketch.MemberID, &sketch.Slug, &sketch.Title, &sketch.Description,
 		&sketch.Keywords, &sketch.TagsJSON, &sketch.ExternalLibsJSON, &sketch.SourceCode,
 		&sketch.CreatedAt, &sketch.UpdatedAt)
@@ -186,7 +181,7 @@ func (s *Service) GetSketchesByMember(memberID int) ([]*model.Sketch, error) {
 
 	rows, err := s.db.Query(`
 		SELECT id, member_id, slug, title, description, keywords, tags, external_libs, source_code, created_at, updated_at 
-		FROM sketches WHERE member_id = ? ORDER BY created_at DESC`, memberID)
+		FROM sketches WHERE member_id = $1 ORDER BY created_at DESC`, memberID)
 	if err != nil {
 		log.Printf("Database error while getting sketches for member %d: %v", memberID, err)
 		return nil, fmt.Errorf("failed to get sketches by member: %w", err)
@@ -343,6 +338,7 @@ func (s *Service) UpdateSketch(id int, req *model.UpdateSketchRequest) (*model.S
 	// Start building the update query
 	setParts := []string{}
 	args := []interface{}{}
+	paramCount := 0
 
 	// Get current sketch to check if title is changing
 	currentSketch, err := s.GetSketchByID(id)
@@ -360,7 +356,7 @@ func (s *Service) UpdateSketch(id int, req *model.UpdateSketchRequest) (*model.S
 		// Only check for slug conflicts if the slug is actually changing
 		if newSlug != currentSketch.Slug {
 			var count int
-			err := s.db.QueryRow("SELECT COUNT(*) FROM sketches WHERE member_id = ? AND slug = ? AND id != ?",
+			err := s.db.QueryRow("SELECT COUNT(*) FROM sketches WHERE member_id = $1 AND slug = $2 AND id != $3",
 				currentSketch.MemberID, newSlug, id).Scan(&count)
 			if err != nil {
 				log.Printf("Database error while checking slug conflict for sketch %d: %v", id, err)
@@ -370,19 +366,23 @@ func (s *Service) UpdateSketch(id int, req *model.UpdateSketchRequest) (*model.S
 				return nil, fmt.Errorf("a sketch with the title '%s' already exists for this member (slug conflict: %s)", *req.Title, newSlug)
 			}
 
-			setParts = append(setParts, "slug = ?")
+			paramCount++
+			setParts = append(setParts, fmt.Sprintf("slug = $%d", paramCount))
 			args = append(args, newSlug)
 		}
 
-		setParts = append(setParts, "title = ?")
+		paramCount++
+		setParts = append(setParts, fmt.Sprintf("title = $%d", paramCount))
 		args = append(args, *req.Title)
 	}
 	if req.Description != nil {
-		setParts = append(setParts, "description = ?")
+		paramCount++
+		setParts = append(setParts, fmt.Sprintf("description = $%d", paramCount))
 		args = append(args, *req.Description)
 	}
 	if req.Keywords != nil {
-		setParts = append(setParts, "keywords = ?")
+		paramCount++
+		setParts = append(setParts, fmt.Sprintf("keywords = $%d", paramCount))
 		args = append(args, *req.Keywords)
 	}
 	if req.Tags != nil {
@@ -390,7 +390,8 @@ func (s *Service) UpdateSketch(id int, req *model.UpdateSketchRequest) (*model.S
 		if err != nil {
 			return nil, fmt.Errorf("failed to marshal tags: %w", err)
 		}
-		setParts = append(setParts, "tags = ?")
+		paramCount++
+		setParts = append(setParts, fmt.Sprintf("tags = $%d", paramCount))
 		args = append(args, string(tagsJSON))
 	}
 	if req.ExternalLibs != nil {
@@ -398,11 +399,13 @@ func (s *Service) UpdateSketch(id int, req *model.UpdateSketchRequest) (*model.S
 		if err != nil {
 			return nil, fmt.Errorf("failed to marshal external libs: %w", err)
 		}
-		setParts = append(setParts, "external_libs = ?")
+		paramCount++
+		setParts = append(setParts, fmt.Sprintf("external_libs = $%d", paramCount))
 		args = append(args, string(externalLibsJSON))
 	}
 	if req.SourceCode != nil {
-		setParts = append(setParts, "source_code = ?")
+		paramCount++
+		setParts = append(setParts, fmt.Sprintf("source_code = $%d", paramCount))
 		args = append(args, *req.SourceCode)
 	}
 
@@ -411,16 +414,15 @@ func (s *Service) UpdateSketch(id int, req *model.UpdateSketchRequest) (*model.S
 	}
 
 	// Always update the updated_at field
-	setParts = append(setParts, "updated_at = ?")
+	paramCount++
+	setParts = append(setParts, fmt.Sprintf("updated_at = $%d", paramCount))
 	args = append(args, time.Now())
 
 	// Add the ID for the WHERE clause
+	paramCount++
 	args = append(args, id)
 
-	query := fmt.Sprintf("UPDATE sketches SET %s WHERE id = ?", setParts[0])
-	for i := 1; i < len(setParts); i++ {
-		query = fmt.Sprintf("%s, %s", query, setParts[i])
-	}
+	query := fmt.Sprintf("UPDATE sketches SET %s WHERE id = $%d", strings.Join(setParts, ", "), paramCount)
 
 	_, err = s.db.Exec(query, args...)
 	if err != nil {
@@ -437,7 +439,7 @@ func (s *Service) DeleteSketch(id int) error {
 		return errors.New("invalid sketch ID")
 	}
 
-	result, err := s.db.Exec("DELETE FROM sketches WHERE id = ?", id)
+	result, err := s.db.Exec("DELETE FROM sketches WHERE id = $1", id)
 	if err != nil {
 		log.Printf("Database error while deleting sketch %d: %v", id, err)
 		return fmt.Errorf("failed to delete sketch: %w", err)
@@ -464,7 +466,7 @@ func (s *Service) DeleteSketchByMemberAndSlug(memberID int, slug string) error {
 		return errors.New("slug cannot be empty")
 	}
 
-	result, err := s.db.Exec("DELETE FROM sketches WHERE member_id = ? AND slug = ?", memberID, slug)
+	result, err := s.db.Exec("DELETE FROM sketches WHERE member_id = $1 AND slug = $2", memberID, slug)
 	if err != nil {
 		log.Printf("Database error while deleting sketch for member %d, slug '%s': %v", memberID, slug, err)
 		return fmt.Errorf("failed to delete sketch by member and slug: %w", err)

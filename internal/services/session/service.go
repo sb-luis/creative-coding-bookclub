@@ -40,7 +40,7 @@ func (s *Service) CreateSession(memberID int) (*model.Session, error) {
 	// Insert new session
 	_, err = s.db.Exec(`
 		INSERT INTO sessions (id, member_id, created_at, expires_at) 
-		VALUES (?, ?, ?, ?)`,
+		VALUES ($1, $2, $3, $4)`,
 		sessionID, memberID, createdAt, expiresAt)
 	if err != nil {
 		log.Printf("Database error while creating session for member %d: %v", memberID, err)
@@ -64,7 +64,7 @@ func (s *Service) GetSession(sessionID string) (*model.Session, error) {
 	session := &model.Session{}
 	err := s.db.QueryRow(`
 		SELECT id, member_id, created_at, expires_at 
-		FROM sessions WHERE id = ?`, sessionID).Scan(
+		FROM sessions WHERE id = $1`, sessionID).Scan(
 		&session.ID, &session.MemberID, &session.CreatedAt, &session.ExpiresAt)
 
 	if err == sql.ErrNoRows {
@@ -91,7 +91,7 @@ func (s *Service) DeleteSession(sessionID string) error {
 		return errors.New("session ID cannot be empty")
 	}
 
-	_, err := s.db.Exec("DELETE FROM sessions WHERE id = ?", sessionID)
+	_, err := s.db.Exec("DELETE FROM sessions WHERE id = $1", sessionID)
 	if err != nil {
 		log.Printf("Database error while deleting session '%s': %v", sessionID, err)
 		return fmt.Errorf("failed to delete session: %w", err)
@@ -101,7 +101,7 @@ func (s *Service) DeleteSession(sessionID string) error {
 
 // CleanupExpiredSessions removes expired sessions from the database
 func (s *Service) CleanupExpiredSessions() error {
-	_, err := s.db.Exec("DELETE FROM sessions WHERE expires_at < ?", time.Now())
+	_, err := s.db.Exec("DELETE FROM sessions WHERE expires_at < $1", time.Now())
 	if err != nil {
 		return fmt.Errorf("failed to cleanup expired sessions: %w", err)
 	}

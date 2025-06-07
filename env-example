@@ -1,0 +1,5 @@
+# Docker Compose DATABASE_URL example 
+DATABASE_URL=postgres://bookclub_user:bookclub_password@localhost:5432/bookclub_db?sslmode=disable
+
+# Not using Docker Compose? Use the following format: 
+# DATABASE_URL=postgresql://{user}:{password}@{host}:{port}/{db_name}?sslmode=require

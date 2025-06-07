@@ -31,7 +31,7 @@ func (s *Service) CreateMember(name, passwordHash string) (*model.Member, error)
 
 	// Check if name already exists
 	var count int
-	err := s.db.QueryRow("SELECT COUNT(*) FROM members WHERE name = ?", name).Scan(&count)
+	err := s.db.QueryRow("SELECT COUNT(*) FROM members WHERE name = $1", name).Scan(&count)
 	if err != nil {
 		log.Printf("Database error while checking if member exists for name '%s': %v", name, err)
 		return nil, fmt.Errorf("failed to check if member exists: %w", err)
@@ -41,23 +41,18 @@ func (s *Service) CreateMember(name, passwordHash string) (*model.Member, error)
 	}
 
 	// Insert new member
-	result, err := s.db.Exec(`
+	var id int
+	err = s.db.QueryRow(`
 		INSERT INTO members (name, password_hash, verified, created_at, updated_at) 
-		VALUES (?, ?, ?, ?, ?)`,
-		name, passwordHash, false, time.Now(), time.Now())
+		VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+		name, passwordHash, false, time.Now(), time.Now()).Scan(&id)
 	if err != nil {
 		log.Printf("Database error while creating member '%s': %v", name, err)
 		return nil, fmt.Errorf("failed to create member: %w", err)
 	}
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		log.Printf("Database error while getting member ID for '%s': %v", name, err)
-		return nil, fmt.Errorf("failed to get member ID: %w", err)
-	}
-
 	// Return the created member
-	return s.GetMemberByID(int(id))
+	return s.GetMemberByID(id)
 }
 
 // GetMemberByName returns a member by name
@@ -69,7 +64,7 @@ func (s *Service) GetMemberByName(name string) (*model.Member, error) {
 	member := &model.Member{}
 	err := s.db.QueryRow(`
 		SELECT id, name, password_hash, verified, created_at, updated_at 
-		FROM members WHERE name = ?`, name).Scan(
+		FROM members WHERE name = $1`, name).Scan(
 		&member.ID, &member.Name, &member.PasswordHash, &member.Verified,
 		&member.CreatedAt, &member.UpdatedAt)
 
@@ -93,7 +88,7 @@ func (s *Service) GetMemberByID(id int) (*model.Member, error) {
 	member := &model.Member{}
 	err := s.db.QueryRow(`
 		SELECT id, name, password_hash, verified, created_at, updated_at 
-		FROM members WHERE id = ?`, id).Scan(
+		FROM members WHERE id = $1`, id).Scan(
 		&member.ID, &member.Name, &member.PasswordHash, &member.Verified,
 		&member.CreatedAt, &member.UpdatedAt)
 
@@ -165,8 +160,8 @@ func (s *Service) UpdatePassword(memberID int, currentPasswordHash, newPasswordH
 	// Update the password
 	_, err = s.db.Exec(`
 		UPDATE members 
-		SET password_hash = ?, updated_at = ? 
-		WHERE id = ?`,
+		SET password_hash = $1, updated_at = $2 
+		WHERE id = $3`,
 		newPasswordHash, time.Now(), memberID)
 
 	if err != nil {

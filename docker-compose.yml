@@ -9,9 +9,25 @@ services:
       - PORT=4000
       - LOG_LEVEL=debug
       - REVERSE_PROXY_ENDPOINT=http://frontend:8000
-      - DATABASE_URL=file:///app/local.db
     env_file: '.env'
     volumes:
       - ./apps/backend/src/:/app/src
     ports:
       - '8000:4000' # host:container
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: creative-coding-bookclub-postgres
+    environment:
+      POSTGRES_USER: bookclub_user
+      POSTGRES_PASSWORD: bookclub_password
+      POSTGRES_DB: bookclub_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
