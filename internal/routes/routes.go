@@ -203,6 +203,19 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 		handlers.SketchListerPageHandler(services)(w, r, tmpl, pageData)
 	}), "GET")
 
+	// Empty iframe page for iframe initialization
+	router.HandleFunc("/empty-iframe", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		currentLang := utils.GetCurrentLanguage(r)
+		pageData := preparePageData(r, w, currentLang, services)
+		tmpl, err := masterTmpl.Clone()
+		if err != nil {
+			log.Printf("Error cloning master template for empty iframe: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		handlers.EmptyIframeHandler(w, r, tmpl, pageData)
+	}), "GET")
+
 	// Homepage
 	router.HandleFunc("/", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)

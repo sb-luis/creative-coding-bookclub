@@ -2,6 +2,12 @@
 .cursor-pointer {
   cursor: pointer;
 }
+
 .cursor-not-allowed {
   cursor: not-allowed;
+}
+
+/* Lists */
+.list-disc {
+  list-style-type: disc;
 }

@@ -1,0 +1,21 @@
+{{ block "page-empty-iframe" . }}
+<!DOCTYPE html>
+<html lang="{{ .Lang }}" {{ if and .Theme (ne .Theme "system" ) }}data-theme="{{ .Theme }}" {{ end }}>
+
+<head>
+    {{ template "html-head" . }}
+</head>
+
+<body>
+    <main class="max-w-screen-md m-auto px-8 py-2 space-y-9 pb-30">
+        <h1 class="text-2xl font-bold mb-4 text-center">{{ i18nText .Lang "pages.emptyIframe.heading" }}</h1>
+        <p>{{ i18nText .Lang "pages.emptyIframe.troubleshootReasons" }}</p>
+        <ul class="list-disc">
+            <li>{{ i18nText .Lang "pages.emptyIframe.serverIssue" }}</li>
+            <li>{{ i18nText .Lang "pages.emptyIframe.javascriptDisabled" }}</li>
+        </ul>
+    </main>
+</body>
+
+</html>
+{{ end }}

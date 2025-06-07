@@ -38,6 +38,16 @@
         "keywords": "creative coding, sketches, p5.js, processing, art, design, bookclub"
       }
     },
+    "emptyIframe": {
+      "meta": {
+        "title": "Loading...",
+        "description": "Empty iframe placeholder"
+      },
+      "heading": "Not loading?",
+      "troubleshootReasons": "If content is taking too long to load, this might be due to:",
+      "serverIssue": "Server connectivity issues",
+      "javascriptDisabled": "JavaScript is disabled in your browser"
+    },
     "signIn": {
       "meta": {
         "title": "Sign in",
