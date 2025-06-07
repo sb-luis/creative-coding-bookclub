@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/fs"
 	"log"
@@ -10,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/sb-luis/creative-coding-bookclub/internal/model"
+	"github.com/sb-luis/creative-coding-bookclub/internal/services"
 	"github.com/sb-luis/creative-coding-bookclub/internal/utils"
 )
 
@@ -20,6 +23,12 @@ type SketchMetadata struct {
 	Keywords     string   `json:"keywords"`
 	Tags         []string `json:"tags"`
 	ExternalLibs []string `json:"external_libs"`
+}
+
+// MemberConfig represents the structure of members in members.json
+type MemberConfig struct {
+	Name     string `json:"name"`
+	Password string `json:"password"`
 }
 
 func main() {
@@ -42,47 +51,78 @@ func main() {
 	}
 	defer utils.CloseDatabase()
 
-	sketchesDir := "data/sketches"
+	// Initialize services
+	globalServices := services.NewServices(utils.GetDB())
 
-	// Read all member directories
-	entries, err := os.ReadDir(sketchesDir)
+	// Load members configuration from JSON file
+	membersConfig, err := loadMembersConfig("data/seed/members.json")
 	if err != nil {
-		log.Fatalf("Failed to read sketches directory: %v", err)
+		log.Fatalf("Failed to load members configuration: %v", err)
 	}
 
-	// Process each member directory
-	for _, entry := range entries {
-		if !entry.IsDir() {
+	sketchesDir := "data/seed/sketches"
+
+	// Process each member in the order specified in members.json
+	for _, memberConfig := range membersConfig {
+		memberName := memberConfig.Name
+		log.Printf("Processing member: %s", memberName)
+
+		// Check if member directory exists
+		memberDir := filepath.Join(sketchesDir, memberName)
+		if _, err := os.Stat(memberDir); os.IsNotExist(err) {
+			log.Printf("Skipping member %s: directory %s does not exist", memberName, memberDir)
 			continue
 		}
 
-		memberName := entry.Name()
-		log.Printf("Processing member: %s", memberName)
-
-		// Create member with 'qwerty' password
-		err := createMember(memberName, "qwerty")
+		// Create member with the password from configuration
+		err := createMember(globalServices, memberName, memberConfig.Password)
 		if err != nil {
 			log.Printf("Failed to create member %s: %v", memberName, err)
 			continue
 		}
 
 		// Process sketches for this member
-		memberDir := filepath.Join(sketchesDir, memberName)
-		err = processMemberSketches(memberName, memberDir)
+		err = processMemberSketches(globalServices, memberName, memberDir)
 		if err != nil {
 			log.Printf("Failed to process sketches for member %s: %v", memberName, err)
 		}
 	}
 
+	// Verify all members manually via SQL (for seeding purposes)
+	err = verifyAllMembers(utils.GetDB())
+	if err != nil {
+		log.Printf("Failed to verify all members: %v", err)
+	}
+
 	log.Println("Seeding completed!")
 }
 
-func createMember(name, password string) error {
-	db := utils.GetDB()
+func loadMembersConfig(configPath string) ([]MemberConfig, error) {
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read members config file: %w", err)
+	}
+
+	var members []MemberConfig
+	err = json.Unmarshal(data, &members)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse members config JSON: %w", err)
+	}
+
+	log.Printf("Loaded %d members from configuration file", len(members))
+	return members, nil
+}
+
+func createMember(services *services.Services, name, password string) error {
+	if services == nil {
+		return errors.New("services not initialized")
+	}
+
+	// Hash the password
 	passwordHash := utils.HashPassword(password)
 
-	// Try to create the member
-	member, err := db.CreateMember(name, passwordHash)
+	// Create the member using the regular CreateMember method
+	member, err := services.Member.CreateMember(name, passwordHash)
 	if err != nil {
 		if strings.Contains(err.Error(), "already exists") {
 			log.Printf("Member %s already exists, skipping creation", name)
@@ -95,11 +135,35 @@ func createMember(name, password string) error {
 	return nil
 }
 
-func processMemberSketches(memberName, memberDir string) error {
-	db := utils.GetDB()
+// verifyAllMembers manually sets all members as verified via direct SQL
+func verifyAllMembers(db *sql.DB) error {
+	if db == nil {
+		return errors.New("database connection is nil")
+	}
+
+	// Update all members to be verified
+	result, err := db.Exec("UPDATE members SET verified = true WHERE verified = false")
+	if err != nil {
+		return fmt.Errorf("failed to verify members: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("Could not get rows affected count: %v", err)
+	} else {
+		log.Printf("Verified %d members via direct SQL", rowsAffected)
+	}
+
+	return nil
+}
+
+func processMemberSketches(services *services.Services, memberName, memberDir string) error {
+	if services == nil {
+		return errors.New("services not initialized")
+	}
 
 	// Get member from database
-	member, err := db.GetMemberByName(memberName)
+	member, err := services.Member.GetMemberByName(memberName)
 	if err != nil {
 		return fmt.Errorf("failed to get member %s: %w", memberName, err)
 	}
@@ -115,7 +179,7 @@ func processMemberSketches(memberName, memberDir string) error {
 			sketchName := strings.TrimSuffix(d.Name(), ".js")
 			log.Printf("  Processing sketch: %s", sketchName)
 
-			err := createSketch(member.ID, memberDir, sketchName)
+			err := createSketch(services, member.ID, memberDir, sketchName)
 			if err != nil {
 				log.Printf("    Failed to create sketch %s: %v", sketchName, err)
 			} else {
@@ -129,8 +193,10 @@ func processMemberSketches(memberName, memberDir string) error {
 	return err
 }
 
-func createSketch(memberID int, memberDir, sketchName string) error {
-	db := utils.GetDB()
+func createSketch(services *services.Services, memberID int, memberDir, sketchName string) error {
+	if services == nil {
+		return errors.New("services not initialized")
+	}
 
 	// Read JavaScript source code
 	jsPath := filepath.Join(memberDir, sketchName+".js")
@@ -178,7 +244,7 @@ func createSketch(memberID int, memberDir, sketchName string) error {
 	}
 
 	// Create the sketch in database
-	sketch, err := db.CreateSketch(memberID, req)
+	sketch, err := services.Sketch.CreateSketch(memberID, req)
 	if err != nil {
 		if strings.Contains(err.Error(), "already exists") {
 			log.Printf("    Sketch %s already exists for member, skipping", sketchName)

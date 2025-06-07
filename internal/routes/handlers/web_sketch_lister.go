@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/sb-luis/creative-coding-bookclub/internal/model"
+	"github.com/sb-luis/creative-coding-bookclub/internal/services"
 	"github.com/sb-luis/creative-coding-bookclub/internal/utils"
 )
 
@@ -16,30 +17,37 @@ type SketchListerPageData struct {
 }
 
 // SketchListerPageHandler handles requests to display the list of all sketches.
-func SketchListerPageHandler(w http.ResponseWriter, r *http.Request, tmpl *template.Template, pageData *utils.PageData) {
-	// Override metadata fields specific to the sketch lister page
-	pageData.Title = utils.Translate(pageData.Lang, "pages.sketchLister.meta.title")
-	pageData.Description = utils.Translate(pageData.Lang, "pages.sketchLister.meta.description")
-	pageData.Keywords = utils.Translate(pageData.Lang, "pages.sketchLister.meta.keywords")
+func SketchListerPageHandler(services *services.Services) func(w http.ResponseWriter, r *http.Request, tmpl *template.Template, pageData *utils.PageData) {
+	return func(w http.ResponseWriter, r *http.Request, tmpl *template.Template, pageData *utils.PageData) {
+		// Override metadata fields specific to the sketch lister page
+		pageData.Title = utils.Translate(pageData.Lang, "pages.sketchLister.meta.title")
+		pageData.Description = utils.Translate(pageData.Lang, "pages.sketchLister.meta.description")
+		pageData.Keywords = utils.Translate(pageData.Lang, "pages.sketchLister.meta.keywords")
 
-	// Get all sketches from database grouped by member
-	db := utils.GetDB()
-	membersData, err := db.GetAllSketchesGroupedByMember()
-	if err != nil {
-		log.Printf("Error getting sketches from database: %v", err)
-		http.Error(w, "Failed to load sketches", http.StatusInternalServerError)
-		return
-	}
+		// Get all sketches from services grouped by member
+		if services == nil {
+			log.Printf("Services not initialized")
+			http.Error(w, "Failed to load sketches", http.StatusInternalServerError)
+			return
+		}
 
-	// Prepare the data for the template
-	templateData := SketchListerPageData{
-		PageData: *pageData,
-		Members:  membersData, // Renamed from MembersData
-	}
+		membersData, err := services.Sketch.GetAllSketchesGroupedByMember()
+		if err != nil {
+			log.Printf("Error getting sketches from services: %v", err)
+			http.Error(w, "Failed to load sketches", http.StatusInternalServerError)
+			return
+		}
 
-	err = tmpl.ExecuteTemplate(w, "page-sketch-lister", templateData)
-	if err != nil {
-		log.Printf("Error executing page-sketch-lister template: %v", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		// Prepare the data for the template
+		templateData := SketchListerPageData{
+			PageData: *pageData,
+			Members:  membersData, // Renamed from MembersData
+		}
+
+		err = tmpl.ExecuteTemplate(w, "page-sketch-lister", templateData)
+		if err != nil {
+			log.Printf("Error executing page-sketch-lister template: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
 	}
 }

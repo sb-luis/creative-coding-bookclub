@@ -8,11 +8,12 @@ import (
 	"path/filepath"
 
 	"github.com/sb-luis/creative-coding-bookclub/internal/routes/handlers"
+	"github.com/sb-luis/creative-coding-bookclub/internal/services"
 	"github.com/sb-luis/creative-coding-bookclub/internal/utils"
 )
 
 // Helper function to prepare template data and handle theme
-func preparePageData(r *http.Request, w http.ResponseWriter, currentLang string) *utils.PageData {
+func preparePageData(r *http.Request, w http.ResponseWriter, currentLang string, services *services.Services) *utils.PageData {
 	theme := utils.GetResolvedTheme(r)
 	utils.SetThemeCookie(w, theme)
 
@@ -20,9 +21,19 @@ func preparePageData(r *http.Request, w http.ResponseWriter, currentLang string)
 	pageData.SupportedLanguages = utils.GetSupportedLanguages()
 
 	// Check authentication status
-	if member, err := utils.GetCurrentMember(r); err == nil {
-		pageData.IsAuthenticated = true
-		pageData.MemberName = member.Name
+	if sessionID, err := utils.GetSessionFromRequest(r); err == nil {
+		if memberID, err := services.Session.GetMemberIDFromSession(sessionID); err == nil {
+			if member, err := services.Member.GetMemberByID(memberID); err == nil {
+				pageData.IsAuthenticated = true
+				pageData.MemberName = member.Name
+			} else {
+				pageData.IsAuthenticated = false
+				pageData.MemberName = ""
+			}
+		} else {
+			pageData.IsAuthenticated = false
+			pageData.MemberName = ""
+		}
 	} else {
 		pageData.IsAuthenticated = false
 		pageData.MemberName = ""
@@ -54,7 +65,7 @@ func renderNotFound(w http.ResponseWriter, r *http.Request, masterTmpl *template
 }
 
 // RegisterRoutes registers all the route handlers to the provided custom Router.
-func RegisterRoutes(router *utils.Router) {
+func RegisterRoutes(router *utils.Router, services *services.Services) {
 	baseDir, err := os.Getwd()
 	if err != nil {
 		log.Fatalf("Error getting working directory: %v", err)
@@ -86,41 +97,42 @@ func RegisterRoutes(router *utils.Router) {
 	// =============================================================================
 
 	// Member API endpoints
-	router.HandleFunc("/api/members", apiMiddleware(handlers.GetMembersHandler), "GET")
-	router.HandleFunc("/api/sketches/{member}", apiMiddleware(handlers.GetMemberSketchesHandler), "GET")
+	router.HandleFunc("/api/members", apiMiddleware(handlers.GetMembersHandler(services)), "GET")
+	router.HandleFunc("/api/sketches/{member}", apiMiddleware(handlers.GetMemberSketchesHandler(services)), "GET")
 
 	// Preference API endpoints
 	router.HandleFunc("/api/preferences/theme", apiMiddleware(handlers.ThemePreferencesPostHandler), "POST")
 	router.HandleFunc("/api/preferences/locale", apiMiddleware(handlers.LocalePreferencesPostHandler), "POST")
 
 	// Authentication API endpoints
-	router.HandleFunc("/api/auth/logout", apiMiddleware(handlers.LogoutHandler), "POST")
-	router.HandleFunc("/api/auth/sign-out", apiMiddleware(handlers.SignOutHandler), "GET")
+	router.HandleFunc("/api/auth/logout", apiMiddleware(handlers.LogoutHandler(services)), "POST")
+	router.HandleFunc("/api/auth/sign-out", apiMiddleware(handlers.SignOutHandler(services)), "GET")
+	router.HandleFunc("/api/auth/update-password", apiMiddleware(handlers.UpdatePasswordHandler(services)), "POST")
 	router.HandleFunc("/api/auth/register", apiMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
-		pageData := preparePageData(r, w, currentLang)
+		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
 		if err != nil {
 			log.Printf("Error cloning master template for register: %v", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
-		handlers.RegisterPostHandler(w, r, tmpl, pageData)
+		handlers.RegisterPostHandler(services)(w, r, tmpl, pageData)
 	}), "POST")
 	router.HandleFunc("/api/auth/sign-in", apiMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
-		pageData := preparePageData(r, w, currentLang)
+		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
 		if err != nil {
 			log.Printf("Error cloning master template for sign-in: %v", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
-		handlers.SignInPostHandler(w, r, tmpl, pageData)
+		handlers.SignInPostHandler(services)(w, r, tmpl, pageData)
 	}), "POST")
 
 	// Sketch data API endpoints
-	router.HandleFunc("/api/sketches/{member}/{sketch}/js", apiMiddleware(handlers.SketchCodeHandler), "GET")
+	router.HandleFunc("/api/sketches/{member}/{sketch}/js", apiMiddleware(handlers.SketchCodeHandler(services)), "GET")
 
 	// =============================================================================
 	// WEB ROUTES - Frontend HTML page rendering
@@ -129,7 +141,7 @@ func RegisterRoutes(router *utils.Router) {
 	// Register page
 	router.HandleFunc("/register", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
-		pageData := preparePageData(r, w, currentLang)
+		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
 		if err != nil {
 			log.Printf("Error cloning master template for register: %v", err)
@@ -142,7 +154,7 @@ func RegisterRoutes(router *utils.Router) {
 	// Sign-in page
 	router.HandleFunc("/sign-in", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
-		pageData := preparePageData(r, w, currentLang)
+		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
 		if err != nil {
 			log.Printf("Error cloning master template for sign-in: %v", err)
@@ -155,46 +167,46 @@ func RegisterRoutes(router *utils.Router) {
 	// Member's profile (requires authentication)
 	router.HandleFunc("/me", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
-		pageData := preparePageData(r, w, currentLang)
+		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
 		if err != nil {
 			log.Printf("Error cloning master template for me: %v", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
-		handlers.ProfileHandler(w, r, tmpl, pageData)
+		handlers.ProfileHandler(services)(w, r, tmpl, pageData)
 	}), "GET")
 
 	// Member's sketch page
 	router.HandleFunc("/members/{memberName}/{sketchSlug}", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
-		pageData := preparePageData(r, w, currentLang)
+		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
 		if err != nil {
 			log.Printf("Error cloning master template for sketch page: %v", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
-		handlers.SketchPageGetHandler(w, r, tmpl, pageData)
+		handlers.SketchPageGetHandler(services)(w, r, tmpl, pageData)
 	}), "GET")
 
 	// Sketch lister page
 	router.HandleFunc("/sketches", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
-		pageData := preparePageData(r, w, currentLang)
+		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
 		if err != nil {
 			log.Printf("Error cloning master template for sketch lister: %v", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
-		handlers.SketchListerPageHandler(w, r, tmpl, pageData)
+		handlers.SketchListerPageHandler(services)(w, r, tmpl, pageData)
 	}), "GET")
 
 	// Homepage
 	router.HandleFunc("/", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
-		pageData := preparePageData(r, w, currentLang)
+		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
 		if err != nil {
 			log.Printf("Error cloning template for /: %v", err)

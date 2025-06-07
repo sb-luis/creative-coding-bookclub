@@ -104,6 +104,21 @@
       "settingsLabel": "settings",
       "themeLabel": "theme",
       "languageLabel": "language"
+    },
+    "passwordUpdate": {
+      "heading": "Update Password",
+      "currentPasswordLabel": "Current Password",
+      "currentPasswordPlaceholder": "Enter your current password",
+      "newPasswordLabel": "New Password",
+      "newPasswordPlaceholder": "Enter new password (min. 6 characters)",
+      "confirmPasswordLabel": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Confirm your new password",
+      "submitButton": "Update Password",
+      "successMessage": "Password updated successfully!",
+      "generalError": "Failed to update password. Please try again.",
+      "networkError": "Network error. Please check your connection and try again.",
+      "passwordMismatchError": "New passwords do not match.",
+      "passwordTooShortError": "Password must be at least 6 characters long."
     }
   }
 }

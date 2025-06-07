@@ -1,9 +1,9 @@
 package utils
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
 	"net/http"
 	"time"
 )
@@ -20,77 +20,13 @@ func VerifyPassword(password, hash string) bool {
 	return HashPassword(password) == hash
 }
 
-// AuthenticateMember authenticates a member with name and password
-func AuthenticateMember(name, password string) (*Member, error) {
-	db := GetDB()
-	if db == nil {
-		return nil, errors.New("database not initialized")
+// GenerateSessionID generates a random session ID
+func GenerateSessionID() (string, error) {
+	bytes := make([]byte, 32)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", err
 	}
-
-	member, err := db.GetMemberByName(name)
-	if err != nil {
-		return nil, errors.New("invalid name or password")
-	}
-
-	if !VerifyPassword(password, member.PasswordHash) {
-		return nil, errors.New("invalid name or password")
-	}
-
-	return member, nil
-}
-
-// CreateMemberAccount creates a new member account
-func CreateMemberAccount(name, password string) (*Member, error) {
-	db := GetDB()
-	if db == nil {
-		return nil, errors.New("database not initialized")
-	}
-
-	if name == "" || password == "" {
-		return nil, errors.New("name and password are required")
-	}
-
-	if len(password) < 6 {
-		return nil, errors.New("password must be at least 6 characters long")
-	}
-
-	passwordHash := HashPassword(password)
-	return db.CreateMember(name, passwordHash)
-}
-
-// GetMemberFromSession retrieves the member associated with a session
-func GetMemberFromSession(sessionID string) (*Member, error) {
-	db := GetDB()
-	if db == nil {
-		return nil, errors.New("database not initialized")
-	}
-
-	session, err := db.GetSession(sessionID)
-	if err != nil {
-		return nil, err
-	}
-
-	return db.GetMemberByID(session.MemberID)
-}
-
-// CreateMemberSession creates a new session for a member
-func CreateMemberSession(memberID int) (*Session, error) {
-	db := GetDB()
-	if db == nil {
-		return nil, errors.New("database not initialized")
-	}
-
-	return db.CreateSession(memberID)
-}
-
-// LogoutMember logs out a member by deleting their session
-func LogoutMember(sessionID string) error {
-	db := GetDB()
-	if db == nil {
-		return errors.New("database not initialized")
-	}
-
-	return db.DeleteSession(sessionID)
+	return hex.EncodeToString(bytes), nil
 }
 
 // SetSessionCookie sets the session cookie for a member
@@ -128,26 +64,4 @@ func ClearSessionCookie(w http.ResponseWriter) {
 		Expires:  time.Unix(0, 0), // Set to past time to delete
 	}
 	http.SetCookie(w, cookie)
-}
-
-// GetCurrentMember gets the currently authenticated member from the request
-func GetCurrentMember(r *http.Request) (*Member, error) {
-	sessionID, err := GetSessionFromRequest(r)
-	if err != nil {
-		return nil, err
-	}
-
-	return GetMemberFromSession(sessionID)
-}
-
-// RequireAuth is a middleware that requires authentication
-func RequireAuth(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		_, err := GetCurrentMember(r)
-		if err != nil {
-			http.Redirect(w, r, "/sign-in", http.StatusSeeOther)
-			return
-		}
-		next(w, r)
-	}
 }

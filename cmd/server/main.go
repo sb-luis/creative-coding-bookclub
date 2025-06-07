@@ -6,8 +6,11 @@ import (
 	"os"
 
 	"github.com/sb-luis/creative-coding-bookclub/internal/routes"
+	"github.com/sb-luis/creative-coding-bookclub/internal/services"
 	"github.com/sb-luis/creative-coding-bookclub/internal/utils"
 )
+
+var globalServices *services.Services
 
 func main() {
 	// Configure logger to write to stdout
@@ -30,6 +33,9 @@ func main() {
 		log.Fatal("Failed to initialize database:", err)
 	}
 
+	// Initialize services
+	globalServices = services.NewServices(utils.GetDB())
+
 	// Ensure database is properly closed on shutdown
 	defer func() {
 		if err := utils.CloseDatabase(); err != nil {
@@ -40,7 +46,7 @@ func main() {
 	// Create a new custom router
 	router := utils.NewRouter()
 
-	routes.RegisterRoutes(router)
+	routes.RegisterRoutes(router, globalServices)
 
 	port := os.Getenv("PORT")
 	if port == "" {
