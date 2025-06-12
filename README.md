@@ -2,6 +2,15 @@
 
 The home of the [creativecodingbook.club](https://creativecodingbook.club) web app.
 
-## references
+## Code Editor Keyboard Shortcuts
 
-- [2023 Aug, Piotr Jastrzebski (Turso) - Something you probably want to know about if you're using SQLite in Golang](https://turso.tech/blog/something-you-probably-want-to-know-about-if-youre-using-sqlite-in-golang-72547ad625f1)
+### Sketch Editor
+- **Ctrl + Enter**: Execute code 
+- **Ctrl + .**: Stop code execution
+- **Ctrl + ,**: Show / hide code 
+- **Ctrl + ;**: Show / hide console 
+- **Ctrl + F**: Format code
+- **Ctrl + /**: Toggle comment
+
+### Sketch Manager
+- **Ctrl + S**: Save current sketch
