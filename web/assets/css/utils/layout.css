@@ -120,6 +120,27 @@
   max-width: 12.5rem; /* 200px */
 }
 
+/* additional  properties for min-width at different breakpoints */
+.min-w-screen-sm {
+  min-width: var(--breakpoint-sm)
+}
+
+.min-w-screen-md {
+  min-width: var(--breakpoint-md)
+}
+
+.min-w-screen-lg {
+  min-width: var(--breakpoint-lg)
+}
+
+.min-w-screen-xl {
+  min-width: var(--breakpoint-xl)
+}
+
+.min-w-50 {
+  min-width: 12.5rem; /* 200px */
+}
+
 /* Overflow */
 .overflow-auto {
   overflow: auto;
@@ -158,6 +179,9 @@
 .top-0 {
   top: 0;
 }
+.top-1\/2 {
+  top: 50%;
+}
 .right-0 {
   right: 0;
 }
@@ -166,6 +190,26 @@
 }
 .left-0 {
   left: 0;
+}
+.left-1\/2 {
+  left: 50%;
+}
+
+/* Transform */
+.transform {
+  transform: translateX(0) translateY(0) rotate(0) skewX(0) skewY(0) scaleX(1) scaleY(1);
+}
+.translate-x-1\/2 {
+  transform: translateX(50%);
+}
+.-translate-x-1\/2 {
+  transform: translateX(-50%);
+}
+.translate-y-1\/2 {
+  transform: translateY(50%);
+}
+.-translate-y-1\/2 {
+  transform: translateY(-50%);
 }
 
 /* Z-index */

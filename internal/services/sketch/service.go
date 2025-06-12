@@ -181,7 +181,7 @@ func (s *Service) GetSketchesByMember(memberID int) ([]*model.Sketch, error) {
 
 	rows, err := s.db.Query(`
 		SELECT id, member_id, slug, title, description, keywords, tags, external_libs, source_code, created_at, updated_at 
-		FROM sketches WHERE member_id = $1 ORDER BY created_at DESC`, memberID)
+		FROM sketches WHERE member_id = $1 ORDER BY updated_at DESC`, memberID)
 	if err != nil {
 		log.Printf("Database error while getting sketches for member %d: %v", memberID, err)
 		return nil, fmt.Errorf("failed to get sketches by member: %w", err)
@@ -220,7 +220,7 @@ func (s *Service) GetSketchesByMember(memberID int) ([]*model.Sketch, error) {
 func (s *Service) GetAllSketches() ([]*model.Sketch, error) {
 	rows, err := s.db.Query(`
 		SELECT id, member_id, slug, title, description, keywords, tags, external_libs, source_code, created_at, updated_at 
-		FROM sketches ORDER BY created_at DESC`)
+		FROM sketches ORDER BY updated_at DESC`)
 	if err != nil {
 		log.Printf("Database error while getting all sketches: %v", err)
 		return nil, fmt.Errorf("failed to get all sketches: %w", err)
@@ -261,14 +261,16 @@ func (s *Service) GetAllSketchesGroupedByMember() ([]model.MemberSketchInfo, err
 		SELECT s.id, s.member_id, s.slug, s.title, s.description, s.keywords, s.tags, s.external_libs, s.source_code, s.created_at, s.updated_at, m.name as member_name
 		FROM sketches s
 		JOIN members m ON s.member_id = m.id
-		ORDER BY m.name, s.created_at DESC`)
+		ORDER BY s.updated_at DESC`)
 	if err != nil {
 		log.Printf("Database error while getting all sketches grouped by member: %v", err)
 		return nil, fmt.Errorf("failed to get all sketches grouped by member: %w", err)
 	}
 	defer rows.Close()
 
-	memberSketchMap := make(map[string][]model.SketchInfo)
+	// Keep track of members in order and build result as we go
+	var result []model.MemberSketchInfo
+	memberIndices := make(map[string]int) // maps member name to index in result slice
 
 	for rows.Next() {
 		var sketch model.Sketch
@@ -286,6 +288,10 @@ func (s *Service) GetAllSketchesGroupedByMember() ([]model.MemberSketchInfo, err
 		if err := json.Unmarshal([]byte(sketch.TagsJSON), &sketch.Tags); err != nil {
 			log.Printf("Warning: failed to unmarshal tags for sketch %d: %v", sketch.ID, err)
 			sketch.Tags = []string{}
+		}
+		if err := json.Unmarshal([]byte(sketch.ExternalLibsJSON), &sketch.ExternalLibs); err != nil {
+			log.Printf("Warning: failed to unmarshal external libs for sketch %d: %v", sketch.ID, err)
+			sketch.ExternalLibs = []string{}
 		}
 
 		// Convert database sketch to SketchInfo for the lister
@@ -309,16 +315,16 @@ func (s *Service) GetAllSketchesGroupedByMember() ([]model.MemberSketchInfo, err
 			sketchInfo.Tags = sketch.Tags
 		}
 
-		memberSketchMap[memberName] = append(memberSketchMap[memberName], sketchInfo)
-	}
-
-	// Convert map to slice
-	var result []model.MemberSketchInfo
-	for memberName, sketches := range memberSketchMap {
-		if len(sketches) > 0 {
+		// Check if we already have this member in our result
+		if index, exists := memberIndices[memberName]; exists {
+			// Add sketch to existing member
+			result[index].Sketches = append(result[index].Sketches, sketchInfo)
+		} else {
+			// Create new member entry
+			memberIndices[memberName] = len(result)
 			result = append(result, model.MemberSketchInfo{
 				Name:     memberName,
-				Sketches: sketches,
+				Sketches: []model.SketchInfo{sketchInfo},
 			})
 		}
 	}
@@ -482,4 +488,23 @@ func (s *Service) DeleteSketchByMemberAndSlug(memberID int, slug string) error {
 	}
 
 	return nil
+}
+
+// SketchExistsByMemberAndSlug checks if a sketch with the given slug exists for a member
+func (s *Service) SketchExistsByMemberAndSlug(memberID int, slug string) (bool, error) {
+	if memberID <= 0 {
+		return false, errors.New("invalid member ID")
+	}
+	if slug == "" {
+		return false, errors.New("slug cannot be empty")
+	}
+
+	var count int
+	err := s.db.QueryRow("SELECT COUNT(*) FROM sketches WHERE member_id = $1 AND slug = $2", memberID, slug).Scan(&count)
+	if err != nil {
+		log.Printf("Database error while checking if sketch exists for member %d and slug '%s': %v", memberID, slug, err)
+		return false, fmt.Errorf("failed to check if sketch exists: %w", err)
+	}
+
+	return count > 0, nil
 }

@@ -23,3 +23,85 @@
 .text-transparent {
   color: transparent;
 }
+
+/* Base color utilities */
+.bg-base-50 {
+  background-color: var(--base-50);
+}
+.bg-base-100 {
+  background-color: var(--base-100);
+}
+.bg-base-200 {
+  background-color: var(--base-200);
+}
+.bg-base-300 {
+  background-color: var(--base-300);
+}
+.bg-base-600 {
+  background-color: var(--base-600);
+}
+.bg-base-700 {
+  background-color: var(--base-700);
+}
+.bg-base-800 {
+  background-color: var(--base-800);
+}
+.bg-base-900 {
+  background-color: var(--base-900);
+}
+
+.text-base-100 {
+  color: var(--base-100);
+}
+.text-base-300 {
+  color: var(--base-300);
+}
+.text-base-600 {
+  color: var(--base-600);
+}
+.text-base-700 {
+  color: var(--base-700);
+}
+.text-base-800 {
+  color: var(--base-800);
+}
+.text-base-900 {
+  color: var(--base-900);
+}
+
+/* Special backgrounds */
+.bg-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Overlay backgrounds with incremental opacity */
+.bg-overlay-50 {
+  background: rgba(0, 0, 0, 0.05);
+}
+.bg-overlay-100 {
+  background: rgba(0, 0, 0, 0.1);
+}
+.bg-overlay-200 {
+  background: rgba(0, 0, 0, 0.2);
+}
+.bg-overlay-300 {
+  background: rgba(0, 0, 0, 0.3);
+}
+.bg-overlay-400 {
+  background: rgba(0, 0, 0, 0.4);
+}
+.bg-overlay-500 {
+  background: rgba(0, 0, 0, 0.5);
+}
+.bg-overlay-600 {
+  background: rgba(0, 0, 0, 0.6);
+}
+.bg-overlay-700 {
+  background: rgba(0, 0, 0, 0.7);
+}
+.bg-overlay-800 {
+  background: rgba(0, 0, 0, 0.8);
+}
+.bg-overlay-900 {
+  background: rgba(0, 0, 0, 0.9);
+}

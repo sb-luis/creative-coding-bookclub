@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/sb-luis/creative-coding-bookclub/internal/services"
-	"github.com/sb-luis/creative-coding-bookclub/internal/utils"
 )
 
 // MemberResponse represents a member in API responses
@@ -55,78 +54,39 @@ func GetMembersHandler(services *services.Services) http.HandlerFunc {
 	}
 }
 
-// SketchResponse represents a sketch in API responses (without source code)
-type SketchResponse struct {
-	ID           int      `json:"id"`
-	Slug         string   `json:"slug"`
-	Title        string   `json:"title"`
-	Description  string   `json:"description"`
-	Keywords     string   `json:"keywords"`
-	Tags         []string `json:"tags"`
-	ExternalLibs []string `json:"external_libs"`
-	CreatedAt    string   `json:"created_at"`
-	UpdatedAt    string   `json:"updated_at"`
-}
-
-// GetMemberSketchesHandler handles GET requests to return all sketches for a specific member
-func GetMemberSketchesHandler(services *services.Services) http.HandlerFunc {
+// GetCurrentMemberHandler handles GET requests to return the current authenticated member
+func GetCurrentMemberHandler(services *services.Services) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Set content type for JSON response
 		w.Header().Set("Content-Type", "application/json")
 
-		// Get member name from URL path
-		memberName := utils.PathVariable(r, "member")
-		if memberName == "" {
-			log.Printf("Invalid request: missing member name")
-			http.Error(w, "Bad Request: missing member name", http.StatusBadRequest)
+		// Get authenticated member ID from context
+		memberID, ok := r.Context().Value("authenticated_member_id").(int)
+		if !ok {
+			http.Error(w, `{"error":"Authentication required"}`, http.StatusUnauthorized)
 			return
 		}
 
-		if services == nil {
-			log.Printf("Services not initialized")
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-
-		// Get member from service
-		member, err := services.Member.GetMemberByName(memberName)
+		// Get member details
+		member, err := services.Member.GetMemberByID(memberID)
 		if err != nil {
-			log.Printf("Member not found: %s", memberName)
-			http.Error(w, "Member not found", http.StatusNotFound)
+			log.Printf("Error getting member by ID %d: %v", memberID, err)
+			http.Error(w, `{"error":"Member not found"}`, http.StatusNotFound)
 			return
 		}
 
-		// Get all sketches for this member
-		sketches, err := services.Sketch.GetSketchesByMember(member.ID)
-		if err != nil {
-			log.Printf("Error getting sketches for member %s: %v", memberName, err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		// Return member response
+		response := MemberResponse{
+			ID:   member.ID,
+			Name: member.Name,
+		}
+
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			log.Printf("Error encoding current member response: %v", err)
+			http.Error(w, `{"error":"Internal server error"}`, http.StatusInternalServerError)
 			return
 		}
 
-		// Convert to response format (exclude source code for listing)
-		var sketchResponses []SketchResponse
-		for _, sketch := range sketches {
-			sketchResponses = append(sketchResponses, SketchResponse{
-				ID:           sketch.ID,
-				Slug:         sketch.Slug,
-				Title:        sketch.Title,
-				Description:  sketch.Description,
-				Keywords:     sketch.Keywords,
-				Tags:         sketch.Tags,
-				ExternalLibs: sketch.ExternalLibs,
-				CreatedAt:    sketch.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-				UpdatedAt:    sketch.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
-			})
-		}
-
-		// Return JSON response
-		if err := json.NewEncoder(w).Encode(sketchResponses); err != nil {
-			log.Printf("Error encoding JSON response for member sketches: %v", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-
-		log.Printf("Served %d sketches for member %s via API", len(sketchResponses), memberName)
+		log.Printf("Served current member information for member %d (%s)", member.ID, member.Name)
 	}
 }

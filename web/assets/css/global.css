@@ -7,7 +7,8 @@
 @import url("./components/ccb-button.css");
 @import url("./components/ccb-button-spark.css");
 
-html {
+html, body {
+  width: 100%;
   height: 100%;
 }
 
@@ -16,7 +17,6 @@ body {
   color: var(--base-900);
   font: 1.25em sans-serif;
   line-height: 1.5em;
-  height: 100%;
 }
 
 .invisible {

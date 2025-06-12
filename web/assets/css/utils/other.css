@@ -11,3 +11,8 @@
 .list-disc {
   list-style-type: disc;
 }
+
+/* Transition utilities */
+.transition-bg {
+  transition: background-color 0.2s ease;
+}

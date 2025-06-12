@@ -18,14 +18,16 @@
             <!-- Sketch List -->
             <div class="flex flex-col py-8">
                 <h1 class="mb-4 ccb-h2">sketches</h1>
-                <ul id="sketch-lister" class="space-y-2 overflow-y-scroll max-w-50">
+                <ul id="sketch-lister" class="space-y-2 overflow-y-scroll max-w-50" role="listbox" aria-label="Available sketches">
                     {{ range .Members }}
                     {{ if .Sketches }}
                     {{ range .Sketches }}
-                    <li>
+                    <li role="option">
                         <button class="ccb-link" data-alias="{{ .Alias }}" data-page="{{ .Slug }}"
                             data-title="{{ if .Title }}{{ .Title | html }}{{ end }}"
-                            data-description="{{ if .Description }}{{ .Description | html }}{{ end }}">{{ .Alias }}/{{
+                            data-description="{{ if .Description }}{{ .Description | html }}{{ end }}"
+                            aria-current="false" aria-selected="false" 
+                            aria-label="Load sketch {{ .Alias }}/{{ .Slug }}">{{ .Alias }}/{{
                             .Slug }}</button>
                     </li>
                     {{ end }}
@@ -37,14 +39,17 @@
     </aside>
     <main class="h-full">
         <div class="h-full flex flex-col md:flex-row">
-            <div class="flex-1 shadow-2xl rounded-2xl flex flex-col m-2">
+            <div class="flex-1 shadow-2xl rounded-2xl flex flex-col">
+                <div id="sketch-lister-header" class="flex justify-between items-center px-2">
+                    <div class="flex items-center space-x-2">
+                        <button id="prev-sketch" class="ccb-link px-2"
+                            title="Previous sketch (wraps to last)">&lt;</button>
+                        <button id="next-sketch" class="ccb-link px-2" title="Next sketch (wraps to first)">&gt;</button>
+                    </div>
+                    <a id="sketch-link" href="/empty-iframe" target="_blank" class="ccb-link">open</a>
+                </div>
                 <div id="viewport" class="flex-1 rounded-t-2xl relative max-h-[55vh] md:max-h-[75vh]">
                     <iframe id="sketch-view" src="/empty-iframe" class="w-full h-full z-10"></iframe>
-                </div>
-                <div class="p-4 border-t-3 border-neutral-400 border-dashed max-h-[20vh] overflow-auto">
-                    <p id="sketch-title">...</p>
-                    <p id="sketch-description">...</p>
-                    <a id="sketch-link" href="/empty-iframe" target="_blank" class="ccb-link">open</a>
                 </div>
             </div>
         </div>
@@ -52,9 +57,12 @@
     <script>
         const sketchListerEl = document.getElementById('sketch-lister');
         const sketchViewEl = document.getElementById('sketch-view');
-        const sketchTitleEl = document.getElementById('sketch-title');
-        const sketchDescriptionEl = document.getElementById('sketch-description');
         const sketchLinkEl = document.getElementById('sketch-link');
+        const prevSketchBtn = document.getElementById('prev-sketch');
+        const nextSketchBtn = document.getElementById('next-sketch');
+
+        let currentSketchIndex = -1;
+        let sketchElements = [];
 
         // Helper function to get sketch metadata from DOM element
         function getSketchData(button) {
@@ -74,40 +82,88 @@
             };
         }
 
+        function updateNavigationButtons() {
+            // Always enable navigation buttons when there are sketches to navigate
+            prevSketchBtn.disabled = sketchElements.length <= 1;
+            nextSketchBtn.disabled = sketchElements.length <= 1;
+        }
+
+        function loadSketchByIndex(index) {
+            if (index < 0 || index >= sketchElements.length) {
+                console.warn(`Invalid sketch index: ${index}`);
+                return;
+            }
+
+            currentSketchIndex = index;
+            const button = sketchElements[index];
+            const sketchData = getSketchData(button);
+
+            if (sketchData) {
+                loadSketch(sketchData);
+                updateNavigationButtons();
+
+                // Update visual indicator and ARIA attributes in sidebar
+                sketchElements.forEach(btn => {
+                    btn.classList.remove('ccb-active');
+                    btn.setAttribute('aria-current', 'false');
+                    btn.setAttribute('aria-selected', 'false');
+                });
+                button.classList.add('ccb-active');
+                button.setAttribute('aria-current', 'page');
+                button.setAttribute('aria-selected', 'true');
+            }
+        }
+
         function loadSketch(s) {
             console.log(`Loading sketch: ${s.params.alias}/${s.params.page}`);
-            const sketchPageUrl = `/members/${s.params.alias}/${s.params.page}`;
-            sketchViewEl.setAttribute('src', sketchPageUrl);
-            sketchTitleEl.innerHTML = s.props?.metadata?.title || 'Untitled Sketch';
-            sketchDescriptionEl.innerHTML = s.props?.metadata?.description || 'No description available.';
-            sketchLinkEl.setAttribute('href', sketchPageUrl);
+            const sketchCleanUrl = `/sketches/${s.params.alias}/${s.params.page}`;
+
+            sketchViewEl.setAttribute('src',  sketchCleanUrl);
+            sketchLinkEl.setAttribute('href', sketchCleanUrl);
+
+            // Collapse sidebar when loading a sketch
+            const sidebarToggleCheckbox = document.getElementById('sidebar-toggle-checkbox');
+            if (sidebarToggleCheckbox && sidebarToggleCheckbox.checked) {
+                sidebarToggleCheckbox.checked = false;
+                const sidebarToggle = document.getElementById('sidebar-toggle');
+                if (sidebarToggle) {
+                    sidebarToggle.setAttribute('aria-expanded', 'false');
+                }
+            }
         }
+
+        // Navigation button event listeners
+        prevSketchBtn.addEventListener('click', () => {
+            if (sketchElements.length > 1) {
+                const newIndex = currentSketchIndex > 0 ? currentSketchIndex - 1 : sketchElements.length - 1;
+                loadSketchByIndex(newIndex);
+            }
+        });
+
+        nextSketchBtn.addEventListener('click', () => {
+            if (sketchElements.length > 1) {
+                const newIndex = currentSketchIndex < sketchElements.length - 1 ? currentSketchIndex + 1 : 0;
+                loadSketchByIndex(newIndex);
+            }
+        });
 
         // Event delegation for sketch lister clicks
         sketchListerEl.addEventListener('click', (event) => {
             const button = event.target.closest('button.ccb-link');
             if (button && sketchListerEl.contains(button)) {
-                const sketchData = getSketchData(button);
-                if (sketchData) {
-                    loadSketch(sketchData);
+                const index = sketchElements.indexOf(button);
+                if (index !== -1) {
+                    loadSketchByIndex(index);
                 }
             }
         });
 
-        // Initial random sketch loading
-        // sketchElements are guaranteed to have data-alias and data-page due to the selector
-        const sketchElements = sketchListerEl.querySelectorAll('button.ccb-link[data-alias][data-page]');
+        // Initialize sketch elements and load random sketch
+        sketchElements = Array.from(sketchListerEl.querySelectorAll('button.ccb-link[data-alias][data-page]'));
 
         if (sketchElements.length > 0) {
             const randomIndex = Math.floor(Math.random() * sketchElements.length);
-            const randomButton = sketchElements[randomIndex];
-            const randomSketchData = getSketchData(randomButton);
-
-            if (randomSketchData) {
-                loadSketch(randomSketchData);
-            } else {
-                console.warn("Could not create data for a randomly selected sketch button.");
-            }
+            loadSketchByIndex(randomIndex);
         } else {
             console.log("No sketches with required data-alias and data-page found.");
         }

@@ -1,0 +1,174 @@
+{{ block "page-iframe-sketch" . }}
+<!DOCTYPE html>
+<html lang="{{ .Lang }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Title }}</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            overscroll-behavior: none;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <!-- Intercept console messages and send them to the parent window -->
+    <script id="console-interceptor">
+        (function () {
+            const originalConsole = {
+                log: console.log,
+                error: console.error,
+                warn: console.warn,
+                info: console.info
+            };
+
+            function interceptConsole(method, type) {
+                console[method] = function (...args) {
+                    // Call original console method
+                    originalConsole[method].apply(console, args);
+
+                    // Send to parent
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'console',
+                            method: type,
+                            args: args.map(arg =>
+                                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+                            ),
+                            timestamp: new Date().toISOString(),
+                            custom: 'cute'
+                        }, '*');
+                    }
+                };
+            }
+
+            interceptConsole('log', 'log');
+            interceptConsole('error', 'error');
+            interceptConsole('warn', 'warn');
+            interceptConsole('info', 'info');
+
+            // Capture uncaught errors
+            window.addEventListener('error', function (event) {
+                if (window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'console',
+                        method: 'error',
+                        args: [`Uncaught ${event.error?.name || 'Error'}: ${event.message}`],
+                        timestamp: new Date().toISOString()
+                    }, '*');
+                }
+            });
+        })();
+    </script>
+
+    <!-- Load external libraries (if any) -->
+    {{ if .ExternalLibs }}
+    {{ range .ExternalLibs }}
+    <script src="{{ . }}"></script>
+    {{ end }}
+    {{ end }}
+</head>
+
+<body data-external-libs='{{ range $index, $lib := .ExternalLibs }}{{ if $index }},{{ end }}"{{ $lib }}"{{ end }}'
+    data-sketch-js-path="{{ .SketchJsPath }}">
+    <div id="sketch-container"></div>
+
+    <script id="sketch-source">
+        // Fetch and save member's sketch source code in a global variable
+        window.SKETCH_SOURCE_CODE = '';
+
+        (async function () {
+            try {
+                const body = document.body;
+                const sketchJsPath = body.getAttribute('data-sketch-js-path');
+
+                if (sketchJsPath && sketchJsPath.trim()) {
+                    const response = await fetch(sketchJsPath);
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch sketch: ${response.status} ${response.statusText}`);
+                    }
+                    window.SKETCH_SOURCE_CODE = await response.text();
+                } else {
+                    console.warn('No sketch JS path provided');
+                }
+            } catch (error) {
+                const errorMsg = `Failed to fetch sketch source: ${error.message}`;
+                console.error(errorMsg);
+            }
+        })();
+    </script>
+    <script id="sketch-setup">
+        // Fetch data from attributes and sequentially load libraries and sketch
+        (function () {
+            try {
+                const body = document.body;
+                const sketchJsPath = body.getAttribute('data-sketch-js-path');
+
+                // Evaluate sketch 
+                async function evalSourceCode() {
+                    try {
+                        // Wait for sketch source to be loaded and then evaluate it
+                        const waitForSketch = () => {
+                            return new Promise((resolve) => {
+                                const checkSketch = () => {
+                                    if (window.SKETCH_SOURCE_CODE && window.SKETCH_SOURCE_CODE.trim()) {
+                                        resolve();
+                                    } else {
+                                        setTimeout(checkSketch, 10);
+                                    }
+                                };
+                                checkSketch();
+                            });
+                        };
+
+                        if (sketchJsPath && sketchJsPath.trim()) {
+                            await waitForSketch();
+                            try {
+                                window.eval(window.SKETCH_SOURCE_CODE);
+                                // Check if we're using P5JS
+                                if (p5 && window.setup || p5 && window.draw) {
+                                    console.log('P5 using global mode');
+                                    // Instantiate p5 so it runs setup() and/or draw() 
+                                    new p5();
+                                } else if (p5) {
+                                    // Leave as it is
+                                    console.log('P5 using instance mode');
+                                }
+                                console.log('Sketch source code evaluated!');
+                            } catch (error) {
+                                console.error('Error evaluating sketch source code:');
+                                console.error(`${error.name}: ${error.message} - Line ${error.lineNumber || 'unknown'}`);
+                            }
+
+                        } else {
+                            console.warn('No sketch JS path provided');
+                        }
+                    } catch (error) {
+                        // Log error to be catched by the console interceptor 
+                        console.error(`${error.name}: ${error.message} - Line ${error.lineNumber || 'unknown'}`);
+                    }
+                }
+
+                // Start loading process
+                evalSourceCode();
+            } catch (error) {
+                console.error(`Error in sketch setup: ${error.message}`);
+                console.error(`${error.name}: ${error.message} - Line ${error.lineNumber || 'unknown'}`);
+            }
+        })();
+    </script>
+</body>
+
+</html>
+{{ end }}

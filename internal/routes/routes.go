@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"context"
 	"html/template"
 	"log"
 	"net/http"
@@ -50,6 +51,30 @@ func apiMiddleware(handler http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+// authMiddleware ensures that a request is authenticated
+func authMiddleware(handler http.HandlerFunc, services *services.Services) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Route-Type", "api")
+
+		// Check authentication
+		sessionID, err := utils.GetSessionFromRequest(r)
+		if err != nil {
+			http.Error(w, `{"error":"Authentication required"}`, http.StatusUnauthorized)
+			return
+		}
+
+		memberID, err := services.Session.GetMemberIDFromSession(sessionID)
+		if err != nil {
+			http.Error(w, `{"error":"Authentication required"}`, http.StatusUnauthorized)
+			return
+		}
+
+		// Store authenticated member ID in request context
+		ctx := context.WithValue(r.Context(), "authenticated_member_id", memberID)
+		handler(w, r.WithContext(ctx))
+	}
+}
+
 // webMiddleware sets appropriate headers for HTML page endpoints
 func webMiddleware(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -96,15 +121,16 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 	// API ROUTES - Backend data endpoints
 	// =============================================================================
 
-	// Member API endpoints
+	// Public Member API endpoints
 	router.HandleFunc("/api/members", apiMiddleware(handlers.GetMembersHandler(services)), "GET")
-	router.HandleFunc("/api/sketches/{member}", apiMiddleware(handlers.GetMemberSketchesHandler(services)), "GET")
+	// Protected Member API endpoints
+	router.HandleFunc("/api/members/me", authMiddleware(handlers.GetCurrentMemberHandler(services), services), "GET")
 
-	// Preference API endpoints
+	// Public Preference API endpoints
 	router.HandleFunc("/api/preferences/theme", apiMiddleware(handlers.ThemePreferencesPostHandler), "POST")
 	router.HandleFunc("/api/preferences/locale", apiMiddleware(handlers.LocalePreferencesPostHandler), "POST")
 
-	// Authentication API endpoints
+	// Public Authentication API endpoints
 	router.HandleFunc("/api/auth/logout", apiMiddleware(handlers.LogoutHandler(services)), "POST")
 	router.HandleFunc("/api/auth/sign-out", apiMiddleware(handlers.SignOutHandler(services)), "GET")
 	router.HandleFunc("/api/auth/update-password", apiMiddleware(handlers.UpdatePasswordHandler(services)), "POST")
@@ -131,8 +157,9 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 		handlers.SignInPostHandler(services)(w, r, tmpl, pageData)
 	}), "POST")
 
-	// Sketch data API endpoints
-	router.HandleFunc("/api/sketches/{member}/{sketch}/js", apiMiddleware(handlers.SketchCodeHandler(services)), "GET")
+	// Public Sketch API endpoints
+	router.HandleFunc("/api/sketches/{memberName}", apiMiddleware(handlers.GetMemberSketchesHandler(services)), "GET")
+	router.HandleFunc("/api/sketches/{memberName}/{sketchSlug}", apiMiddleware(handlers.SketchCodeHandler(services)), "GET")
 
 	// =============================================================================
 	// WEB ROUTES - Frontend HTML page rendering
@@ -177,17 +204,30 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 		handlers.ProfileHandler(services)(w, r, tmpl, pageData)
 	}), "GET")
 
-	// Member's sketch page
-	router.HandleFunc("/members/{memberName}/{sketchSlug}", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	// Clean sketch view page (for viewing only, no editor)
+	router.HandleFunc("/sketches/{memberName}/{sketchSlug}", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
 		if err != nil {
-			log.Printf("Error cloning master template for sketch page: %v", err)
+			log.Printf("Error cloning master template for sketch view: %v", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
-		handlers.SketchPageGetHandler(services)(w, r, tmpl, pageData)
+		handlers.SketchViewerPageHandler(services)(w, r, tmpl, pageData)
+	}), "GET")
+
+	// Sketch iframe content (for sandboxed execution)
+	router.HandleFunc("/sketches/{memberName}/{sketchSlug}/iframe", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		currentLang := utils.GetCurrentLanguage(r)
+		pageData := preparePageData(r, w, currentLang, services)
+		tmpl, err := masterTmpl.Clone()
+		if err != nil {
+			log.Printf("Error cloning master template for sketch iframe: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		handlers.SketchIframeContentHandler(services)(w, r, tmpl, pageData)
 	}), "GET")
 
 	// Sketch lister page

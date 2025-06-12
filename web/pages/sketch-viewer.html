@@ -1,0 +1,43 @@
+{{ block "page-sketch-viewer" . }}
+<!DOCTYPE html>
+<html lang="{{ .Lang }}" {{ if and .Theme (ne .Theme "system" ) }}data-theme="{{ .Theme }}" {{ end }}>
+
+<head>
+    {{ template "html-head-metadata" . }}
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            overscroll-behavior: none;
+        }
+        
+        #sketch-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    {{ if .SketchJsPath }}
+    <!-- Sandboxed iframe for security isolation -->
+    <iframe 
+        id="sketch-iframe"
+        src="/sketches/{{ .MemberName }}/{{ .SketchSlug }}/iframe"
+        sandbox="allow-scripts allow-same-origin"
+        title="Sketch: {{ .Title }}">
+        <p>Your browser does not support iframes. <a href="/sketches/{{ .MemberName }}/{{ .SketchSlug }}/iframe" target="_blank">Click here to view the sketch</a>.</p>
+    </iframe>
+    {{ else }}
+    <div id="sketch-container">Failed to load sketch: JS path not provided.</div>
+    {{ end }}
+</body>
+
+</html>
+{{ end }}

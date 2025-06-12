@@ -1,17 +1,27 @@
 {{ block "sidebar-nav" . }}
 <nav aria-label="{{ i18nText .Lang "components.sidebarNav.navigationLabel" }}">
-  <ul class="space-y-2">
-    <li><a class="ccb-link" href="/">{{ i18nText .Lang "components.sidebarNav.homeLink" }}</a></li>
-    <li><a class="ccb-link" href="/sketches">{{ i18nText .Lang "components.sidebarNav.sketchesLink" }}</a></li>
+  <ul class="space-y-2" role="list">
+    <li><a class="ccb-link{{ if eq .UrlPath "/" }} ccb-active{{ end }}" href="/" 
+          aria-current="{{ if eq .UrlPath "/" }}page{{ else }}false{{ end }}" 
+          aria-selected="{{ if eq .UrlPath "/" }}true{{ else }}false{{ end }}">{{ i18nText .Lang "components.sidebarNav.homeLink" }}</a></li>
+    <li><a class="ccb-link{{ if eq .UrlPath "/sketches" }} ccb-active{{ end }}" href="/sketches" 
+          aria-current="{{ if eq .UrlPath "/sketches" }}page{{ else }}false{{ end }}" 
+          aria-selected="{{ if eq .UrlPath "/sketches" }}true{{ else }}false{{ end }}">{{ i18nText .Lang "components.sidebarNav.sketchesLink" }}</a></li>
 
     {{if .IsAuthenticated}}
     <!-- Authenticated member links -->
-    <li><a class="ccb-link" href="/me">{{ i18nText .Lang "components.sidebarNav.profileLink" }}</a></li>
+    <li><a class="ccb-link{{ if eq .UrlPath "/me" }} ccb-active{{ end }}" href="/me" 
+          aria-current="{{ if eq .UrlPath "/me" }}page{{ else }}false{{ end }}" 
+          aria-selected="{{ if eq .UrlPath "/me" }}true{{ else }}false{{ end }}">{{ i18nText .Lang "components.sidebarNav.profileLink" }}</a></li>
     <li><a class="ccb-link" href="/api/auth/sign-out">{{ i18nText .Lang "components.sidebarNav.signOutLink" }}</a></li>
     {{else}}
     <!-- Non-authenticated visitor links -->
-    <li><a class="ccb-link" href="/sign-in">{{ i18nText .Lang "components.sidebarNav.signInLink" }}</a></li>
-    <li><a class="ccb-link" href="/register">{{ i18nText .Lang "components.sidebarNav.registerLink" }}</a></li>
+    <li><a class="ccb-link{{ if eq .UrlPath "/sign-in" }} ccb-active{{ end }}" href="/sign-in" 
+          aria-current="{{ if eq .UrlPath "/sign-in" }}page{{ else }}false{{ end }}" 
+          aria-selected="{{ if eq .UrlPath "/sign-in" }}true{{ else }}false{{ end }}">{{ i18nText .Lang "components.sidebarNav.signInLink" }}</a></li>
+    <li><a class="ccb-link{{ if eq .UrlPath "/register" }} ccb-active{{ end }}" href="/register" 
+          aria-current="{{ if eq .UrlPath "/register" }}page{{ else }}false{{ end }}" 
+          aria-selected="{{ if eq .UrlPath "/register" }}true{{ else }}false{{ end }}">{{ i18nText .Lang "components.sidebarNav.registerLink" }}</a></li>
     {{end}}
   </ul>
 </nav>

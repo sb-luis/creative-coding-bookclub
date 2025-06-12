@@ -23,3 +23,18 @@
 .ccb-link:hover:after {
   top: 5%;
 }
+
+/* Active state for currently selected items */
+.ccb-link.ccb-active {
+  color: var(--base-50);
+  background-color: var(--primary-500);
+}
+
+.ccb-link.ccb-active:after {
+  display: none; 
+}
+
+.ccb-link.ccb-active:hover {
+  background-color: var(--primary-600);
+  color: var(--base-50);
+}
