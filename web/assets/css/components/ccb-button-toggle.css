@@ -1,0 +1,26 @@
+.ccb-toggle {
+    display: inline-block;
+    padding: 0.5rem;
+    margin: 0 0.25rem;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    background-color: var(--base-100);
+    color: var(--base-900);
+}
+
+.ccb-toggle:hover, .ccb-toggle.active:hover {
+    background-color: var(--base-300);
+    color: var(--base-900);
+}
+
+.ccb-toggle.active {
+    background-color: var(--base-800);
+    color: var(--base-100);
+    font-weight: 700;
+}

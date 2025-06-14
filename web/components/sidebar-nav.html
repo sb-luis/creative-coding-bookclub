@@ -10,6 +10,9 @@
 
     {{if .IsAuthenticated}}
     <!-- Authenticated member links -->
+    <li><a class="ccb-link{{ if eq .UrlPath "/sketch-manager" }} ccb-active{{ end }}" href="/sketch-manager" 
+          aria-current="{{ if eq .UrlPath "/sketch-manager" }}page{{ else }}false{{ end }}" 
+          aria-selected="{{ if eq .UrlPath "/sketch-manager" }}true{{ else }}false{{ end }}">{{ i18nText .Lang "components.sidebarNav.ideLink" }}</a></li>
     <li><a class="ccb-link{{ if eq .UrlPath "/me" }} ccb-active{{ end }}" href="/me" 
           aria-current="{{ if eq .UrlPath "/me" }}page{{ else }}false{{ end }}" 
           aria-selected="{{ if eq .UrlPath "/me" }}true{{ else }}false{{ end }}">{{ i18nText .Lang "components.sidebarNav.profileLink" }}</a></li>

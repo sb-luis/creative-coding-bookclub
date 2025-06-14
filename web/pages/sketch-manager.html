@@ -1,0 +1,147 @@
+{{ block "page-sketch-manager" . }}
+<!DOCTYPE html>
+<html lang="{{ .Lang }}" {{ if and .Theme (ne .Theme "system" ) }}data-theme="{{ .Theme }}" {{ end }}>
+
+<head>
+    {{ template "html-head" . }}
+</head>
+
+<body class="pl-8">
+    <!-- Sidebar -->
+    <input type="checkbox" id="sidebar-toggle-checkbox" class="invisible" aria-controls="sidebar">
+    <aside id="sidebar" class="ccb-sidebar flex">
+        <label for="sidebar-toggle-checkbox" id="sidebar-toggle" aria-label="{{ i18nText .Lang 
+            " components.sidebar.toggleAriaLabel" }}"></label>
+        <div class="flex flex-col space-y-4 p-4">
+            {{ template "sidebar-nav" . }}
+            {{ template "sidebar-settings" . }}
+
+            <!-- Sketch Management Controls -->
+            <div class="flex flex-col space-y-4 py-4 border-t border-base-300">
+                <div class="flex flex-col space-y-2">
+                    <select id="sketch-selector" class="ccb-select">
+                        <option value="">Select a sketch...</option>
+                    </select>
+                    <button id="new-button" class="ccb-button">📄 New Sketch</button>
+                    <button id="save-button" class="ccb-button" title="Save Sketch (Ctrl+S)">💾 Save Sketch</button>
+                    <button id="edit-metadata-button" class="ccb-button hidden">📝 Edit Metadata</button>
+                    <button id="delete-button" class="ccb-button hidden">🗑 Delete Sketch</button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="h-full">
+        <div class="flex flex-col h-full">
+            <div class="main-content flex flex-1 overflow-hidden">
+                <!-- SKETCH -->
+                <div class="sketch-area flex flex-col flex-1">
+                    <!-- Status Bar -->
+                    <div class="top-status-bar flex justify-between items-center px-3 py-2 text-xs border-b border-base-300 bg-base-100 text-base-600">
+                        <div class="execution-controls flex items-center space-x-2">
+                            <span id="sketch-status" class="text-sm"></span>
+                        </div>
+                    </div>
+
+                    <!-- SKETCH VIEWER / EDITOR IFRAME -->
+                    <div id="sketch-viewport-wrapper" class="flex flex-1 relative w-full overflow-hidden bg-base-100">
+                        <iframe id="sketch-viewport" src="/empty-iframe" class="flex-1 border-0 w-full h-full"></iframe>
+                    </div>
+                </div>
+            </div>
+    </main>
+
+    <!-- SAVE DIALOG -->
+    <div id="save-dialog"
+        class="hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 border-2 border-base-300 rounded-lg p-5 z-50 shadow-md bg-base-100">
+        <h3 class="mt-0 mb-4">Save Sketch</h3>
+        <div class="mb-4">
+            <label for="sketch-title" class="block mb-1">Title:</label>
+            <input type="text" id="sketch-title" class="w-full p-2 border border-base-300 rounded bg-base-100"
+                placeholder="Enter sketch title">
+        </div>
+        <div class="mb-4">
+            <label for="sketch-description" class="block mb-1">Description:</label>
+            <textarea id="sketch-description"
+                class="w-full p-2 border border-base-300 rounded resize-vertical bg-base-100" rows="3"
+                placeholder="Enter sketch description"></textarea>
+        </div>
+        <div class="mb-4">
+            <label for="sketch-tags" class="block mb-1">Tags (comma-separated):</label>
+            <input type="text" id="sketch-tags" class="w-full p-2 border border-base-300 rounded bg-base-100"
+                placeholder="creative-coding, p5js, animation">
+        </div>
+        <div class="flex space-x-3 justify-end">
+            <button id="save-cancel"
+                class="ccb-button-small px-3 py-2 text-xs border border-base-300 rounded cursor-pointer bg-base-100 text-base-700">Cancel</button>
+            <button id="save-confirm"
+                class="ccb-button-small px-3 py-2 text-xs border border-base-300 rounded cursor-pointer bg-base-100 text-base-700">Save</button>
+        </div>
+    </div>
+
+    <!-- SAVE DIALOG OVERLAY -->
+    <div id="save-overlay" class="hidden fixed top-0 left-0 w-full h-full z-40 bg-overlay"></div>
+
+    <!-- EDIT METADATA DIALOG -->
+    <div id="metadata-dialog"
+        class="hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 border-2 border-base-300 rounded-lg p-5 z-50 shadow-md bg-base-100">
+        <h3 class="mt-0 mb-4">Edit Sketch Metadata</h3>
+        <div class="mb-4">
+            <label for="metadata-title" class="block mb-1">Title: <span class="text-xs text-base-500">(max 100 chars)</span></label>
+            <input type="text" id="metadata-title" class="w-full p-2 border border-base-300 rounded bg-base-100"
+                placeholder="Enter sketch title" maxlength="100" required>
+            <div class="text-xs text-base-500 mt-1">Characters: <span id="title-count">0</span>/100</div>
+        </div>
+        <div class="mb-4">
+            <label for="metadata-description" class="block mb-1">Description: <span class="text-xs text-base-500">(max 500 chars)</span></label>
+            <textarea id="metadata-description"
+                class="w-full p-2 border border-base-300 rounded resize-vertical bg-base-100" rows="3"
+                placeholder="Enter sketch description" maxlength="500"></textarea>
+            <div class="text-xs text-base-500 mt-1">Characters: <span id="description-count">0</span>/500</div>
+        </div>
+        <div class="mb-4">
+            <label for="metadata-keywords" class="block mb-1">Keywords: <span class="text-xs text-base-500">(comma-separated, max 200 chars)</span></label>
+            <input type="text" id="metadata-keywords" class="w-full p-2 border border-base-300 rounded bg-base-100"
+                placeholder="Creative Coding, P5js, Animation" maxlength="200">
+            <div class="text-xs text-base-500 mt-1">Characters: <span id="keywords-count">0</span>/200</div>
+        </div>
+        <div class="mb-4">
+            <label for="metadata-tags" class="block mb-1">Tags: <span class="text-xs text-base-500">(alphanumeric only, no spaces, max 10 tags)</span></label>
+            <input type="text" id="metadata-tags" class="w-full p-2 border border-base-300 rounded bg-base-100"
+                placeholder="creative-coding,p5js,animation">
+            <div class="text-xs text-base-500 mt-1">Separate with commas. Use hyphens or underscores instead of spaces.</div>
+        </div>
+        <div class="mb-4">
+            <label for="metadata-external-libs" class="block mb-1">External Libraries: <span class="text-xs text-base-500">(HTTPS URLs only, max 5 libraries)</span></label>
+            <div id="external-libs-container">
+                <div class="external-lib-input mb-2">
+                    <input type="url" class="external-lib-url w-full p-2 border border-base-300 rounded bg-base-100"
+                        placeholder="https://cdn.jsdelivr.net/npm/p5@1.11.7/lib/p5.min.js">
+                </div>
+            </div>
+            <button type="button" id="add-external-lib" class="text-xs text-base-600 hover:text-base-800">+ Add Library</button>
+            <div class="text-xs text-base-500 mt-1">Libraries will be loaded in order. Only HTTPS URLs allowed.</div>
+        </div>
+        <div class="flex space-x-3 justify-end">
+            <button id="metadata-cancel"
+                class="ccb-button-small px-3 py-2 text-xs border border-base-300 rounded cursor-pointer bg-base-100 text-base-700">Cancel</button>
+            <button id="metadata-save"
+                class="ccb-button-small px-3 py-2 text-xs border border-base-300 rounded cursor-pointer bg-base-100 text-base-700">Save Metadata</button>
+        </div>
+    </div>
+
+    <!-- EDIT METADATA OVERLAY -->
+    <div id="metadata-overlay" class="hidden fixed top-0 left-0 w-full h-full z-40 bg-overlay"></div>
+
+    <script>
+        // Global variables for member info
+        window.MEMBER_ID = parseInt("{{ .MemberID }}");
+        window.MEMBER_NAME = "{{ .MemberName }}";
+    </script>
+
+    <!-- Include the simplified sketch-manager JavaScript -->
+    <script src="/assets/js/pages/sketch-manager.js" defer></script>
+</body>
+
+</html>
+{{ end }}

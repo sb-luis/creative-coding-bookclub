@@ -144,6 +144,39 @@ func (s *Service) GetSketchByMemberAndSlug(memberID int, slug string) (*model.Sk
 		return nil, errors.New("slug cannot be empty")
 	}
 
+	// Handle the special "new" slug - return a default new sketch template
+	if slug == "new" {
+		defaultCode := `
+// Welcome to your new sketch!
+// Start coding below. Your code will run automatically as you type.
+
+function setup() {
+    createCanvas(400, 400);
+}
+
+function draw() {
+    background(220);
+
+    // Your creative code here
+    fill(255, 0, 150);
+    ellipse(mouseX, mouseY, 50, 50);
+}`
+
+		return &model.Sketch{
+			ID:           0,
+			MemberID:     memberID,
+			Slug:         "new",
+			Title:        "New Sketch",
+			Description:  "A new creative coding sketch",
+			Keywords:     "creative coding, p5js, sketch",
+			Tags:         []string{"creative-coding", "p5js"},
+			ExternalLibs: []string{"https://cdn.jsdelivr.net/npm/p5@1.11.7/lib/p5.min.js"},
+			SourceCode:   defaultCode,
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
+		}, nil
+	}
+
 	sketch := &model.Sketch{}
 	err := s.db.QueryRow(`
 		SELECT id, member_id, slug, title, description, keywords, tags, external_libs, source_code, created_at, updated_at 
@@ -507,4 +540,55 @@ func (s *Service) SketchExistsByMemberAndSlug(memberID int, slug string) (bool, 
 	}
 
 	return count > 0, nil
+}
+
+// CreateSketchWithSlug creates a new sketch with a specific slug
+func (s *Service) CreateSketchWithSlug(memberID int, req *model.CreateSketchRequest, slug string) (*model.Sketch, error) {
+	if memberID <= 0 {
+		return nil, errors.New("invalid member ID")
+	}
+	if req == nil {
+		return nil, errors.New("create sketch request cannot be nil")
+	}
+	if req.Title == "" {
+		return nil, errors.New("title cannot be empty")
+	}
+	if req.SourceCode == "" {
+		return nil, errors.New("source code cannot be empty")
+	}
+	if slug == "" {
+		return nil, errors.New("slug cannot be empty")
+	}
+
+	// Check if sketch slug already exists for this member
+	exists, err := s.SketchExistsByMemberAndSlug(memberID, slug)
+	if err != nil {
+		return nil, err
+	}
+	if exists {
+		return nil, fmt.Errorf("a sketch with slug '%s' already exists for this member", slug)
+	}
+
+	// Marshal tags and external_libs to JSON
+	tagsJSON, err := json.Marshal(req.Tags)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal tags: %w", err)
+	}
+	externalLibsJSON, err := json.Marshal(req.ExternalLibs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal external libs: %w", err)
+	}
+
+	now := time.Now()
+	var id int
+	err = s.db.QueryRow(`
+		INSERT INTO sketches (member_id, slug, title, description, keywords, tags, external_libs, source_code, created_at, updated_at) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
+		memberID, slug, req.Title, req.Description, req.Keywords, string(tagsJSON), string(externalLibsJSON), req.SourceCode, now, now).Scan(&id)
+	if err != nil {
+		log.Printf("Database error while creating sketch for member %d with slug '%s': %v", memberID, slug, err)
+		return nil, fmt.Errorf("failed to create sketch: %w", err)
+	}
+
+	return s.GetSketchByID(id)
 }

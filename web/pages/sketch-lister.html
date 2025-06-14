@@ -116,9 +116,12 @@
 
         function loadSketch(s) {
             console.log(`Loading sketch: ${s.params.alias}/${s.params.page}`);
+            const sketchEditorUrl = `/sketches/${s.params.alias}/${s.params.page}/edit`;
             const sketchCleanUrl = `/sketches/${s.params.alias}/${s.params.page}`;
 
-            sketchViewEl.setAttribute('src',  sketchCleanUrl);
+            // Load editor view in iframe for inline editing
+            sketchViewEl.setAttribute('src', sketchEditorUrl);
+            // Set clean view for "open in new tab" functionality
             sketchLinkEl.setAttribute('href', sketchCleanUrl);
 
             // Collapse sidebar when loading a sketch

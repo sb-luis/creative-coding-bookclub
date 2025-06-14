@@ -88,6 +88,61 @@
       "memberIdLabel": "Member ID",
       "backToHomeButton": "Back to Home",
       "signOutLink": "Sign out"
+    },
+    "sketchManager": {
+      "meta": {
+        "title": "Sketch Manager",
+        "description": "Create and manage your creative coding sketches online"
+      },
+      "heading": "Sketch Manager",
+      "sketchSelector": {
+        "placeholder": "Select a sketch...",
+        "loadingText": "Loading sketches...",
+        "errorText": "Error loading sketches",
+        "noSketchesText": "No sketches available"
+      },
+      "controls": {
+        "newSketchButton": "New Sketch",
+        "saveButton": "Save",
+        "deleteButton": "Delete",
+        "runButton": "Run"
+      },
+      "status": {
+        "unsavedChanges": "Unsaved changes",
+        "saved": "Saved",
+        "saving": "Saving...",
+        "error": "Error"
+      },
+      "saveDialog": {
+        "title": "Save Sketch",
+        "titleLabel": "Title",
+        "titlePlaceholder": "Enter sketch title",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Enter sketch description (optional)",
+        "tagsLabel": "Tags",
+        "tagsPlaceholder": "Enter tags (comma-separated, optional)",
+        "saveButton": "Save Sketch",
+        "cancelButton": "Cancel",
+        "updateButton": "Update Sketch"
+      },
+      "shortcuts": {
+        "save": "Ctrl+S to save",
+        "newSketch": "Ctrl+N for new sketch",
+        "run": "Ctrl+Enter to run"
+      },
+      "confirmations": {
+        "deleteSketch": "Are you sure you want to delete this sketch? This action cannot be undone.",
+        "unsavedChanges": "You have unsaved changes. Are you sure you want to continue?"
+      },
+      "errors": {
+        "loadSketches": "Failed to load sketches",
+        "saveSketch": "Failed to save sketch",
+        "deleteSketch": "Failed to delete sketch",
+        "loadSketch": "Failed to load sketch",
+        "runSketch": "Failed to run sketch",
+        "titleRequired": "Title is required",
+        "networkError": "Network error occurred"
+      }
     }
   },
   "components": {
@@ -110,6 +165,7 @@
       "navigationLabel": "navigation",
       "homeLink": "home",
       "sketchesLink": "sketches",
+      "ideLink": "sketch editor",
       "profileLink": "profile",
       "signOutLink": "sign out",
       "signInLink": "sign in",

@@ -1,0 +1,136 @@
+{{ block "page-sketch-editor" . }}
+<!DOCTYPE html>
+<html lang="{{ .Lang }}" {{ if and .Theme (ne .Theme "system" ) }}data-theme="{{ .Theme }}" {{ end }}>
+
+<head>
+    {{ template "html-head" . }}
+    <script>
+        // Listen for console messages from iframe
+        // This script runs before any other content to ensure early capture of messages
+        window.addEventListener('message', function (event) {
+            if (event.data && event.data.type === 'console') {
+                console.log('Console message from iframe:', event.data);
+                const consoleOutput = document.getElementById('console-output');
+                if (consoleOutput) {
+                    const timestamp = new Date(event.data.timestamp).toLocaleTimeString();
+                    const methodClass = `console-${event.data.method}`;
+                    const message = `[${timestamp}] ${event.data.method.toUpperCase()}: ${event.data.args.join(' ')}\n`;
+
+                    consoleOutput.textContent += message;
+                    consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                }
+            }
+        });
+    </script>
+    <style>
+        #line-numbers {
+            padding-top: 2px;
+            min-width: 40px;
+            width: 100%;
+            text-align: left;
+            line-height: 1.2rem;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            pointer-events: none;
+            overflow: hidden;
+            height: calc(100% - 4px);
+        }
+
+        .line-number {
+            padding-left: 5px;
+            position: absolute;
+            width: 35px;
+            color: var(--base-500);
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .line-number.current-line {
+            background-color: var(--base-50);
+            color: var(--base-900);
+            font-weight: bold;
+        }
+
+        .line-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: var(--base-200);
+            pointer-events: none;
+        }
+
+        .line-background.comment-line-bg {
+            background-color: var(--base-300);
+        }
+
+        .line-background.blank-line-bg {
+            background-color: transparent;
+        }
+
+        .line-background.current-line-bg {
+            background-color: var(--base-50);
+        }
+
+        #code-editor {
+            padding-left: 45px;
+            padding-top: 2px;
+            line-height: 1.2rem;
+            tab-size: 4;
+            position: relative;
+            white-space: nowrap;
+            overflow-x: auto;
+            word-wrap: normal;
+        }
+    </style>
+</head>
+
+<body class="overflow-hidden h-screen">
+    <main class="w-full h-full flex flex-col overflow-hidden">
+        <div class="flex-1 relative overflow-hidden">
+            <!-- SKETCH -->
+            <div id="sketch-viewport" class="w-full h-full absolute hidden">
+                {{ if .SketchJsPath }}
+                <iframe id="sketch-iframe" src="/sketches/{{ .MemberName }}/{{ .SketchSlug }}/iframe"
+                    sandbox="allow-scripts allow-same-origin" class="w-full h-full border-0"
+                    title="Sketch: {{ .Title }}">
+                    <p>Your browser does not support iframes. <a
+                            href="/sketches/{{ .MemberName }}/{{ .SketchSlug }}/iframe" target="_blank">Click here to
+                            view the sketch</a>.</p>
+                </iframe>
+                {{ else }}
+                <div id="sketch-viewport">Failed to load sketch: JS path not provided.</div>
+                {{ end }}
+
+            </div>
+            <!-- CONSOLE -->
+            <div id="console-overlay" class="w-full h-full absolute p-2 hidden ">
+                <pre id="console-output"
+                    class="w-full h-full leading-relaxed whitespace-pre-wrap break-words text-base-900 bg-overlay-800 p-2 overflow-y-scroll"></pre>
+            </div>
+            <!-- CODE -->
+            <div id="code-viewport" class="w-full h-full absolute p-2">
+                <div class="relative w-full h-full">
+                    <div id="line-numbers" class="font-mono select-none"></div>
+                    <textarea id="code-editor" class="w-full h-full bg-overlay-100 text-base-900 font-mono"
+                        style="resize: none; outline: none;" spellcheck="false">{{ .SourceCode }}</textarea>
+                </div>
+            </div>
+        </div>
+        <!-- STATUS BAR -->
+        <div id="status-bar" class="hidden h-auto px-2 flex justify-end items-center">
+            <div class="text-xs font-mono">
+                <span id="cursor-position">Ln 1, Col 1</span>
+                <span class="mx-2">|</span>
+                <span id="file-size">0 bytes</span>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="/assets/js/pages/sketch-editor/main.js"></script>
+    </main>
+</body>
+
+</html>
+{{ end }}
