@@ -87,11 +87,22 @@ func (s *Service) CreateSketch(memberID int, req *model.CreateSketchRequest) (*m
 	}
 
 	now := time.Now()
+	createdAt := now
+	updatedAt := now
+
+	// Use custom dates if provided
+	if req.CreatedAt != nil {
+		createdAt = *req.CreatedAt
+	}
+	if req.UpdatedAt != nil {
+		updatedAt = *req.UpdatedAt
+	}
+
 	var id int
 	err = s.db.QueryRow(`
 		INSERT INTO sketches (member_id, slug, title, description, keywords, tags, external_libs, source_code, created_at, updated_at) 
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
-		memberID, slug, req.Title, req.Description, req.Keywords, string(tagsJSON), string(externalLibsJSON), req.SourceCode, now, now).Scan(&id)
+		memberID, slug, req.Title, req.Description, req.Keywords, string(tagsJSON), string(externalLibsJSON), req.SourceCode, createdAt, updatedAt).Scan(&id)
 	if err != nil {
 		log.Printf("Database error while creating sketch for member %d: %v", memberID, err)
 		return nil, fmt.Errorf("failed to create sketch: %w", err)
@@ -580,11 +591,22 @@ func (s *Service) CreateSketchWithSlug(memberID int, req *model.CreateSketchRequ
 	}
 
 	now := time.Now()
+	createdAt := now
+	updatedAt := now
+
+	// Use custom dates if provided
+	if req.CreatedAt != nil {
+		createdAt = *req.CreatedAt
+	}
+	if req.UpdatedAt != nil {
+		updatedAt = *req.UpdatedAt
+	}
+
 	var id int
 	err = s.db.QueryRow(`
 		INSERT INTO sketches (member_id, slug, title, description, keywords, tags, external_libs, source_code, created_at, updated_at) 
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
-		memberID, slug, req.Title, req.Description, req.Keywords, string(tagsJSON), string(externalLibsJSON), req.SourceCode, now, now).Scan(&id)
+		memberID, slug, req.Title, req.Description, req.Keywords, string(tagsJSON), string(externalLibsJSON), req.SourceCode, createdAt, updatedAt).Scan(&id)
 	if err != nil {
 		log.Printf("Database error while creating sketch for member %d with slug '%s': %v", memberID, slug, err)
 		return nil, fmt.Errorf("failed to create sketch: %w", err)

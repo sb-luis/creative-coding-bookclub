@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/sb-luis/creative-coding-bookclub/internal/model"
 	"github.com/sb-luis/creative-coding-bookclub/internal/services"
@@ -23,6 +24,8 @@ type SketchMetadata struct {
 	Keywords     string   `json:"keywords"`
 	Tags         []string `json:"tags"`
 	ExternalLibs []string `json:"external_libs"`
+	CreatedAt    *string  `json:"created_at,omitempty"`
+	UpdatedAt    *string  `json:"updated_at,omitempty"`
 }
 
 // MemberConfig represents the structure of members in members.json
@@ -233,6 +236,23 @@ func createSketch(services *services.Services, memberID int, memberDir, sketchNa
 		externalLibs = metadata.ExternalLibs
 	}
 
+	// Parse dates if provided in metadata
+	var createdAt, updatedAt *time.Time
+	if metadata.CreatedAt != nil {
+		if parsedCreatedAt, err := time.Parse(time.RFC3339, *metadata.CreatedAt); err == nil {
+			createdAt = &parsedCreatedAt
+		} else {
+			log.Printf("    Warning: Failed to parse created_at for %s: %v", sketchName, err)
+		}
+	}
+	if metadata.UpdatedAt != nil {
+		if parsedUpdatedAt, err := time.Parse(time.RFC3339, *metadata.UpdatedAt); err == nil {
+			updatedAt = &parsedUpdatedAt
+		} else {
+			log.Printf("    Warning: Failed to parse updated_at for %s: %v", sketchName, err)
+		}
+	}
+
 	// Create the sketch request
 	req := &model.CreateSketchRequest{
 		Title:        metadata.Title,
@@ -241,6 +261,8 @@ func createSketch(services *services.Services, memberID int, memberDir, sketchNa
 		Tags:         metadata.Tags,
 		ExternalLibs: externalLibs,
 		SourceCode:   string(sourceCode),
+		CreatedAt:    createdAt,
+		UpdatedAt:    updatedAt,
 	}
 
 	// Create the sketch in database

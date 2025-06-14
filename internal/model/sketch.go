@@ -44,12 +44,14 @@ type Sketch struct {
 
 // CreateSketchRequest represents the data needed to create a new sketch
 type CreateSketchRequest struct {
-	Title        string   `json:"title" validate:"required,min=1,max=200"`
-	Description  string   `json:"description" validate:"max=1000"`
-	Keywords     string   `json:"keywords" validate:"max=500"`
-	Tags         []string `json:"tags" validate:"dive,min=1,max=50"`
-	ExternalLibs []string `json:"external_libs" validate:"dive,min=1,max=100"`
-	SourceCode   string   `json:"source_code" validate:"required,min=1,max=1000000"` // 1MB max for UTF-8
+	Title        string     `json:"title" validate:"required,min=1,max=200"`
+	Description  string     `json:"description" validate:"max=1000"`
+	Keywords     string     `json:"keywords" validate:"max=500"`
+	Tags         []string   `json:"tags" validate:"dive,min=1,max=50"`
+	ExternalLibs []string   `json:"external_libs" validate:"dive,min=1,max=100"`
+	SourceCode   string     `json:"source_code" validate:"required,min=1,max=1000000"` // 1MB max for UTF-8
+	CreatedAt    *time.Time `json:"created_at,omitempty"`                              // Optional
+	UpdatedAt    *time.Time `json:"updated_at,omitempty"`                              // Optional
 }
 
 // UpdateSketchRequest represents the data that can be updated for an existing sketch
