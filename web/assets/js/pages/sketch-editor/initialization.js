@@ -1,5 +1,5 @@
 import { elements, state } from './dom-elements.js';
-import { fetchOriginalIframeHTML, extractSketchScript, fetchOriginalIframeHTML } from './iframe-manager.js';
+import { fetchOriginalIframeHTML, extractSketchScript } from './iframe-manager.js';
 import { updateLineNumbers, highlightCurrentLine } from './line-numbers.js';
 import { updateCursorPosition, updateFileSize } from './status-tracker.js';
 
