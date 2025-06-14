@@ -376,6 +376,69 @@ func (s *Service) GetAllSketchesGroupedByMember() ([]model.MemberSketchInfo, err
 	return result, nil
 }
 
+// GetAllSketchesChronological returns all sketches in chronological order (not grouped by member)
+func (s *Service) GetAllSketchesChronological() ([]model.SketchInfo, error) {
+	rows, err := s.db.Query(`
+		SELECT s.id, s.member_id, s.slug, s.title, s.description, s.keywords, s.tags, s.external_libs, s.source_code, s.created_at, s.updated_at, m.name as member_name
+		FROM sketches s
+		JOIN members m ON s.member_id = m.id
+		ORDER BY s.updated_at DESC`)
+	if err != nil {
+		log.Printf("Database error while getting all sketches chronologically: %v", err)
+		return nil, fmt.Errorf("failed to get all sketches chronologically: %w", err)
+	}
+	defer rows.Close()
+
+	var result []model.SketchInfo
+	for rows.Next() {
+		var sketch model.Sketch
+		var memberName string
+		err := rows.Scan(
+			&sketch.ID, &sketch.MemberID, &sketch.Slug, &sketch.Title, &sketch.Description,
+			&sketch.Keywords, &sketch.TagsJSON, &sketch.ExternalLibsJSON, &sketch.SourceCode,
+			&sketch.CreatedAt, &sketch.UpdatedAt, &memberName)
+		if err != nil {
+			log.Printf("Database error while scanning sketch: %v", err)
+			continue
+		}
+
+		// Unmarshal JSON fields
+		if err := json.Unmarshal([]byte(sketch.TagsJSON), &sketch.Tags); err != nil {
+			log.Printf("Warning: failed to unmarshal tags for sketch %d: %v", sketch.ID, err)
+			sketch.Tags = []string{}
+		}
+		if err := json.Unmarshal([]byte(sketch.ExternalLibsJSON), &sketch.ExternalLibs); err != nil {
+			log.Printf("Warning: failed to unmarshal external libs for sketch %d: %v", sketch.ID, err)
+			sketch.ExternalLibs = []string{}
+		}
+
+		// Convert to SketchInfo for the lister
+		sketchInfo := model.SketchInfo{
+			Slug:  sketch.Slug,
+			URL:   fmt.Sprintf("/members/%s/%s", memberName, sketch.Slug),
+			Alias: memberName,
+		}
+
+		// Set pointers for optional fields
+		if sketch.Title != "" {
+			sketchInfo.Title = &sketch.Title
+		}
+		if sketch.Description != "" {
+			sketchInfo.Description = &sketch.Description
+		}
+		if sketch.Keywords != "" {
+			sketchInfo.Keywords = &sketch.Keywords
+		}
+		if len(sketch.Tags) > 0 {
+			sketchInfo.Tags = sketch.Tags
+		}
+
+		result = append(result, sketchInfo)
+	}
+
+	return result, nil
+}
+
 // UpdateSketch updates an existing sketch
 func (s *Service) UpdateSketch(id int, req *model.UpdateSketchRequest) (*model.Sketch, error) {
 	if id <= 0 {

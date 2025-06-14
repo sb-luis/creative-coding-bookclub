@@ -21,7 +21,7 @@ export async function initializeIframe() {
         // Capture the original iframe HTML structure from server (if not already done)
         if (!state?.originalIframeHTML || state.originalIframeHTML.length === 0) {
           console.log('📥 Original HTML not captured yet, fetching now...');
-          await fetchOriginalIframeHTML();
+          await fetchOriginalIframeHTML(iframe.src);
         } 
         
         // Extract the sketch script content and populate the code editor

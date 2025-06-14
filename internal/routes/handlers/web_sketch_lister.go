@@ -13,7 +13,7 @@ import (
 // SketchListerPageData holds all data for the sketch lister page template.
 type SketchListerPageData struct {
 	utils.PageData
-	Members []model.MemberSketchInfo
+	Sketches []model.SketchInfo
 }
 
 // SketchListerPageHandler handles requests to display the list of all sketches.
@@ -24,14 +24,14 @@ func SketchListerPageHandler(services *services.Services) func(w http.ResponseWr
 		pageData.Description = utils.Translate(pageData.Lang, "pages.sketchLister.meta.description")
 		pageData.Keywords = utils.Translate(pageData.Lang, "pages.sketchLister.meta.keywords")
 
-		// Get all sketches from services grouped by member
+		// Get all sketches from services in chronological order
 		if services == nil {
 			log.Printf("Services not initialized")
 			http.Error(w, "Failed to load sketches", http.StatusInternalServerError)
 			return
 		}
 
-		membersData, err := services.Sketch.GetAllSketchesGroupedByMember()
+		sketchesData, err := services.Sketch.GetAllSketchesChronological()
 		if err != nil {
 			log.Printf("Error getting sketches from services: %v", err)
 			http.Error(w, "Failed to load sketches", http.StatusInternalServerError)
@@ -41,7 +41,7 @@ func SketchListerPageHandler(services *services.Services) func(w http.ResponseWr
 		// Prepare the data for the template
 		templateData := SketchListerPageData{
 			PageData: *pageData,
-			Members:  membersData, // Renamed from MembersData
+			Sketches: sketchesData,
 		}
 
 		err = tmpl.ExecuteTemplate(w, "page-sketch-lister", templateData)
