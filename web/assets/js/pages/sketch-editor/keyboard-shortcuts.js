@@ -56,17 +56,18 @@ export function setupKeyboardShortcuts() {
       } else {
         setViewMode('sketch');
       }
-      // Toggle between overlay and console-overlay mode
+      // Toggle between overlay and debug mode
     } else if (
       event.ctrlKey &&
       (event.key === ';' || event.code === 'Semicolon')
     ) {
       event.preventDefault();
       const currentMode = getCurrentViewMode();
-      if (currentMode === 'overlay') {
-        setViewMode('debug');
-      } else {
+      if (currentMode === 'debug') {
         setViewMode('overlay');
+      } else {
+        // From any other mode (overlay, sketch, code), go to debug
+        setViewMode('debug');
       }
     }
   });
@@ -88,6 +89,47 @@ export function setupMessageHandling() {
     ) {
       setViewMode('code');
       stopSketch();
+    } else if (
+      event.data &&
+      event.data.type === 'keyboardShortcut'
+    ) {
+      // Handle keyboard shortcuts forwarded from iframe
+      switch (event.data.shortcut) {
+        case 'ctrl+comma':
+          const currentMode = getCurrentViewMode();
+          if (currentMode === 'sketch') {
+            setViewMode('overlay');
+          } else {
+            setViewMode('sketch');
+          }
+          break;
+        case 'ctrl+semicolon':
+          const currentMode2 = getCurrentViewMode();
+          if (currentMode2 === 'debug') {
+            setViewMode('overlay');
+          } else {
+            setViewMode('debug');
+          }
+          break;
+        case 'ctrl+enter':
+          createAndRunSketch();
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'sketchDirty', status: false }, '*');
+          }
+          break;
+        case 'ctrl+period':
+          stopSketch();
+          clearConsole();
+          break;
+        case 'ctrl+s':
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+              type: 'keyboardShortcut',
+              shortcut: 'ctrl+s'
+            }, '*');
+          }
+          break;
+      }
     }
   });
 }

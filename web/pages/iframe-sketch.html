@@ -69,6 +69,44 @@
                     }, '*');
                 }
             });
+
+            // Forward keyboard shortcuts to parent window
+            document.addEventListener('keydown', function (event) {
+                if (window.parent !== window) {
+                    // Forward view mode shortcuts
+                    if (event.ctrlKey && event.key === ',') {
+                        event.preventDefault();
+                        window.parent.postMessage({
+                            type: 'keyboardShortcut',
+                            shortcut: 'ctrl+comma'
+                        }, '*');
+                    } else if (event.ctrlKey && (event.key === ';' || event.code === 'Semicolon')) {
+                        event.preventDefault();
+                        window.parent.postMessage({
+                            type: 'keyboardShortcut',
+                            shortcut: 'ctrl+semicolon'
+                        }, '*');
+                    } else if (event.ctrlKey && event.key === 'Enter') {
+                        event.preventDefault();
+                        window.parent.postMessage({
+                            type: 'keyboardShortcut',
+                            shortcut: 'ctrl+enter'
+                        }, '*');
+                    } else if (event.ctrlKey && event.key === '.') {
+                        event.preventDefault();
+                        window.parent.postMessage({
+                            type: 'keyboardShortcut',
+                            shortcut: 'ctrl+period'
+                        }, '*');
+                    } else if (event.ctrlKey && event.key === 's') {
+                        event.preventDefault();
+                        window.parent.postMessage({
+                            type: 'keyboardShortcut',
+                            shortcut: 'ctrl+s'
+                        }, '*');
+                    }
+                }
+            });
         })();
     </script>
 
