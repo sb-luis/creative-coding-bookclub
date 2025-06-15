@@ -47,16 +47,17 @@ export function setupKeyboardShortcuts() {
 
   // VIEW TOGGLING SHORTCUTS
   document.addEventListener('keydown', function (event) {
-    // Toggle between sketch and overlay mode
+    // Ctrl+, prioritizes overlay mode first, then toggles to sketch
     if (event.ctrlKey && event.key === ',') {
       event.preventDefault();
       const currentMode = getCurrentViewMode();
-      if (currentMode === 'sketch') {
-        setViewMode('overlay');
-      } else {
+      if (currentMode === 'overlay') {
+        // If already in overlay, go to sketch-only
         setViewMode('sketch');
+      } else {
+        setViewMode('overlay');
       }
-      // Toggle between overlay and debug mode
+      // Ctrl+; prioritizes debug mode first, then toggles to overlay
     } else if (
       event.ctrlKey &&
       (event.key === ';' || event.code === 'Semicolon')
@@ -64,9 +65,9 @@ export function setupKeyboardShortcuts() {
       event.preventDefault();
       const currentMode = getCurrentViewMode();
       if (currentMode === 'debug') {
+        // If already in debug, go to overlay
         setViewMode('overlay');
       } else {
-        // From any other mode (overlay, sketch, code), go to debug
         setViewMode('debug');
       }
     }
