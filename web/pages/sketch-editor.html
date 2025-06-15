@@ -128,8 +128,11 @@
         </div>
     </main>
 
+    <script>
+        // Pass initial view mode from server to client
+        window.INITIAL_VIEW_MODE = "{{ .InitialViewMode }}";
+    </script>
     <script type="module" src="/assets/js/pages/sketch-editor/main.js"></script>
-    </main>
 </body>
 
 </html>

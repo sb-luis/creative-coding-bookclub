@@ -41,6 +41,8 @@
                         <button id="prev-sketch" class="ccb-link px-2"
                             title="Previous sketch (wraps to last)">&lt;</button>
                         <button id="next-sketch" class="ccb-link px-2" title="Next sketch (wraps to first)">&gt;</button>
+                        <button id="cycle-view" class="ccb-link px-2" 
+                            title="Cycle view mode (overlay → sketch → debug)">👁</button>
                     </div>
                     <a id="sketch-link" href="/empty-iframe" target="_blank" class="ccb-link">open</a>
                 </div>
@@ -56,9 +58,11 @@
         const sketchLinkEl = document.getElementById('sketch-link');
         const prevSketchBtn = document.getElementById('prev-sketch');
         const nextSketchBtn = document.getElementById('next-sketch');
+        const cycleViewBtn = document.getElementById('cycle-view');
 
         let currentSketchIndex = -1;
         let sketchElements = [];
+        let currentViewMode = 'overlay'; // Track current view mode
 
         // Helper function to get sketch metadata from DOM element
         function getSketchData(button) {
@@ -112,8 +116,14 @@
 
         function loadSketch(s) {
             console.log(`Loading sketch: ${s.params.alias}/${s.params.page}`);
-            const sketchEditorUrl = `/sketches/${s.params.alias}/${s.params.page}/edit`;
+            
+            // Include current view mode as query parameter
+            const viewModeParam = currentViewMode !== 'overlay' ? `?viewMode=${currentViewMode}` : '';
+            const sketchEditorUrl = `/sketches/${s.params.alias}/${s.params.page}/edit${viewModeParam}`;
             const sketchCleanUrl = `/sketches/${s.params.alias}/${s.params.page}`;
+
+            console.log('🎯 Loading sketch with view mode:', currentViewMode);
+            console.log('📤 Sketch editor URL:', sketchEditorUrl);
 
             // Load editor view in iframe for inline editing
             sketchViewEl.setAttribute('src', sketchEditorUrl);
@@ -143,6 +153,32 @@
             if (sketchElements.length > 1) {
                 const newIndex = currentSketchIndex < sketchElements.length - 1 ? currentSketchIndex + 1 : 0;
                 loadSketchByIndex(newIndex);
+            }
+        });
+
+        // View cycle button event listener
+        cycleViewBtn.addEventListener('click', () => {
+            // Send message to the iframe to cycle view mode
+            if (sketchViewEl && sketchViewEl.contentWindow) {
+                sketchViewEl.contentWindow.postMessage({
+                    type: 'cycleViewMode'
+                }, '*');
+            }
+        });
+
+        // Listen for view mode changes from the iframe
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'viewModeChanged') {
+                let newViewMode = event.data.viewMode;
+                console.log('📥 Raw view mode from iframe:', newViewMode);
+                
+                // Clean up view mode (remove quotes if present)
+                if (typeof newViewMode === 'string') {
+                    newViewMode = newViewMode.replace(/^"|"$/g, '');
+                }
+                
+                currentViewMode = newViewMode;
+                console.log('📥 View mode updated to:', currentViewMode);
             }
         });
 

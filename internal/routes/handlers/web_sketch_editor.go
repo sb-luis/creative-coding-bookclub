@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/sb-luis/creative-coding-bookclub/internal/services"
 	"github.com/sb-luis/creative-coding-bookclub/internal/utils"
@@ -12,11 +13,12 @@ import (
 // SketchPageData holds all data for the sketch page template.
 type SketchPageData struct {
 	utils.PageData
-	MemberName   string
-	SketchSlug   string
-	SketchJsPath string
-	ExternalLibs []string
-	SourceCode   string
+	MemberName      string
+	SketchSlug      string
+	SketchJsPath    string
+	ExternalLibs    []string
+	SourceCode      string
+	InitialViewMode string
 }
 
 // SketchEditorPageHandler handles requests to display a sketch page.
@@ -60,13 +62,39 @@ func SketchEditorPageHandler(services *services.Services) func(w http.ResponseWr
 		// Point to the database-served JavaScript endpoint
 		sketchJsPath := "/api/sketches/" + memberName + "/" + sketchSlug
 
+		// Get initial view mode from query parameter, default to 'overlay'
+		initialViewMode := r.URL.Query().Get("viewMode")
+		log.Printf("Raw viewMode query parameter: %q", initialViewMode)
+
+		// Clean up the view mode value (remove quotes if present)
+		initialViewMode = strings.Trim(initialViewMode, "\"")
+		log.Printf("Cleaned viewMode: %q", initialViewMode)
+
+		if initialViewMode == "" {
+			initialViewMode = "overlay"
+		}
+		// Validate view mode (only allow valid modes)
+		validViewModes := map[string]bool{
+			"code":    true,
+			"sketch":  true,
+			"overlay": true,
+			"debug":   true,
+		}
+		if !validViewModes[initialViewMode] {
+			log.Printf("Invalid view mode %q, defaulting to overlay", initialViewMode)
+			initialViewMode = "overlay"
+		}
+
+		log.Printf("Final view mode: %q", initialViewMode)
+
 		templateData := SketchPageData{
-			PageData:     *pageData,
-			MemberName:   memberName,
-			SketchSlug:   sketchSlug,
-			SketchJsPath: sketchJsPath,
-			ExternalLibs: sketch.ExternalLibs,
-			SourceCode:   sketch.SourceCode,
+			PageData:        *pageData,
+			MemberName:      memberName,
+			SketchSlug:      sketchSlug,
+			SketchJsPath:    sketchJsPath,
+			ExternalLibs:    sketch.ExternalLibs,
+			SourceCode:      sketch.SourceCode,
+			InitialViewMode: initialViewMode,
 		}
 
 		log.Printf("Rendering sketch page for member: %s, sketch: %s (JS served from database)",

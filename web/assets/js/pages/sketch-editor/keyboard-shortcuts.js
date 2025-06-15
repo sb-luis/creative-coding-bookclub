@@ -91,6 +91,12 @@ export function setupMessageHandling() {
       setViewMode('code');
       stopSketch();
     } else if (
+      event.source === window.parent &&
+      event.data &&
+      event.data.type === 'cycleViewMode'
+    ) {
+      cycleViewMode();
+    } else if (
       event.data &&
       event.data.type === 'keyboardShortcut'
     ) {

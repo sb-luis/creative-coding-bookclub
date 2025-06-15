@@ -37,6 +37,9 @@ export function updateVisibility() {
       break;
   }
 
+  // Update URL to reflect current view mode
+  updateURLWithViewMode();
+
   // Restore code editor previous state if applicable
   if (
     (state.currentViewMode === VIEW_MODES.CODE ||
@@ -89,6 +92,14 @@ export function cycleViewMode() {
   console.log('🔄 New view mode after cycling:', state.currentViewMode);
   updateVisibility();
 
+  // Notify parent window of view mode change
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      type: 'viewModeChanged',
+      viewMode: state.currentViewMode
+    }, '*');
+  }
+
   // Create sketch if needed
   if (!state.sketchIframe && elements.codeEditor.value.trim() !== '') {
     setTimeout(createAndRunSketch, 0);
@@ -104,6 +115,34 @@ export function setViewMode(mode) {
   if (Object.values(VIEW_MODES).includes(mode)) {
     elements.codeEditorContainer.classList.remove('just-restored');
     state.currentViewMode = mode;
+    console.log('✅ View mode set to:', mode);
     updateVisibility();
+    
+    // Notify parent window of view mode change
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'viewModeChanged',
+        viewMode: state.currentViewMode
+      }, '*');
+    }
+  } else {
+    console.warn('⚠️ Invalid view mode:', mode);
   }
+}
+
+// Update URL to reflect current view mode
+function updateURLWithViewMode() {
+  const url = new URL(window.location);
+  
+  // Only add viewMode parameter if it's not the default 'overlay'
+  if (state.currentViewMode !== VIEW_MODES.OVERLAY) {
+    url.searchParams.set('viewMode', state.currentViewMode);
+  } else {
+    // Remove viewMode parameter if we're back to overlay (default)
+    url.searchParams.delete('viewMode');
+  }
+  
+  // Update the URL without causing a page reload
+  window.history.replaceState(null, '', url.toString());
+  console.log('🔄 URL updated to reflect view mode:', state.currentViewMode);
 }
