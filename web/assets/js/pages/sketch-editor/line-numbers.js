@@ -1,5 +1,30 @@
 import { elements, state } from './dom-elements.js';
 
+// Estimate line width for monospace fonts
+function lineLength(line, charWidth) {
+  return line.length * charWidth;
+}
+
+// Calculate approximate character width 
+let charWidth = getCharWidth();
+function getCharWidth() {
+  if (charWidth === null) {
+    const testChar = 'M'; 
+    const span = document.createElement('span');
+    const styles = getComputedStyle(elements.codeEditor);
+    
+    span.style.font = styles.font;
+    span.style.visibility = 'hidden';
+    span.style.position = 'absolute';
+    span.textContent = testChar;
+    
+    document.body.appendChild(span);
+    charWidth = span.offsetWidth;
+    document.body.removeChild(span);
+  }
+  return charWidth;
+}
+
 // Helper function to check if a line is a comment
 function isCommentLine(lineText) {
   const trimmed = lineText.trim();
@@ -27,11 +52,6 @@ export function updateLineNumbers() {
   const textareaWidth = elements.codeEditor.clientWidth;
   const availableTextWidth = textareaWidth - paddingLeft - paddingRight;
 
-  // Calculate character width using canvas 
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  ctx.font = `${textareaStyles.fontSize} ${textareaStyles.fontFamily}`;
-
   // Fixed line height (no wrapping)
   const lineHeight = 1.2;
 
@@ -57,9 +77,7 @@ export function updateLineNumbers() {
       lineBackground.style.top = `${(i - 1) * lineHeight}rem`;
       lineBackground.style.height = `${lineHeight}rem`;
 
-      // Calculate the width of the text content using canvas
-      ctx.font = `${textareaStyles.fontSize} ${textareaStyles.fontFamily}`;
-      const textWidth = ctx.measureText(lineText).width;
+      const textWidth = lineLength(lineText, charWidth);
 
       // Background should start from 0 and extend to cover line numbers (45px) + text + small padding
       const backgroundWidth = Math.max(70, 45 + Math.min(textWidth, availableTextWidth) + 5);
@@ -87,11 +105,9 @@ export function updateLineNumbers() {
     
     for (let i = 0; i < lineCount; i++) {
       const lineText = lines[i] || '';
-      
-      // Calculate the width of the text content using canvas
-      ctx.font = `${textareaStyles.fontSize} ${textareaStyles.fontFamily}`;
-      const textWidth = ctx.measureText(lineText).width;
-      
+
+      const textWidth = lineLength(lineText, charWidth);
+
       // Background should start from 0 and extend to cover line numbers (45px) + text + small padding
       const backgroundWidth = Math.max(70, 45 + Math.min(textWidth, availableTextWidth) + 5);
       
