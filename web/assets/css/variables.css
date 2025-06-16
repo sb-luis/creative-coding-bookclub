@@ -1,7 +1,7 @@
 :root {
   color-scheme: light dark;
   
-  /* Base Colors - Fallbacks for older browsers (light mode defaults) */
+  /* Base Colors - Fallbacks for older browsers (light mode only) */
   --base-50: #fafafa;
   --base-100: #f5f5f5;
   --base-200: #e8e8e8;
@@ -12,20 +12,8 @@
   --base-700: #4d4d4d;
   --base-800: #333333;
   --base-900: #1e1e1e;
-  
-  /* Base Colors - Modern browsers with light-dark support */
-  --base-50: light-dark(#fafafa, #121212);
-  --base-100: light-dark(#f5f5f5, #1e1e1e);
-  --base-200: light-dark(#e8e8e8, #333333);
-  --base-300: light-dark(#d4d4d4, #4d4d4d);
-  --base-400: light-dark(#a3a3a3, #6e6e6e);
-  --base-500: light-dark(#808080, #a3a3a3);
-  --base-600: light-dark(#6e6e6e, #d4d4d4);
-  --base-700: light-dark(#4d4d4d, #e8e8e8);
-  --base-800: light-dark(#333333, #f5f5f5);
-  --base-900: light-dark(#1e1e1e, #fafafa);
 
-  /* Primary Colors - Fallbacks for older browsers (light mode defaults) */
+  /* Primary Colors - Fallbacks for older browsers (light mode only) */
   --primary-50: #ffe5ef;
   --primary-100: #ffccd8;
   --primary-200: #ffb2c1;
@@ -36,20 +24,8 @@
   --primary-700: #cc0041;
   --primary-800: #b20039;
   --primary-900: #990030;
-  
-  /* Primary Colors - Modern browsers with light-dark support */
-  --primary-50: light-dark(#ffe5ef, #ff0040);
-  --primary-100: light-dark(#ffccd8, #ff1958);
-  --primary-200: light-dark(#ffb2c1, #ff336f);
-  --primary-300: light-dark(#ff99aa, #ff4c87);
-  --primary-400: light-dark(#ff7f93, #ff669e);
-  --primary-500: light-dark(#ff0052, #ff80b6);
-  --primary-600: light-dark(#e50049, #ff99ce);
-  --primary-700: light-dark(#cc0041, #ffb2e7);
-  --primary-800: light-dark(#b20039, #ffccff);
-  --primary-900: light-dark(#990030, #ffe5ff);
 
-  /* Secondary Colors - Fallbacks for older browsers (light mode defaults) */
+  /* Secondary Colors - Fallbacks for older browsers (light mode only) */
   --secondary-50: #f5f3ff;
   --secondary-100: #ede9fe;
   --secondary-200: #ddd6fe;
@@ -60,20 +36,8 @@
   --secondary-700: #6d28d9;
   --secondary-800: #5b21b6;
   --secondary-900: #4c1d95;
-  
-  /* Secondary Colors - Modern browsers with light-dark support */
-  --secondary-50: light-dark(#f5f3ff, #3730a3);
-  --secondary-100: light-dark(#ede9fe, #4338ca);
-  --secondary-200: light-dark(#ddd6fe, #4f46e5);
-  --secondary-300: light-dark(#c4b5fd, #6366f1);
-  --secondary-400: light-dark(#a78bfa, #818cf8);
-  --secondary-500: light-dark(#8b5cf6, #a78bfa);
-  --secondary-600: light-dark(#7c3aed, #c4b5fd);
-  --secondary-700: light-dark(#6d28d9, #ddd6fe);
-  --secondary-800: light-dark(#5b21b6, #ede9fe);
-  --secondary-900: light-dark(#4c1d95, #f5f3ff);
 
-  /* Success Colors - Fallbacks for older browsers (light mode defaults) */
+  /* Success Colors - Fallbacks for older browsers (light mode only) */
   --success-50: #f0fdf4;
   --success-100: #dcfce7;
   --success-200: #bbf7d0;
@@ -84,20 +48,8 @@
   --success-700: #15803d;
   --success-800: #166534;
   --success-900: #14532d;
-  
-  /* Success Colors - Modern browsers with light-dark support */
-  --success-50: light-dark(#f0fdf4, #14532d);
-  --success-100: light-dark(#dcfce7, #155e34);
-  --success-200: light-dark(#bbf7d0, #166b3c);
-  --success-300: light-dark(#86efac, #16a34a);
-  --success-400: light-dark(#4ade80, #22c55e);
-  --success-500: light-dark(#22c55e, #4ade80);
-  --success-600: light-dark(#16a34a, #86efac);
-  --success-700: light-dark(#15803d, #bbf7d0);
-  --success-800: light-dark(#166534, #dcfce7);
-  --success-900: light-dark(#14532d, #f0fdf4);
 
-  /* Error Colors - Fallbacks for older browsers (light mode defaults) */
+  /* Error Colors - Fallbacks for older browsers (light mode only) */
   --error-50: #fef2f2;
   --error-100: #fee2e2;
   --error-200: #fecaca;
@@ -108,20 +60,8 @@
   --error-700: #b91c1c;
   --error-800: #991b1b;
   --error-900: #7f1d1d;
-  
-  /* Error Colors - Modern browsers with light-dark support */
-  --error-50: light-dark(#fef2f2, #7f1d1d);
-  --error-100: light-dark(#fee2e2, #991b1b);
-  --error-200: light-dark(#fecaca, #b91c1c);
-  --error-300: light-dark(#fca5a5, #dc2626);
-  --error-400: light-dark(#f87171, #ef4444);
-  --error-500: light-dark(#ef4444, #f87171);
-  --error-600: light-dark(#dc2626, #fca5a5);
-  --error-700: light-dark(#b91c1c, #fecaca);
-  --error-800: light-dark(#991b1b, #fee2e2);
-  --error-900: light-dark(#7f1d1d, #fef2f2);
 
-  /* Warning Colors - Fallbacks for older browsers (light mode defaults) */
+  /* Warning Colors - Fallbacks for older browsers (light mode only) */
   --warning-50: #fffbeb;
   --warning-100: #fef3c7;
   --warning-200: #fde68a;
@@ -132,20 +72,8 @@
   --warning-700: #b45309;
   --warning-800: #92400e;
   --warning-900: #78350f;
-  
-  /* Warning Colors - Modern browsers with light-dark support */
-  --warning-50: light-dark(#fffbeb, #78350f);
-  --warning-100: light-dark(#fef3c7, #92400e);
-  --warning-200: light-dark(#fde68a, #b45309);
-  --warning-300: light-dark(#fcd34d, #d97706);
-  --warning-400: light-dark(#fbbf24, #f59e0b);
-  --warning-500: light-dark(#f59e0b, #fbbf24);
-  --warning-600: light-dark(#d97706, #fcd34d);
-  --warning-700: light-dark(#b45309, #fde68a);
-  --warning-800: light-dark(#92400e, #fef3c7);
-  --warning-900: light-dark(#78350f, #fffbeb);
 
-  /* Info Colors - Fallbacks for older browsers (light mode defaults) */
+  /* Info Colors - Fallbacks for older browsers (light mode only) */
   --info-50: #f0f9ff;
   --info-100: #e0f2fe;
   --info-200: #bae6fd;
@@ -156,20 +84,8 @@
   --info-700: #0369a1;
   --info-800: #075985;
   --info-900: #0c4a6e;
-  
-  /* Info Colors - Modern browsers with light-dark support */
-  --info-50: light-dark(#f0f9ff, #0c4a6e);
-  --info-100: light-dark(#e0f2fe, #0e5a81);
-  --info-200: light-dark(#bae6fd, #0a74a8);
-  --info-300: light-dark(#7dd3fc, #0ea5e9);
-  --info-400: light-dark(#38bdf8, #38bdf8);
-  --info-500: light-dark(#0ea5e9, #7dd3fc);
-  --info-600: light-dark(#0284c7, #bae6fd);
-  --info-700: light-dark(#0369a1, #e0f2fe);
-  --info-800: light-dark(#075985, #e0f2fe);
-  --info-900: light-dark(#0c4a6e, #f0f9ff);
 
-  /* Overlay Colors - Fallbacks for older browsers (light mode defaults) */
+  /* Overlay Colors - Fallbacks for older browsers (light mode only) */
   --overlay-50: rgba(255, 255, 255, 0.05);
   --overlay-100: rgba(255, 255, 255, 0.1);
   --overlay-200: rgba(255, 255, 255, 0.2);
@@ -180,24 +96,9 @@
   --overlay-700: rgba(255, 255, 255, 0.7);
   --overlay-800: rgba(255, 255, 255, 0.8);
   --overlay-900: rgba(255, 255, 255, 0.9);
-  
-  /* Overlay Colors - Modern browsers with light-dark support */
-  --overlay-50: light-dark(rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.05));
-  --overlay-100: light-dark(rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.1));
-  --overlay-200: light-dark(rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.2));
-  --overlay-300: light-dark(rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0.3));
-  --overlay-400: light-dark(rgba(255, 255, 255, 0.4), rgba(0, 0, 0, 0.4));
-  --overlay-500: light-dark(rgba(255, 255, 255, 0.5), rgba(0, 0, 0, 0.5));
-  --overlay-600: light-dark(rgba(255, 255, 255, 0.6), rgba(0, 0, 0, 0.6));
-  --overlay-700: light-dark(rgba(255, 255, 255, 0.7), rgba(0, 0, 0, 0.7));
-  --overlay-800: light-dark(rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0.8));
-  --overlay-900: light-dark(rgba(255, 255, 255, 0.9), rgba(0, 0, 0, 0.9));
 
-  /* Shadow Colors - Fallbacks for older browsers */
+  /* Shadow Colors */ 
   --shadow-color: rgb(0, 0, 0);
-  
-  /* Shadow Colors - Modern browsers with light-dark support */
-  --shadow-color: light-dark(rgb(0 0 0), rgb(0, 0, 0)); 
 
   --spacing: 0.25rem; /* Base spacing unit */
 
@@ -215,4 +116,108 @@
 
 :root:has(#theme [value='dark']:checked) {
   color-scheme: dark;
+}
+
+/* MODERN BROWSERS WITH LIGHT-DARK() SUPPORT */
+@supports (color: light-dark(black, white)) {
+  :root {
+    /* Base Colors */ 
+    --base-50: light-dark(#fafafa, #121212);
+    --base-100: light-dark(#f5f5f5, #1e1e1e);
+    --base-200: light-dark(#e8e8e8, #333333);
+    --base-300: light-dark(#d4d4d4, #4d4d4d);
+    --base-400: light-dark(#a3a3a3, #6e6e6e);
+    --base-500: light-dark(#808080, #a3a3a3);
+    --base-600: light-dark(#6e6e6e, #d4d4d4);
+    --base-700: light-dark(#4d4d4d, #e8e8e8);
+    --base-800: light-dark(#333333, #f5f5f5);
+    --base-900: light-dark(#1e1e1e, #fafafa);
+
+    /* Primary Colors */ 
+    --primary-50: light-dark(#ffe5ef, #ff0040);
+    --primary-100: light-dark(#ffccd8, #ff1958);
+    --primary-200: light-dark(#ffb2c1, #ff336f);
+    --primary-300: light-dark(#ff99aa, #ff4c87);
+    --primary-400: light-dark(#ff7f93, #ff669e);
+    --primary-500: light-dark(#ff0052, #ff80b6);
+    --primary-600: light-dark(#e50049, #ff99ce);
+    --primary-700: light-dark(#cc0041, #ffb2e7);
+    --primary-800: light-dark(#b20039, #ffccff);
+    --primary-900: light-dark(#990030, #ffe5ff);
+
+    /* Secondary Colors */ 
+    --secondary-50: light-dark(#f5f3ff, #3730a3);
+    --secondary-100: light-dark(#ede9fe, #4338ca);
+    --secondary-200: light-dark(#ddd6fe, #4f46e5);
+    --secondary-300: light-dark(#c4b5fd, #6366f1);
+    --secondary-400: light-dark(#a78bfa, #818cf8);
+    --secondary-500: light-dark(#8b5cf6, #a78bfa);
+    --secondary-600: light-dark(#7c3aed, #c4b5fd);
+    --secondary-700: light-dark(#6d28d9, #ddd6fe);
+    --secondary-800: light-dark(#5b21b6, #ede9fe);
+    --secondary-900: light-dark(#4c1d95, #f5f3ff);
+
+    /* Success Colors */ 
+    --success-50: light-dark(#f0fdf4, #14532d);
+    --success-100: light-dark(#dcfce7, #155e34);
+    --success-200: light-dark(#bbf7d0, #166b3c);
+    --success-300: light-dark(#86efac, #16a34a);
+    --success-400: light-dark(#4ade80, #22c55e);
+    --success-500: light-dark(#22c55e, #4ade80);
+    --success-600: light-dark(#16a34a, #86efac);
+    --success-700: light-dark(#15803d, #bbf7d0);
+    --success-800: light-dark(#166534, #dcfce7);
+    --success-900: light-dark(#14532d, #f0fdf4);
+
+    /* Error Colors */ 
+    --error-50: light-dark(#fef2f2, #7f1d1d);
+    --error-100: light-dark(#fee2e2, #991b1b);
+    --error-200: light-dark(#fecaca, #b91c1c);
+    --error-300: light-dark(#fca5a5, #dc2626);
+    --error-400: light-dark(#f87171, #ef4444);
+    --error-500: light-dark(#ef4444, #f87171);
+    --error-600: light-dark(#dc2626, #fca5a5);
+    --error-700: light-dark(#b91c1c, #fecaca);
+    --error-800: light-dark(#991b1b, #fee2e2);
+    --error-900: light-dark(#7f1d1d, #fef2f2);
+
+    /* Warning Colors */ 
+    --warning-50: light-dark(#fffbeb, #78350f);
+    --warning-100: light-dark(#fef3c7, #92400e);
+    --warning-200: light-dark(#fde68a, #b45309);
+    --warning-300: light-dark(#fcd34d, #d97706);
+    --warning-400: light-dark(#fbbf24, #f59e0b);
+    --warning-500: light-dark(#f59e0b, #fbbf24);
+    --warning-600: light-dark(#d97706, #fcd34d);
+    --warning-700: light-dark(#b45309, #fde68a);
+    --warning-800: light-dark(#92400e, #fef3c7);
+    --warning-900: light-dark(#78350f, #fffbeb);
+
+    /* Info Colors */ 
+    --info-50: light-dark(#f0f9ff, #0c4a6e);
+    --info-100: light-dark(#e0f2fe, #0e5a81);
+    --info-200: light-dark(#bae6fd, #0a74a8);
+    --info-300: light-dark(#7dd3fc, #0ea5e9);
+    --info-400: light-dark(#38bdf8, #38bdf8);
+    --info-500: light-dark(#0ea5e9, #7dd3fc);
+    --info-600: light-dark(#0284c7, #bae6fd);
+    --info-700: light-dark(#0369a1, #e0f2fe);
+    --info-800: light-dark(#075985, #e0f2fe);
+    --info-900: light-dark(#0c4a6e, #f0f9ff);
+
+    /* Overlay Colors */ 
+    --overlay-50: light-dark(rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.05));
+    --overlay-100: light-dark(rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.1));
+    --overlay-200: light-dark(rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.2));
+    --overlay-300: light-dark(rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0.3));
+    --overlay-400: light-dark(rgba(255, 255, 255, 0.4), rgba(0, 0, 0, 0.4));
+    --overlay-500: light-dark(rgba(255, 255, 255, 0.5), rgba(0, 0, 0, 0.5));
+    --overlay-600: light-dark(rgba(255, 255, 255, 0.6), rgba(0, 0, 0, 0.6));
+    --overlay-700: light-dark(rgba(255, 255, 255, 0.7), rgba(0, 0, 0, 0.7));
+    --overlay-800: light-dark(rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0.8));
+    --overlay-900: light-dark(rgba(255, 255, 255, 0.9), rgba(0, 0, 0, 0.9));
+
+    /* Shadow Colors */ 
+    --shadow-color: light-dark(rgb(0 0 0), rgb(0, 0, 0));
+  }
 }
