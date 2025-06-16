@@ -30,3 +30,10 @@ body {
   clip: rect(0, 0, 0, 0);
   border: 0;
 }
+
+/* Hide theme switcher in browsers that don't support light-dark() */
+@supports not (color: light-dark(white, black)) {
+  .theme-switcher-form {
+    display: none !important;
+  }
+}

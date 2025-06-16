@@ -71,37 +71,37 @@
 
 /* Special backgrounds */
 .bg-overlay {
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--overlay-500);
 }
 
 /* Overlay backgrounds with incremental opacity */
 .bg-overlay-50 {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--overlay-50);
 }
 .bg-overlay-100 {
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--overlay-100);
 }
 .bg-overlay-200 {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--overlay-200);
 }
 .bg-overlay-300 {
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--overlay-300);
 }
 .bg-overlay-400 {
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--overlay-400);
 }
 .bg-overlay-500 {
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--overlay-500);
 }
 .bg-overlay-600 {
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--overlay-600);
 }
 .bg-overlay-700 {
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--overlay-700);
 }
 .bg-overlay-800 {
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--overlay-800);
 }
 .bg-overlay-900 {
-  background: rgba(0, 0, 0, 0.9);
+  background: var(--overlay-900);
 }
