@@ -5,22 +5,28 @@ function lineLength(line, charWidth) {
   return line.length * charWidth;
 }
 
-// Calculate approximate character width 
-let charWidth = getCharWidth();
+let charWidth = null;
+
+function calculateCharWidth() {
+  const testChar = 'M'; 
+  const span = document.createElement('span');
+  const styles = getComputedStyle(elements.codeEditor);
+  
+  span.style.font = styles.font;
+  span.style.visibility = 'hidden';
+  span.style.position = 'absolute';
+  span.textContent = testChar;
+  
+  document.body.appendChild(span);
+  const width = span.offsetWidth;
+  document.body.removeChild(span);
+  
+  return width;
+}
+
 function getCharWidth() {
   if (charWidth === null) {
-    const testChar = 'M'; 
-    const span = document.createElement('span');
-    const styles = getComputedStyle(elements.codeEditor);
-    
-    span.style.font = styles.font;
-    span.style.visibility = 'hidden';
-    span.style.position = 'absolute';
-    span.textContent = testChar;
-    
-    document.body.appendChild(span);
-    charWidth = span.offsetWidth;
-    document.body.removeChild(span);
+    charWidth = calculateCharWidth();
   }
   return charWidth;
 }
@@ -77,7 +83,7 @@ export function updateLineNumbers() {
       lineBackground.style.top = `${(i - 1) * lineHeight}rem`;
       lineBackground.style.height = `${lineHeight}rem`;
 
-      const textWidth = lineLength(lineText, charWidth);
+      const textWidth = lineLength(lineText, getCharWidth());
 
       // Background should start from 0 and extend to cover line numbers (45px) + text + small padding
       const backgroundWidth = Math.max(70, 45 + Math.min(textWidth, availableTextWidth) + 5);
@@ -106,7 +112,7 @@ export function updateLineNumbers() {
     for (let i = 0; i < lineCount; i++) {
       const lineText = lines[i] || '';
 
-      const textWidth = lineLength(lineText, charWidth);
+      const textWidth = lineLength(lineText, getCharWidth());
 
       // Background should start from 0 and extend to cover line numbers (45px) + text + small padding
       const backgroundWidth = Math.max(70, 45 + Math.min(textWidth, availableTextWidth) + 5);
