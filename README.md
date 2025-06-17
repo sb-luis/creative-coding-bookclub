@@ -2,7 +2,7 @@
 
 The home of the [creativecodingbook.club](https://creativecodingbook.club) web app.
 
-## Code Editor Keyboard Shortcuts
+## Keyboard Shortcuts
 
 ### Sketch Editor
 - **Ctrl + Enter**: Execute code 

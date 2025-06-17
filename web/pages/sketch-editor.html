@@ -36,15 +36,17 @@
             pointer-events: none;
             overflow: hidden;
             height: calc(100% - 4px);
+            font-family: monospace;
         }
 
         .line-number {
             padding-left: 5px;
-            position: absolute;
-            width: 35px;
+            height: 1.2rem;
             color: var(--base-500);
+            background-color: var(--base-200);
             display: flex;
             align-items: flex-start;
+            white-space: nowrap;
         }
 
         .line-number.current-line {
@@ -53,24 +55,12 @@
             font-weight: bold;
         }
 
-        .line-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            background-color: var(--base-200);
-            pointer-events: none;
-        }
-
-        .line-background.comment-line-bg {
+        .line-number.comment-line {
             background-color: var(--base-300);
         }
 
-        .line-background.blank-line-bg {
+        .line-number.blank-line {
             background-color: transparent;
-        }
-
-        .line-background.current-line-bg {
-            background-color: var(--base-50);
         }
 
         #code-editor {

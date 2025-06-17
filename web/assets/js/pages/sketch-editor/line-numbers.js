@@ -58,9 +58,6 @@ export function updateLineNumbers() {
   const textareaWidth = elements.codeEditor.clientWidth;
   const availableTextWidth = textareaWidth - paddingLeft - paddingRight;
 
-  // Fixed line height (no wrapping)
-  const lineHeight = 1.2;
-
   if (needsRebuild) {
     // Clear the line numbers container
     elements.lineNumbersContainer.innerHTML = '';
@@ -69,106 +66,73 @@ export function updateLineNumbers() {
     for (let i = 1; i <= lineCount; i++) {
       const lineText = lines[i - 1] || '';
 
-      // Create background element for this line
-      const lineBackground = document.createElement('div');
-      lineBackground.classList.add('line-background');
+      // Create line number element
+      const lineElement = document.createElement('div');
+      lineElement.textContent = i;
+      lineElement.id = `line-${i}`;
+      lineElement.classList.add('line-number');
       
-      // Check line type and add the appropriate class
+      // Add line type classes
       if (isBlankLine(lineText)) {
-        lineBackground.classList.add('blank-line-bg');
+        lineElement.classList.add('blank-line');
       } else if (isCommentLine(lineText)) {
-        lineBackground.classList.add('comment-line-bg');
+        lineElement.classList.add('comment-line');
       }
-      
-      lineBackground.style.top = `${(i - 1) * lineHeight}rem`;
-      lineBackground.style.height = `${lineHeight}rem`;
 
       const textWidth = lineLength(lineText, getCharWidth());
 
-      // Background should start from 0 and extend to cover line numbers (45px) + text + small padding
-      const backgroundWidth = Math.max(70, 45 + Math.min(textWidth, availableTextWidth) + 5);
-      lineBackground.style.width = `${backgroundWidth}px`;
+      // Element should extend to cover line numbers (45px) + text + small padding
+      const elementWidth = Math.max(70, 45 + Math.min(textWidth, availableTextWidth) + 5);
+      lineElement.style.width = `${elementWidth}px`;
 
-      // Create the line number element
-      const lineNumberSpan = document.createElement('div');
-      lineNumberSpan.textContent = i;
-      lineNumberSpan.id = `line-${i}`;
-      lineNumberSpan.classList.add('line-number');
-      lineNumberSpan.style.top = `${(i - 1) * lineHeight}rem`;
-      lineNumberSpan.style.height = `${lineHeight}rem`;
-      lineNumberSpan.style.display = 'flex';
-      lineNumberSpan.style.alignItems = 'flex-start';
-      lineNumberSpan.style.paddingTop = '0';
-
-      // Append background first, then line number
-      elements.lineNumbersContainer.appendChild(lineBackground);
-      elements.lineNumbersContainer.appendChild(lineNumberSpan);
+      // Append to container
+      elements.lineNumbersContainer.appendChild(lineElement);
     }
   } else {
-    // Update line background dimensions when line count hasn't changed
-    const backgrounds = elements.lineNumbersContainer.querySelectorAll('.line-background');
-    const lineNumbers = elements.lineNumbersContainer.querySelectorAll('.line-number');
+    // Update line dimensions and classes when line count hasn't changed
+    const lineElements = elements.lineNumbersContainer.querySelectorAll('.line-number');
     
     for (let i = 0; i < lineCount; i++) {
       const lineText = lines[i] || '';
+      const lineElement = lineElements[i];
 
-      const textWidth = lineLength(lineText, getCharWidth());
+      if (lineElement) {
+        const textWidth = lineLength(lineText, getCharWidth());
 
-      // Background should start from 0 and extend to cover line numbers (45px) + text + small padding
-      const backgroundWidth = Math.max(70, 45 + Math.min(textWidth, availableTextWidth) + 5);
-      
-      if (backgrounds[i]) {
-        backgrounds[i].style.top = `${i * lineHeight}rem`;
-        backgrounds[i].style.height = `${lineHeight}rem`;
-        backgrounds[i].style.width = `${backgroundWidth}px`;
+        // Element should extend to cover line numbers (45px) + text + small padding
+        const elementWidth = Math.max(70, 45 + Math.min(textWidth, availableTextWidth) + 5);
+        lineElement.style.width = `${elementWidth}px`;
         
         // Update line type classes
-        backgrounds[i].classList.remove('comment-line-bg', 'blank-line-bg');
+        lineElement.classList.remove('comment-line', 'blank-line');
         if (isBlankLine(lineText)) {
-          backgrounds[i].classList.add('blank-line-bg');
+          lineElement.classList.add('blank-line');
         } else if (isCommentLine(lineText)) {
-          backgrounds[i].classList.add('comment-line-bg');
+          lineElement.classList.add('comment-line');
         }
-      }
-
-      if (lineNumbers[i]) {
-        lineNumbers[i].style.top = `${i * lineHeight}rem`;
-        lineNumbers[i].style.height = `${lineHeight}rem`;
-        lineNumbers[i].style.display = 'flex';
-        lineNumbers[i].style.alignItems = 'flex-start';
-        lineNumbers[i].style.paddingTop = '0';
       }
     }
   }
 
   // Update highlighting for current line
-  const backgrounds = elements.lineNumbersContainer.querySelectorAll('.line-background');
-  const lineNumbers = elements.lineNumbersContainer.querySelectorAll('.line-number');
+  const lineElements = elements.lineNumbersContainer.querySelectorAll('.line-number');
   
-  backgrounds.forEach((bg, index) => {
+  lineElements.forEach((lineElement, index) => {
     const lineText = lines[index] || '';
     
     // First, update line type classes
-    bg.classList.remove('comment-line-bg', 'blank-line-bg');
+    lineElement.classList.remove('comment-line', 'blank-line');
     if (isBlankLine(lineText)) {
-      bg.classList.add('blank-line-bg');
+      lineElement.classList.add('blank-line');
     } else if (isCommentLine(lineText)) {
-      bg.classList.add('comment-line-bg');
+      lineElement.classList.add('comment-line');
     }
     
     // Then, update current line highlighting
     if (index + 1 === state.currentHighlightedLine) {
-      bg.classList.add('current-line-bg');
+      lineElement.classList.add('current-line');
     } else {
-      bg.classList.remove('current-line-bg');
-    }
-  });
-
-  lineNumbers.forEach((lineNum, index) => {
-    if (index + 1 === state.currentHighlightedLine) {
-      lineNum.classList.add('current-line');
-    } else {
-      lineNum.classList.remove('current-line');
+      lineElement.classList.remove('current-line');
     }
   });
 
@@ -193,39 +157,27 @@ export function highlightCurrentLine() {
     state.currentHighlightedLine = lineNumber;
     
     // Update highlighting without rebuilding the entire line numbers
-    const backgrounds = elements.lineNumbersContainer.querySelectorAll('.line-background');
-    const lineNumbers = elements.lineNumbersContainer.querySelectorAll('.line-number');
+    const lineElements = elements.lineNumbersContainer.querySelectorAll('.line-number');
     
     // Get current line text to check if it's a comment
-    const text = elements.codeEditor.value;
     const lines = text.split('\n');
     
-    backgrounds.forEach((bg, index) => {
+    lineElements.forEach((lineElement, index) => {
       const lineText = lines[index] || '';
       
       // First, update line type classes
-      bg.classList.remove('comment-line-bg', 'blank-line-bg');
+      lineElement.classList.remove('comment-line', 'blank-line');
       if (isBlankLine(lineText)) {
-        bg.classList.add('blank-line-bg');
+        lineElement.classList.add('blank-line');
       } else if (isCommentLine(lineText)) {
-        bg.classList.add('comment-line-bg');
+        lineElement.classList.add('comment-line');
       }
       
       // Then, update current line highlighting
       if (index + 1 === state.currentHighlightedLine) {
-        bg.classList.add('current-line-bg');
+        lineElement.classList.add('current-line');
       } else {
-        bg.classList.remove('current-line-bg');
-      }
-    });
-
-    lineNumbers.forEach((lineNum, index) => {
-      if (index + 1 === state.currentHighlightedLine) {
-        lineNum.classList.add('current-line');
-        lineNum.style.fontWeight = 'bold';
-      } else {
-        lineNum.classList.remove('current-line');
-        lineNum.style.fontWeight = 'normal';
+        lineElement.classList.remove('current-line');
       }
     });
   }
