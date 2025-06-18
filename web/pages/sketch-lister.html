@@ -43,6 +43,8 @@
                         <button id="next-sketch" class="ccb-link px-2" title="Next sketch (wraps to first)">&gt;</button>
                         <button id="cycle-view" class="ccb-link px-2" 
                             title="Cycle view mode (overlay → sketch → debug)">👁</button>
+                        <button id="play-stop-sketch" class="ccb-link px-2" 
+                            title="Run sketch (Ctrl+Enter)">play</button>
                     </div>
                     <a id="sketch-link" href="/empty-iframe" target="_blank" class="ccb-link">open</a>
                 </div>
@@ -59,10 +61,12 @@
         const prevSketchBtn = document.getElementById('prev-sketch');
         const nextSketchBtn = document.getElementById('next-sketch');
         const cycleViewBtn = document.getElementById('cycle-view');
+        const playStopBtn = document.getElementById('play-stop-sketch');
 
         let currentSketchIndex = -1;
         let sketchElements = [];
         let currentViewMode = 'overlay'; // Track current view mode
+        let isSketchRunning = false; // Track sketch state
 
         // Helper function to get sketch metadata from DOM element
         function getSketchData(button) {
@@ -86,6 +90,16 @@
             // Always enable navigation buttons when there are sketches to navigate
             prevSketchBtn.disabled = sketchElements.length <= 1;
             nextSketchBtn.disabled = sketchElements.length <= 1;
+        }
+
+        function updatePlayStopButton() {
+            if (isSketchRunning) {
+                playStopBtn.innerHTML = 'stop';
+                playStopBtn.title = 'Stop sketch (Ctrl+.)';
+            } else {
+                playStopBtn.innerHTML = 'play';
+                playStopBtn.title = 'Run sketch (Ctrl+Enter)';
+            }
         }
 
         function loadSketchByIndex(index) {
@@ -166,6 +180,25 @@
             }
         });
 
+        // Play/Stop button event listener
+        playStopBtn.addEventListener('click', () => {
+            if (sketchViewEl && sketchViewEl.contentWindow) {
+                if (isSketchRunning) {
+                    // Stop the sketch (equivalent to Ctrl+.)
+                    sketchViewEl.contentWindow.postMessage({
+                        type: 'keyboardShortcut',
+                        shortcut: 'ctrl+period'
+                    }, '*');
+                } else {
+                    // Run the sketch (equivalent to Ctrl+Enter)
+                    sketchViewEl.contentWindow.postMessage({
+                        type: 'keyboardShortcut',
+                        shortcut: 'ctrl+enter'
+                    }, '*');
+                }
+            }
+        });
+
         // Listen for view mode changes from the iframe
         window.addEventListener('message', (event) => {
             if (event.data && event.data.type === 'viewModeChanged') {
@@ -179,6 +212,10 @@
                 
                 currentViewMode = newViewMode;
                 console.log('📥 View mode updated to:', currentViewMode);
+            } else if (event.data && event.data.type === 'sketchDirty') {
+                // Track when sketch starts/stops running
+                isSketchRunning = !event.data.status; // When sketch becomes clean (not dirty), it's running
+                updatePlayStopButton();
             }
         });
 
@@ -202,6 +239,9 @@
         } else {
             console.log("No sketches with required data-alias and data-page found.");
         }
+
+        // Initialize play/stop button
+        updatePlayStopButton();
     </script>
 </body>
 

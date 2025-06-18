@@ -24,6 +24,10 @@ export function setupKeyboardShortcuts() {
       event.preventDefault();
       stopSketch();
       clearConsole();
+      
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'sketchDirty', status: true }, '*');
+      }
     } else if (event.ctrlKey && event.key === 'f') {
       event.preventDefault();
       formatCode();
@@ -127,6 +131,9 @@ export function setupMessageHandling() {
         case 'ctrl+period':
           stopSketch();
           clearConsole();
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'sketchDirty', status: true }, '*');
+          }
           break;
         case 'ctrl+s':
           if (window.parent && window.parent !== window) {
