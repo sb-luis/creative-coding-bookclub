@@ -11,20 +11,21 @@
     <input type="checkbox" id="sidebar-toggle-checkbox" class="invisible" aria-controls="sidebar">
     <aside id="sidebar" class="ccb-sidebar flex">
         <label for="sidebar-toggle-checkbox" id="sidebar-toggle" aria-label="{{ i18nText .Lang 
-            "components.sidebar.toggleAriaLabel" }}"></label>
+            " components.sidebar.toggleAriaLabel" }}"></label>
         <div class="flex flex-col space-y-4 p-4">
             {{ template "sidebar-nav" . }}
             {{ template "sidebar-settings" . }}
             <!-- Sketch List -->
             <div class="flex flex-col py-8">
                 <h1 class="mb-4 ccb-h2">sketches</h1>
-                <ul id="sketch-lister" class="space-y-2 overflow-y-scroll max-w-50" role="listbox" aria-label="Available sketches">
+                <ul id="sketch-lister" class="space-y-2 overflow-y-scroll max-w-50" role="listbox"
+                    aria-label="Available sketches">
                     {{ range .Sketches }}
                     <li role="option">
                         <button class="ccb-link" data-alias="{{ .Alias }}" data-page="{{ .Slug }}"
                             data-title="{{ if .Title }}{{ .Title | html }}{{ end }}"
                             data-description="{{ if .Description }}{{ .Description | html }}{{ end }}"
-                            aria-current="false" aria-selected="false" 
+                            aria-current="false" aria-selected="false"
                             aria-label="Load sketch {{ .Alias }}/{{ .Slug }}">{{ .Alias }}/{{
                             .Slug }}</button>
                     </li>
@@ -36,217 +37,14 @@
     <main class="h-full">
         <div class="h-full flex flex-col md:flex-row">
             <div class="flex-1 shadow-2xl rounded-2xl flex flex-col">
-                <div id="sketch-lister-header" class="flex justify-between items-center px-2">
-                    <div class="flex items-center space-x-2">
-                        <button id="prev-sketch" class="ccb-link px-2"
-                            title="Previous sketch (wraps to last)">&lt;</button>
-                        <button id="next-sketch" class="ccb-link px-2" title="Next sketch (wraps to first)">&gt;</button>
-                        <button id="cycle-view" class="ccb-link px-2" 
-                            title="Cycle view mode (overlay → sketch → debug)">👁</button>
-                        <button id="play-stop-sketch" class="ccb-link px-2" 
-                            title="Run sketch (Ctrl+Enter)">play</button>
-                    </div>
-                    <a id="sketch-link" href="/empty-iframe" target="_blank" class="ccb-link">open</a>
-                </div>
+                {{ template "sketch-editor-controls" . }}
                 <div id="viewport" class="flex-1 rounded-t-2xl relative max-h-[55vh] md:max-h-[75vh]">
                     <iframe id="sketch-view" src="/empty-iframe" class="w-full h-full z-10"></iframe>
                 </div>
             </div>
         </div>
     </main>
-    <script>
-        const sketchListerEl = document.getElementById('sketch-lister');
-        const sketchViewEl = document.getElementById('sketch-view');
-        const sketchLinkEl = document.getElementById('sketch-link');
-        const prevSketchBtn = document.getElementById('prev-sketch');
-        const nextSketchBtn = document.getElementById('next-sketch');
-        const cycleViewBtn = document.getElementById('cycle-view');
-        const playStopBtn = document.getElementById('play-stop-sketch');
-
-        let currentSketchIndex = -1;
-        let sketchElements = [];
-        let currentViewMode = 'overlay'; // Track current view mode
-        let isSketchRunning = false; // Track sketch state
-
-        // Helper function to get sketch metadata from DOM element
-        function getSketchData(button) {
-            const alias = button.dataset.alias;
-            const page = button.dataset.page;
-
-            if (!alias || !page) {
-                console.warn(`Sketch button for "${button.innerText}" is missing essential data attributes (data-alias or data-page). This sketch cannot be loaded.`);
-                return null;
-            }
-            const title = button.dataset.title || page; // Fallback title to page name
-            const description = button.dataset.description || ""; // Default to empty string
-
-            return {
-                params: { alias, page },
-                props: { metadata: { title, description } }
-            };
-        }
-
-        function updateNavigationButtons() {
-            // Always enable navigation buttons when there are sketches to navigate
-            prevSketchBtn.disabled = sketchElements.length <= 1;
-            nextSketchBtn.disabled = sketchElements.length <= 1;
-        }
-
-        function updatePlayStopButton() {
-            if (isSketchRunning) {
-                playStopBtn.innerHTML = 'stop';
-                playStopBtn.title = 'Stop sketch (Ctrl+.)';
-            } else {
-                playStopBtn.innerHTML = 'play';
-                playStopBtn.title = 'Run sketch (Ctrl+Enter)';
-            }
-        }
-
-        function loadSketchByIndex(index) {
-            if (index < 0 || index >= sketchElements.length) {
-                console.warn(`Invalid sketch index: ${index}`);
-                return;
-            }
-
-            currentSketchIndex = index;
-            const button = sketchElements[index];
-            const sketchData = getSketchData(button);
-
-            if (sketchData) {
-                // Reset sketch running state when loading new sketch
-                isSketchRunning = false;
-                updatePlayStopButton();
-                
-                loadSketch(sketchData);
-                updateNavigationButtons();
-
-                // Update visual indicator and ARIA attributes in sidebar
-                sketchElements.forEach(btn => {
-                    btn.classList.remove('ccb-active');
-                    btn.setAttribute('aria-current', 'false');
-                    btn.setAttribute('aria-selected', 'false');
-                });
-                button.classList.add('ccb-active');
-                button.setAttribute('aria-current', 'page');
-                button.setAttribute('aria-selected', 'true');
-            }
-        }
-
-        function loadSketch(s) {
-            console.log(`Loading sketch: ${s.params.alias}/${s.params.page}`);
-            
-            // Include current view mode as query parameter
-            const viewModeParam = currentViewMode !== 'overlay' ? `?viewMode=${currentViewMode}` : '';
-            const sketchEditorUrl = `/sketches/${s.params.alias}/${s.params.page}/edit${viewModeParam}`;
-            const sketchCleanUrl = `/sketches/${s.params.alias}/${s.params.page}`;
-
-            console.log('🎯 Loading sketch with view mode:', currentViewMode);
-            console.log('📤 Sketch editor URL:', sketchEditorUrl);
-
-            // Load editor view in iframe for inline editing
-            sketchViewEl.setAttribute('src', sketchEditorUrl);
-            // Set clean view for "open in new tab" functionality
-            sketchLinkEl.setAttribute('href', sketchCleanUrl);
-
-            // Collapse sidebar when loading a sketch
-            const sidebarToggleCheckbox = document.getElementById('sidebar-toggle-checkbox');
-            if (sidebarToggleCheckbox && sidebarToggleCheckbox.checked) {
-                sidebarToggleCheckbox.checked = false;
-                const sidebarToggle = document.getElementById('sidebar-toggle');
-                if (sidebarToggle) {
-                    sidebarToggle.setAttribute('aria-expanded', 'false');
-                }
-            }
-        }
-
-        // Navigation button event listeners
-        prevSketchBtn.addEventListener('click', () => {
-            if (sketchElements.length > 1) {
-                const newIndex = currentSketchIndex > 0 ? currentSketchIndex - 1 : sketchElements.length - 1;
-                loadSketchByIndex(newIndex);
-            }
-        });
-
-        nextSketchBtn.addEventListener('click', () => {
-            if (sketchElements.length > 1) {
-                const newIndex = currentSketchIndex < sketchElements.length - 1 ? currentSketchIndex + 1 : 0;
-                loadSketchByIndex(newIndex);
-            }
-        });
-
-        // View cycle button event listener
-        cycleViewBtn.addEventListener('click', () => {
-            // Send message to the iframe to cycle view mode
-            if (sketchViewEl && sketchViewEl.contentWindow) {
-                sketchViewEl.contentWindow.postMessage({
-                    type: 'cycleViewMode'
-                }, '*');
-            }
-        });
-
-        // Play/Stop button event listener
-        playStopBtn.addEventListener('click', () => {
-            if (sketchViewEl && sketchViewEl.contentWindow) {
-                if (isSketchRunning) {
-                    // Stop the sketch (equivalent to Ctrl+.)
-                    sketchViewEl.contentWindow.postMessage({
-                        type: 'keyboardShortcut',
-                        shortcut: 'ctrl+period'
-                    }, '*');
-                } else {
-                    // Run the sketch (equivalent to Ctrl+Enter)
-                    sketchViewEl.contentWindow.postMessage({
-                        type: 'keyboardShortcut',
-                        shortcut: 'ctrl+enter'
-                    }, '*');
-                }
-            }
-        });
-
-        // Listen for view mode changes from the iframe
-        window.addEventListener('message', (event) => {
-            if (event.data && event.data.type === 'viewModeChanged') {
-                let newViewMode = event.data.viewMode;
-                console.log('📥 Raw view mode from iframe:', newViewMode);
-                
-                // Clean up view mode (remove quotes if present)
-                if (typeof newViewMode === 'string') {
-                    newViewMode = newViewMode.replace(/^"|"$/g, '');
-                }
-                
-                currentViewMode = newViewMode;
-                console.log('📥 View mode updated to:', currentViewMode);
-            } else if (event.data && event.data.type === 'sketchDirty') {
-                // Track when sketch starts/stops running
-                isSketchRunning = !event.data.status; // When sketch becomes clean (not dirty), it's running
-                updatePlayStopButton();
-            }
-        });
-
-        // Event delegation for sketch lister clicks
-        sketchListerEl.addEventListener('click', (event) => {
-            const button = event.target.closest('button.ccb-link');
-            if (button && sketchListerEl.contains(button)) {
-                const index = sketchElements.indexOf(button);
-                if (index !== -1) {
-                    loadSketchByIndex(index);
-                }
-            }
-        });
-
-        // Initialize sketch elements and load random sketch
-        sketchElements = Array.from(sketchListerEl.querySelectorAll('button.ccb-link[data-alias][data-page]'));
-
-        if (sketchElements.length > 0) {
-            const randomIndex = Math.floor(Math.random() * sketchElements.length);
-            loadSketchByIndex(randomIndex);
-        } else {
-            console.log("No sketches with required data-alias and data-page found.");
-        }
-
-        // Initialize play/stop button
-        updatePlayStopButton();
-    </script>
+    <script src="/assets/js/pages/sketch-editor-controls.js"></script>
 </body>
 
 </html>
