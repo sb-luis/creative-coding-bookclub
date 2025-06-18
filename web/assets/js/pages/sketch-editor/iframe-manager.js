@@ -72,21 +72,23 @@ export async function createAndRunSketch() {
   clearConsole();
   console.log('🧹 Console cleared for new sketch run');
 
-  // Ensure overlay view 
-  if (elements.sketchIframeContainer.classList.contains('hidden')) {
-    console.log('📺 Sketch container was hidden, switching to overlay view');
-    setViewMode('overlay'); // Show both code and sketch
-  }
-
   // If we don't have the original HTML captured yet, we can't proceed
   if (!state.originalIframeHTML) {
     console.error('❌ Original iframe HTML not captured yet');
 
     // Try to capture it now as a last resort
-    console.log('🚨 Attempting emergency capture of original HTML...');
-    const success = await fetchOriginalIframeHTML();
-    if (!success) {
-      console.error('❌ Emergency capture failed, cannot proceed');
+    const iframe = document.getElementById('sketch-iframe');
+    const sketchUrl = iframe?.getAttribute('data-sketch-src');
+    
+    if (sketchUrl) {
+      console.log('🚨 Attempting emergency capture of original HTML from:', sketchUrl);
+      const success = await fetchOriginalIframeHTML(sketchUrl);
+      if (!success) {
+        console.error('❌ Emergency capture failed, cannot proceed');
+        return;
+      }
+    } else {
+      console.error('❌ No sketch URL available for emergency capture');
       return;
     }
   }
@@ -165,6 +167,11 @@ export async function createAndRunSketch() {
   sketchDocument.close();
   console.log('✅ Iframe document written and closed');
 
+  // Show the sketch viewport and set overlay view mode
+  console.log('📺 Sketch is running, showing sketch viewport');
+  elements.sketchIframeContainer.classList.remove('hidden');
+  setViewMode('overlay');
+
   if (window.parent && window.parent !== window) {
     console.log('📨 Sending sketchRunning message to parent');
     window.parent.postMessage({ type: 'sketchRunning' }, '*');
@@ -189,6 +196,11 @@ export function stopSketch() {
     );
     existingIframes.forEach((iframe) => iframe.remove());
   }
+
+  // Hide the sketch viewport and switch to code view 
+  console.log('📺 No sketch running, hiding sketch viewport');
+  elements.sketchIframeContainer.classList.add('hidden');
+  setViewMode('code');
 
   if (window.parent && window.parent !== window) {
     window.parent.postMessage({ type: 'sketchStopped' }, '*');

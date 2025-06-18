@@ -81,7 +81,7 @@
             <!-- SKETCH -->
             <div id="sketch-viewport" class="w-full h-full absolute hidden">
                 {{ if .SketchJsPath }}
-                <iframe id="sketch-iframe" src="/sketches/{{ .MemberName }}/{{ .SketchSlug }}/iframe"
+                <iframe id="sketch-iframe" data-sketch-src="/sketches/{{ .MemberName }}/{{ .SketchSlug }}/iframe"
                     sandbox="allow-scripts allow-same-origin" class="w-full h-full border-0"
                     title="Sketch: {{ .Title }}">
                     <p>Your browser does not support iframes. <a

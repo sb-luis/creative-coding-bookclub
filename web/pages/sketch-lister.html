@@ -113,6 +113,10 @@
             const sketchData = getSketchData(button);
 
             if (sketchData) {
+                // Reset sketch running state when loading new sketch
+                isSketchRunning = false;
+                updatePlayStopButton();
+                
                 loadSketch(sketchData);
                 updateNavigationButtons();
 

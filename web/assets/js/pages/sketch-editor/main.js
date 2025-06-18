@@ -36,9 +36,6 @@ async function initializeSketchEditor() {
   await initializeIframe();
 
   console.log('✅ Sketch Editor initialized successfully');
-
-  // Re-run the sketch after initialization
-  createAndRunSketch();
 }
 
 // Start the application

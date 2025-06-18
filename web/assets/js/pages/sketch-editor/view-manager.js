@@ -15,24 +15,38 @@ export function updateVisibility() {
   switch (state.currentViewMode) {
     case VIEW_MODES.CODE:
       elements.codeEditorContainer.classList.remove('hidden');
-      elements.sketchIframeContainer.classList.add('hidden');
+      if (!state.sketchIframe) {
+        elements.sketchIframeContainer.classList.add('hidden');
+      }
       hideConsole();
       break;
     case VIEW_MODES.SKETCH:
       elements.codeEditorContainer.classList.add('hidden');
-      elements.sketchIframeContainer.classList.remove('hidden');
+      if (state.sketchIframe) {
+        elements.sketchIframeContainer.classList.remove('hidden');
+      } else {
+        elements.sketchIframeContainer.classList.add('hidden');
+      }
       hideConsole();
       break;
     case VIEW_MODES.OVERLAY:
-      // Show sketch with code editor overlay
+      // Show sketch with code editor overlay 
       elements.codeEditorContainer.classList.remove('hidden');
-      elements.sketchIframeContainer.classList.remove('hidden');
+      if (state.sketchIframe) {
+        elements.sketchIframeContainer.classList.remove('hidden');
+      } else {
+        elements.sketchIframeContainer.classList.add('hidden');
+      }
       hideConsole();
       break;
     case VIEW_MODES.DEBUG:
-      // Show sketch with console overlay
+      // Show sketch with console overlay 
       elements.codeEditorContainer.classList.add('hidden');
-      elements.sketchIframeContainer.classList.remove('hidden');
+      if (state.sketchIframe) {
+        elements.sketchIframeContainer.classList.remove('hidden');
+      } else {
+        elements.sketchIframeContainer.classList.add('hidden');
+      }
       showConsole();
       break;
   }
@@ -98,11 +112,6 @@ export function cycleViewMode() {
       type: 'viewModeChanged',
       viewMode: state.currentViewMode
     }, '*');
-  }
-
-  // Create sketch if needed
-  if (!state.sketchIframe && elements.codeEditor.value.trim() !== '') {
-    setTimeout(createAndRunSketch, 0);
   }
 }
 

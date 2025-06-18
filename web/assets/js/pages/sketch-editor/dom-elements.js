@@ -39,7 +39,7 @@ export const state = {
     // Validate the server-provided view mode
     const validMode = Object.values(VIEW_MODES).includes(serverViewMode)
       ? serverViewMode
-      : VIEW_MODES.OVERLAY;
+      : VIEW_MODES.CODE;
 
     return validMode;
   })(),
