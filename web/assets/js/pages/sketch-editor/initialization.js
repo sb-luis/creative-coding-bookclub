@@ -41,6 +41,9 @@ export async function initializeIframe() {
             updateCursorPosition();
             updateFileSize();
             
+            // Reset dirty state when loading a sketch
+            state.isDirty = false;
+            
             console.log('✅ Iframe processing completed, sketch stopped');
           }, 100); 
         }, { once: true }); 
@@ -65,5 +68,8 @@ export function initializeUI() {
   updateCursorPosition();
   updateFileSize();
   updateLineNumbers();
+  
+  // Reset dirty state for new sketches
+  state.isDirty = false;
   highlightCurrentLine();
 }

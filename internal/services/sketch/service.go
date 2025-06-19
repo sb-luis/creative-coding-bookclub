@@ -164,8 +164,6 @@ function setup() {
 
 function draw() {
     background(220);
-
-    // Your creative code here
     fill(255, 0, 150);
     ellipse(mouseX, mouseY, 50, 50);
 }`

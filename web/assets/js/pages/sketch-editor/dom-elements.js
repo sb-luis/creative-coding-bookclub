@@ -28,6 +28,7 @@ export const state = {
   savedSelectionStart: 0,
   savedSelectionEnd: 0,
   currentHighlightedLine: 1,
+  isDirty: false, 
   currentViewMode: (() => {
     let serverViewMode = window.INITIAL_VIEW_MODE;
 

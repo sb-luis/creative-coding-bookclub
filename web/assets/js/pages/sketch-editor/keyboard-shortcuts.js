@@ -16,18 +16,10 @@ export function setupKeyboardShortcuts() {
       console.log('⌨️ Ctrl+Enter pressed - running sketch');
       event.preventDefault();
       createAndRunSketch();
-
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({ type: 'sketchDirty', status: false }, '*');
-      }
     } else if (event.ctrlKey && event.key === '.') {
       event.preventDefault();
       stopSketch();
       clearConsole();
-      
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({ type: 'sketchDirty', status: true }, '*');
-      }
     } else if (event.ctrlKey && event.key === 'f') {
       event.preventDefault();
       formatCode();
@@ -101,6 +93,20 @@ export function setupMessageHandling() {
     ) {
       cycleViewMode();
     } else if (
+      event.source === window.parent &&
+      event.data &&
+      event.data.type === 'sketchSaved'
+    ) {
+      state.isDirty = false;
+      console.log('✅ Sketch saved notification received from parent');
+    } else if (
+      event.source === window.parent &&
+      event.data &&
+      event.data.type === 'sketchLoaded'
+    ) {
+      state.isDirty = false;
+      console.log('✅ Sketch loaded notification received from parent');
+    } else if (
       event.data &&
       event.data.type === 'keyboardShortcut'
     ) {
@@ -124,16 +130,10 @@ export function setupMessageHandling() {
           break;
         case 'ctrl+enter':
           createAndRunSketch();
-          if (window.parent && window.parent !== window) {
-            window.parent.postMessage({ type: 'sketchDirty', status: false }, '*');
-          }
           break;
         case 'ctrl+period':
           stopSketch();
           clearConsole();
-          if (window.parent && window.parent !== window) {
-            window.parent.postMessage({ type: 'sketchDirty', status: true }, '*');
-          }
           break;
         case 'ctrl+s':
           if (window.parent && window.parent !== window) {
@@ -151,6 +151,7 @@ export function setupMessageHandling() {
 export function setupParentCommunication() {
   if (window.parent && window.parent !== window) {
     elements.codeEditor.addEventListener('input', function () {
+      state.isDirty = true;
       window.parent.postMessage({ type: 'sketchDirty', status: true }, '*');
     });
   }

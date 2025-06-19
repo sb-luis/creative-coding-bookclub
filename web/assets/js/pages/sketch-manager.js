@@ -147,6 +147,19 @@ function updateSketchSelector() {
 function loadEmptySketch() {
   const emptySketchUrl = `/sketches/${window.MEMBER_NAME}/new/edit`;
   sketchIframe.src = emptySketchUrl;
+  
+  // Notify iframe that a new sketch has been loaded 
+  sketchIframe.addEventListener('load', function() {
+    setTimeout(() => {
+      if (sketchIframe && sketchIframe.contentWindow) {
+        sketchIframe.contentWindow.postMessage(
+          { type: 'sketchLoaded' },
+          '*'
+        );
+      }
+    }, 100);
+  }, { once: true });
+  
   updateSketchStatus();
 }
 
@@ -180,6 +193,19 @@ async function loadSketch(sketchSlug) {
     sketchSelector.value = sketchSlug;
 
     hasUnsavedChanges = false; // Reset unsaved changes when loading a sketch
+    
+    // Notify iframe that a sketch has been loaded 
+    sketchIframe.addEventListener('load', function() {
+      setTimeout(() => {
+        if (sketchIframe && sketchIframe.contentWindow) {
+          sketchIframe.contentWindow.postMessage(
+            { type: 'sketchLoaded' },
+            '*'
+          );
+        }
+      }, 100);
+    }, { once: true });
+    
     updateSketchStatus();
     console.log(`Loaded sketch: ${currentSketch.title}`);
   } catch (error) {
@@ -432,6 +458,14 @@ async function saveSketch() {
     sketchSelector.value = currentSketch.slug;
     updateSketchStatus();
     console.log('✅ Save operation completed successfully!');
+
+    // Notify iframe that sketch has been saved
+    if (sketchIframe && sketchIframe.contentWindow) {
+      sketchIframe.contentWindow.postMessage(
+        { type: 'sketchSaved' },
+        '*'
+      );
+    }
 
     // Show success message to user
     alert(`Sketch "${title}" saved successfully!`);
