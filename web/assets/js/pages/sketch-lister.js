@@ -179,9 +179,11 @@ window.addEventListener('message', (event) => {
 
     currentViewMode = newViewMode;
     console.log('📥 View mode updated to:', currentViewMode);
-  } else if (event.data && event.data.type === 'sketchDirty') {
-    // Track when sketch starts/stops running
-    isSketchRunning = !event.data.status; // When sketch becomes clean (not dirty), it's running
+  } else if (event.data && event.data.type === 'sketchRunning') {
+    isSketchRunning = true;
+    updatePlayStopButton();
+  } else if (event.data && event.data.type === 'sketchStopped') {
+    isSketchRunning = false;
     updatePlayStopButton();
   }
 });

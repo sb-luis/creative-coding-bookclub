@@ -87,8 +87,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
       if (event.data.type === 'sketchDirty') {
         hasUnsavedChanges = event.data.status;
-        isSketchRunning = !event.data.status; 
         updateSketchStatus();
+      } else if (event.data.type === 'sketchRunning') {
+        isSketchRunning = true;
+        updatePlayStopButton();
+      } else if (event.data.type === 'sketchStopped') {
+        isSketchRunning = false;
         updatePlayStopButton();
       } else if (event.data.type === 'sketch-changed') {
         hasUnsavedChanges = true;
