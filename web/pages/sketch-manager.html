@@ -36,12 +36,8 @@
             <div class="main-content flex flex-1 overflow-hidden">
                 <!-- SKETCH -->
                 <div class="sketch-area flex flex-col flex-1">
-                    <!-- Status Bar -->
-                    <div class="top-status-bar flex justify-between items-center px-3 py-2 text-xs border-b border-base-300 bg-base-100 text-base-600">
-                        <div class="execution-controls flex items-center space-x-2">
-                            <span id="sketch-status" class="text-sm"></span>
-                        </div>
-                    </div>
+                    <!-- Status Bar with Controls -->
+                    {{ template "sketch-editor-controls" . }}
 
                     <!-- SKETCH VIEWER / EDITOR IFRAME -->
                     <div id="sketch-viewport-wrapper" class="flex flex-1 relative w-full overflow-hidden bg-base-100">
@@ -87,46 +83,54 @@
         class="hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 border-2 border-base-300 rounded-lg p-5 z-50 shadow-md bg-base-100">
         <h3 class="mt-0 mb-4">Edit Sketch Metadata</h3>
         <div class="mb-4">
-            <label for="metadata-title" class="block mb-1">Title: <span class="text-xs text-base-500">(max 100 chars)</span></label>
+            <label for="metadata-title" class="block mb-1">Title: <span class="text-xs text-base-500">(max 100
+                    chars)</span></label>
             <input type="text" id="metadata-title" class="w-full p-2 border border-base-300 rounded bg-base-100"
                 placeholder="Enter sketch title" maxlength="100" required>
             <div class="text-xs text-base-500 mt-1">Characters: <span id="title-count">0</span>/100</div>
         </div>
         <div class="mb-4">
-            <label for="metadata-description" class="block mb-1">Description: <span class="text-xs text-base-500">(max 500 chars)</span></label>
+            <label for="metadata-description" class="block mb-1">Description: <span class="text-xs text-base-500">(max
+                    500 chars)</span></label>
             <textarea id="metadata-description"
                 class="w-full p-2 border border-base-300 rounded resize-vertical bg-base-100" rows="3"
                 placeholder="Enter sketch description" maxlength="500"></textarea>
             <div class="text-xs text-base-500 mt-1">Characters: <span id="description-count">0</span>/500</div>
         </div>
         <div class="mb-4">
-            <label for="metadata-keywords" class="block mb-1">Keywords: <span class="text-xs text-base-500">(comma-separated, max 200 chars)</span></label>
+            <label for="metadata-keywords" class="block mb-1">Keywords: <span
+                    class="text-xs text-base-500">(comma-separated, max 200 chars)</span></label>
             <input type="text" id="metadata-keywords" class="w-full p-2 border border-base-300 rounded bg-base-100"
                 placeholder="Creative Coding, P5js, Animation" maxlength="200">
             <div class="text-xs text-base-500 mt-1">Characters: <span id="keywords-count">0</span>/200</div>
         </div>
         <div class="mb-4">
-            <label for="metadata-tags" class="block mb-1">Tags: <span class="text-xs text-base-500">(alphanumeric only, no spaces, max 10 tags)</span></label>
+            <label for="metadata-tags" class="block mb-1">Tags: <span class="text-xs text-base-500">(alphanumeric only,
+                    no spaces, max 10 tags)</span></label>
             <input type="text" id="metadata-tags" class="w-full p-2 border border-base-300 rounded bg-base-100"
                 placeholder="creative-coding,p5js,animation">
-            <div class="text-xs text-base-500 mt-1">Separate with commas. Use hyphens or underscores instead of spaces.</div>
+            <div class="text-xs text-base-500 mt-1">Separate with commas. Use hyphens or underscores instead of spaces.
+            </div>
         </div>
         <div class="mb-4">
-            <label for="metadata-external-libs" class="block mb-1">External Libraries: <span class="text-xs text-base-500">(HTTPS URLs only, max 5 libraries)</span></label>
+            <label for="metadata-external-libs" class="block mb-1">External Libraries: <span
+                    class="text-xs text-base-500">(HTTPS URLs only, max 5 libraries)</span></label>
             <div id="external-libs-container">
                 <div class="external-lib-input mb-2">
                     <input type="url" class="external-lib-url w-full p-2 border border-base-300 rounded bg-base-100"
                         placeholder="https://cdn.jsdelivr.net/npm/p5@1.11.7/lib/p5.min.js">
                 </div>
             </div>
-            <button type="button" id="add-external-lib" class="text-xs text-base-600 hover:text-base-800">+ Add Library</button>
+            <button type="button" id="add-external-lib" class="text-xs text-base-600 hover:text-base-800">+ Add
+                Library</button>
             <div class="text-xs text-base-500 mt-1">Libraries will be loaded in order. Only HTTPS URLs allowed.</div>
         </div>
         <div class="flex space-x-3 justify-end">
             <button id="metadata-cancel"
                 class="ccb-button-small px-3 py-2 text-xs border border-base-300 rounded cursor-pointer bg-base-100 text-base-700">Cancel</button>
             <button id="metadata-save"
-                class="ccb-button-small px-3 py-2 text-xs border border-base-300 rounded cursor-pointer bg-base-100 text-base-700">Save Metadata</button>
+                class="ccb-button-small px-3 py-2 text-xs border border-base-300 rounded cursor-pointer bg-base-100 text-base-700">Save
+                Metadata</button>
         </div>
     </div>
 

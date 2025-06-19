@@ -1,10 +1,11 @@
 {{ block "sketch-editor-controls" . }}
-<div id="sketch-lister-header" class="flex justify-between items-center px-2">
+<div id="sketch-editor-controls" class="flex justify-between items-center px-2">
     <div class="flex items-center space-x-2">
         <button id="prev-sketch" class="ccb-link px-2" title="Previous sketch (wraps to last)">&lt;</button>
         <button id="next-sketch" class="ccb-link px-2" title="Next sketch (wraps to first)">&gt;</button>
         <button id="cycle-view" class="ccb-link px-2" title="Cycle view mode (overlay → sketch → debug)">👁</button>
         <button id="play-stop-sketch" class="ccb-link px-2" title="Run sketch (Ctrl+Enter)">play</button>
+        <span id="sketch-status" class="px-2 pt-1 text-xs uppercase max-w-30 whitespace-nowrap overflow-hidden hidden"></span>
     </div>
     <a id="sketch-link" href="/empty-iframe" target="_blank" class="ccb-link">open</a>
 </div>

@@ -15,6 +15,13 @@ const sketchTitleInput = document.getElementById('sketch-title');
 const sketchDescriptionInput = document.getElementById('sketch-description');
 const sketchTagsInput = document.getElementById('sketch-tags');
 
+// Top bar control elements
+const prevSketchBtn = document.getElementById('prev-sketch');
+const nextSketchBtn = document.getElementById('next-sketch');
+const cycleViewBtn = document.getElementById('cycle-view');
+const playStopBtn = document.getElementById('play-stop-sketch');
+const sketchLinkEl = document.getElementById('sketch-link');
+
 // Metadata dialog elements
 const metadataDialog = document.getElementById('metadata-dialog');
 const metadataOverlay = document.getElementById('metadata-overlay');
@@ -40,6 +47,9 @@ const keywordsCountSpan = document.getElementById('keywords-count');
 let currentSketch = null;
 let sketches = [];
 let hasUnsavedChanges = false;
+let currentSketchIndex = -1;
+let currentViewMode = 'overlay'; 
+let isSketchRunning = false; 
 
 // Initialize the IDE
 document.addEventListener('DOMContentLoaded', async function () {
@@ -64,6 +74,10 @@ document.addEventListener('DOMContentLoaded', async function () {
   setupEventListeners();
   loadEmptySketch();
   updateSketchStatus();
+  updateNavigationButtons();
+  updatePlayStopButton();
+
+  sketchStatus.classList.remove('hidden');
 
   // Consolidated message handler for all iframe communications
   window.addEventListener('message', function (event) {
@@ -73,10 +87,22 @@ document.addEventListener('DOMContentLoaded', async function () {
 
       if (event.data.type === 'sketchDirty') {
         hasUnsavedChanges = event.data.status;
+        isSketchRunning = !event.data.status; 
         updateSketchStatus();
+        updatePlayStopButton();
       } else if (event.data.type === 'sketch-changed') {
         hasUnsavedChanges = true;
         updateSketchStatus();
+      } else if (event.data.type === 'viewModeChanged') {
+        let newViewMode = event.data.viewMode;
+        console.log('📥 Raw view mode from iframe:', newViewMode);
+
+        if (typeof newViewMode === 'string') {
+          newViewMode = newViewMode.replace(/^"|"$/g, '');
+        }
+
+        currentViewMode = newViewMode;
+        console.log('📥 View mode updated to:', currentViewMode);
       } else if (
         event.data.type === 'keyboardShortcut' &&
         event.data.shortcut === 'ctrl+s'
@@ -141,6 +167,7 @@ function updateSketchSelector() {
     option.textContent = sketch.title;
     sketchSelector.appendChild(option);
   });
+  updateNavigationButtons();
 }
 
 // Load empty sketch
@@ -186,11 +213,18 @@ async function loadSketch(sketchSlug) {
     }
 
     currentSketch = foundSketch;
+    currentSketchIndex = sketches.findIndex((sketch) => sketch.slug === sketchSlug);
 
     // Load sketch in iframe using the member name and slug
     const sketchUrl = `/sketches/${memberName}/${sketchSlug}/edit`;
+    const sketchCleanUrl = `/sketches/${memberName}/${sketchSlug}`;
+    
     sketchIframe.src = sketchUrl;
     sketchSelector.value = sketchSlug;
+    
+    if (sketchLinkEl) {
+      sketchLinkEl.href = sketchCleanUrl;
+    }
 
     hasUnsavedChanges = false; // Reset unsaved changes when loading a sketch
     
@@ -207,6 +241,7 @@ async function loadSketch(sketchSlug) {
     }, { once: true });
     
     updateSketchStatus();
+    updateNavigationButtons();
     console.log(`Loaded sketch: ${currentSketch.title}`);
   } catch (error) {
     console.error('Error loading sketch:', error);
@@ -588,11 +623,20 @@ function newSketch() {
 // Internal function to create new sketch without checking for unsaved changes
 function newSketchInternal() {
   currentSketch = null;
+  currentSketchIndex = -1;
   sketchSelector.value = '';
+  
+  if (sketchLinkEl) {
+    sketchLinkEl.href = '/empty-iframe';
+  }
+  
   loadEmptySketch(); // This will load /sketch/new into the iframe
 
   hasUnsavedChanges = false;
+  isSketchRunning = false;
   updateSketchStatus(); // Update button visibility
+  updateNavigationButtons();
+  updatePlayStopButton();
 }
 
 // Show/hide save dialog
@@ -803,17 +847,13 @@ function updateSketchStatus() {
 
   // Only show edit/delete buttons for sketches that have been saved (have both id and slug)
   if (currentSketch && currentSketch.id && currentSketch.slug) {
-    sketchStatus.textContent = `${currentSketch.title || 'Untitled Sketch'} ${
-      hasUnsavedChanges ? ' - Unsaved Changes' : ''
-    }`;
+    sketchStatus.textContent = hasUnsavedChanges ? 'unsaved*' : currentSketch.title || 'untitled';
     // Show edit metadata and delete buttons for existing sketches
     editMetadataButton.classList.remove('hidden');
     deleteButton.classList.remove('hidden');
     console.log('✅ Showing edit/delete buttons for saved sketch');
   } else {
-    sketchStatus.textContent = `New Sketch${
-      hasUnsavedChanges ? ' - unsaved changes*' : ''
-    }`;
+    sketchStatus.textContent = hasUnsavedChanges ? 'unsaved*' : 'untitled';
     // Hide edit metadata and delete buttons for new sketches
     editMetadataButton.classList.add('hidden');
     deleteButton.classList.add('hidden');
@@ -825,6 +865,107 @@ function updateSketchStatus() {
     saveButton.classList.remove('hidden');
   } else {
     saveButton.classList.add('hidden');
+  }
+}
+
+// Update navigation buttons
+function updateNavigationButtons() {
+  prevSketchBtn.disabled = sketches.length <= 1;
+  nextSketchBtn.disabled = sketches.length <= 1;
+}
+
+// Update play/stop button
+function updatePlayStopButton() {
+  if (isSketchRunning) {
+    playStopBtn.innerHTML = 'stop';
+    playStopBtn.title = 'Stop sketch (Ctrl+.)';
+  } else {
+    playStopBtn.innerHTML = 'play';
+    playStopBtn.title = 'Run sketch (Ctrl+Enter)';
+  }
+}
+
+// Load sketch by index for navigation
+function loadSketchByIndex(index) {
+  if (index < 0 || index >= sketches.length) {
+    console.warn(`Invalid sketch index: ${index}`);
+    return;
+  }
+
+  currentSketchIndex = index;
+  const sketch = sketches[index];
+
+  if (sketch) {
+    isSketchRunning = false;
+    updatePlayStopButton();
+    sketchSelector.value = sketch.slug;
+    loadSketch(sketch.slug);
+    updateNavigationButtons();
+  }
+}
+
+// Navigate to previous sketch
+function navigateToPreviousSketch() {
+  if (sketches.length > 1) {
+    if (hasUnsavedChanges) {
+      if (!confirm('You have unsaved changes. Are you sure you want to switch sketches?')) {
+        return;
+      }
+    }
+    
+    const newIndex = currentSketchIndex > 0 ? currentSketchIndex - 1 : sketches.length - 1;
+    loadSketchByIndex(newIndex);
+  }
+}
+
+// Navigate to next sketch
+function navigateToNextSketch() {
+  if (sketches.length > 1) {
+    if (hasUnsavedChanges) {
+      if (!confirm('You have unsaved changes. Are you sure you want to switch sketches?')) {
+        return;
+      }
+    }
+    
+    const newIndex = currentSketchIndex < sketches.length - 1 ? currentSketchIndex + 1 : 0;
+    loadSketchByIndex(newIndex);
+  }
+}
+
+// Cycle view mode
+function cycleViewMode() {
+  if (sketchIframe && sketchIframe.contentWindow) {
+    sketchIframe.contentWindow.postMessage(
+      {
+        type: 'cycleViewMode',
+      },
+      '*'
+    );
+  }
+}
+
+// Toggle play/stop
+function togglePlayStop() {
+  if (sketchIframe && sketchIframe.contentWindow) {
+    if (isSketchRunning) {
+      // Stop the sketch 
+      sketchIframe.contentWindow.postMessage(
+        {
+          type: 'keyboardShortcut',
+          shortcut: 'ctrl+period',
+        },
+        '*'
+      );
+    } else {
+      // Run the sketch 
+      sketchIframe.contentWindow.postMessage(
+        {
+          type: 'keyboardShortcut',
+          shortcut: 'ctrl+enter',
+        },
+        '*'
+      );
+    }
   }
 }
 
@@ -844,6 +985,12 @@ function setupEventListeners() {
   newButton.addEventListener('click', newSketch);
   editMetadataButton.addEventListener('click', showMetadataDialog);
   deleteButton.addEventListener('click', deleteSketch);
+
+  // Top bar navigation controls
+  prevSketchBtn.addEventListener('click', navigateToPreviousSketch);
+  nextSketchBtn.addEventListener('click', navigateToNextSketch);
+  cycleViewBtn.addEventListener('click', cycleViewMode);
+  playStopBtn.addEventListener('click', togglePlayStop);
 
   // Sketch selector
   sketchSelector.addEventListener('change', function () {
