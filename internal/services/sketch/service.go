@@ -158,9 +158,6 @@ func (s *Service) GetSketchByMemberAndSlug(memberID int, slug string) (*model.Sk
 	// Handle the special "new" slug - return a default new sketch template
 	if slug == "new" {
 		defaultCode := `
-// Welcome to your new sketch!
-// Start coding below. Your code will run automatically as you type.
-
 function setup() {
     createCanvas(400, 400);
 }
