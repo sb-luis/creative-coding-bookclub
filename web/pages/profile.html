@@ -29,9 +29,9 @@
                     {{ i18nText .Lang "pages.profile.backToHomeButton" }}
                 </a>
                 
-                <a href="/api/auth/sign-out" class="block text-center">
+                <button type="button" class="block text-center w-full" onclick="signOut()">
                     {{ i18nText .Lang "pages.profile.signOutLink" }}
-                </a>
+                </button>
             </div>
         </div>
     </main>

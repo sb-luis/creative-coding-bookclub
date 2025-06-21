@@ -97,5 +97,3 @@ func SignInPostHandler(services *services.Services) func(w http.ResponseWriter, 
 		}
 	}
 }
-
-// Note: LogoutHandler and SignOutHandler are in api_auth.go since they're called via API routes

@@ -124,15 +124,13 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 	// Public Member API endpoints
 	router.HandleFunc("/api/members", apiMiddleware(handlers.GetMembersHandler(services)), "GET")
 	router.HandleFunc("/api/members/me", authMiddleware(handlers.GetCurrentMemberHandler(services), services), "GET")
+	router.HandleFunc("/api/members/me", authMiddleware(handlers.UpdatePasswordHandler(services), services), "PATCH")
 
 	// Public Preference API endpoints
 	router.HandleFunc("/api/preferences/theme", apiMiddleware(handlers.ThemePreferencesPostHandler), "POST")
 	router.HandleFunc("/api/preferences/locale", apiMiddleware(handlers.LocalePreferencesPostHandler), "POST")
 
 	// Public Authentication API endpoints
-	router.HandleFunc("/api/auth/logout", apiMiddleware(handlers.LogoutHandler(services)), "POST")
-	router.HandleFunc("/api/auth/sign-out", apiMiddleware(handlers.SignOutHandler(services)), "GET")
-	router.HandleFunc("/api/auth/update-password", apiMiddleware(handlers.UpdatePasswordHandler(services)), "POST")
 	router.HandleFunc("/api/auth/register", apiMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang, services)
@@ -155,6 +153,9 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 		}
 		handlers.SignInPostHandler(services)(w, r, tmpl, pageData)
 	}), "POST")
+
+	// Protected Authentication API endpoints
+	router.HandleFunc("/api/auth/sign-out", authMiddleware(handlers.SignOutHandler(services), services), "POST")
 
 	// Public Sketch API endpoints
 	router.HandleFunc("/api/sketches/{memberName}", apiMiddleware(handlers.GetMemberSketchesHandler(services)), "GET")
