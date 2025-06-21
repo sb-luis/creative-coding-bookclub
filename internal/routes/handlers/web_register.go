@@ -72,7 +72,7 @@ func RegisterPostHandler(services *services.Services) func(w http.ResponseWriter
 				passwordHash := utils.HashPassword(password)
 
 				// Create the member
-				_, err := services.Member.CreateMember(name, passwordHash)
+				member, err := services.Member.CreateMember(name, passwordHash)
 				if err != nil {
 					// Log the actual error for debugging
 					log.Printf("Failed to create member account for name '%s': %v", name, err)
@@ -80,7 +80,18 @@ func RegisterPostHandler(services *services.Services) func(w http.ResponseWriter
 					// Show generic error message to user
 					templateData.Error = "Unable to create account. Please try again."
 				} else {
-					templateData.Success = "Account created successfully! Please sign in."
+					// Account created successfully, sign in the user
+					session, err := services.Session.CreateSession(member.ID)
+					if err != nil {
+						log.Printf("Failed to create session for new member %d: %v", member.ID, err)
+						templateData.Error = "Account created but unable to sign in. Please try signing in manually."
+					} else {
+						// Set session cookie and redirect to homepage
+						utils.SetSessionCookie(w, session.ID)
+						log.Printf("Member %s registered and automatically signed in", member.Name)
+						http.Redirect(w, r, "/", http.StatusSeeOther)
+						return
+					}
 				}
 			}
 		}
