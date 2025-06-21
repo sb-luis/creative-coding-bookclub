@@ -43,19 +43,9 @@ func preparePageData(r *http.Request, w http.ResponseWriter, currentLang string,
 	return pageData
 }
 
-// apiMiddleware sets appropriate headers for API endpoints
-func apiMiddleware(handler http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("X-Route-Type", "api")
-		handler(w, r)
-	}
-}
-
 // authMiddleware ensures that a request is authenticated
 func authMiddleware(handler http.HandlerFunc, services *services.Services) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("X-Route-Type", "api")
-
 		// Check authentication
 		sessionID, err := utils.GetSessionFromRequest(r)
 		if err != nil {
@@ -72,15 +62,6 @@ func authMiddleware(handler http.HandlerFunc, services *services.Services) http.
 		// Store authenticated member ID in request context
 		ctx := context.WithValue(r.Context(), "authenticated_member_id", memberID)
 		handler(w, r.WithContext(ctx))
-	}
-}
-
-// webMiddleware sets appropriate headers for HTML page endpoints
-func webMiddleware(handler http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("X-Route-Type", "web")
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		handler(w, r)
 	}
 }
 
@@ -122,16 +103,16 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 	// =============================================================================
 
 	// Public Member API endpoints
-	router.HandleFunc("/api/members", apiMiddleware(handlers.GetMembersHandler(services)), "GET")
+	router.HandleFunc("/api/members", handlers.GetMembersHandler(services), "GET")
 	router.HandleFunc("/api/members/me", authMiddleware(handlers.GetCurrentMemberHandler(services), services), "GET")
 	router.HandleFunc("/api/members/me", authMiddleware(handlers.UpdatePasswordHandler(services), services), "PATCH")
 
 	// Public Preference API endpoints
-	router.HandleFunc("/api/preferences/theme", apiMiddleware(handlers.ThemePreferencesPostHandler), "POST")
-	router.HandleFunc("/api/preferences/locale", apiMiddleware(handlers.LocalePreferencesPostHandler), "POST")
+	router.HandleFunc("/api/preferences/theme", handlers.ThemePreferencesPostHandler, "POST")
+	router.HandleFunc("/api/preferences/locale", handlers.LocalePreferencesPostHandler, "POST")
 
 	// Public Authentication API endpoints
-	router.HandleFunc("/api/auth/register", apiMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/api/auth/register", func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
@@ -141,8 +122,8 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 			return
 		}
 		handlers.RegisterPostHandler(services)(w, r, tmpl, pageData)
-	}), "POST")
-	router.HandleFunc("/api/auth/sign-in", apiMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	}, "POST")
+	router.HandleFunc("/api/auth/sign-in", func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
@@ -152,14 +133,14 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 			return
 		}
 		handlers.SignInPostHandler(services)(w, r, tmpl, pageData)
-	}), "POST")
+	}, "POST")
 
 	// Protected Authentication API endpoints
 	router.HandleFunc("/api/auth/sign-out", authMiddleware(handlers.SignOutHandler(services), services), "POST")
 
 	// Public Sketch API endpoints
-	router.HandleFunc("/api/sketches/{memberName}", apiMiddleware(handlers.GetMemberSketchesHandler(services)), "GET")
-	router.HandleFunc("/api/sketches/{memberName}/{sketchSlug}", apiMiddleware(handlers.SketchCodeHandler(services)), "GET")
+	router.HandleFunc("/api/sketches/{memberName}", handlers.GetMemberSketchesHandler(services), "GET")
+	router.HandleFunc("/api/sketches/{memberName}/{sketchSlug}", handlers.SketchCodeHandler(services), "GET")
 
 	// Protected Sketch API endpoints (require authentication)
 	router.HandleFunc("/api/sketches/{memberName}/{sketchSlug}", authMiddleware(handlers.CreateSketchHandler(services), services), "POST")
@@ -172,7 +153,7 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 	// =============================================================================
 
 	// Register page
-	router.HandleFunc("/register", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
@@ -182,10 +163,10 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 			return
 		}
 		handlers.RegisterGetHandler(w, r, tmpl, pageData)
-	}), "GET")
+	}, "GET")
 
 	// Sign-in page
-	router.HandleFunc("/sign-in", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/sign-in", func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
@@ -195,10 +176,10 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 			return
 		}
 		handlers.SignInGetHandler(w, r, tmpl, pageData)
-	}), "GET")
+	}, "GET")
 
 	// Member's profile (requires authentication)
-	router.HandleFunc("/me", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/me", func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
@@ -208,10 +189,10 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 			return
 		}
 		handlers.ProfileHandler(services)(w, r, tmpl, pageData)
-	}), "GET")
+	}, "GET")
 
 	// Clean sketch view page (for viewing only, no editor)
-	router.HandleFunc("/sketches/{memberName}/{sketchSlug}", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/sketches/{memberName}/{sketchSlug}", func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
@@ -221,10 +202,10 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 			return
 		}
 		handlers.SketchViewerPageHandler(services)(w, r, tmpl, pageData)
-	}), "GET")
+	}, "GET")
 
 	// Sketch iframe content (for sandboxed execution)
-	router.HandleFunc("/sketches/{memberName}/{sketchSlug}/iframe", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/sketches/{memberName}/{sketchSlug}/iframe", func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
@@ -234,10 +215,10 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 			return
 		}
 		handlers.SketchIframeContentHandler(services)(w, r, tmpl, pageData)
-	}), "GET")
+	}, "GET")
 
 	// Member's sketch page (with editor capabilities)
-	router.HandleFunc("/sketches/{memberName}/{sketchSlug}/edit", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/sketches/{memberName}/{sketchSlug}/edit", func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
@@ -247,10 +228,10 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 			return
 		}
 		handlers.SketchEditorPageHandler(services)(w, r, tmpl, pageData)
-	}), "GET")
+	}, "GET")
 
 	// Sketch lister page
-	router.HandleFunc("/sketches", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/sketches", func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
@@ -260,10 +241,10 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 			return
 		}
 		handlers.SketchListerPageHandler(services)(w, r, tmpl, pageData)
-	}), "GET")
+	}, "GET")
 
 	// Sketch Manager page (requires authentication)
-	router.HandleFunc("/sketch-manager", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/sketch-manager", func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
@@ -273,10 +254,10 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 			return
 		}
 		handlers.SketchManagerPageHandler(services)(w, r, tmpl, pageData)
-	}), "GET")
+	}, "GET")
 
 	// Empty iframe page for iframe initialization
-	router.HandleFunc("/empty-iframe", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/empty-iframe", func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
@@ -286,10 +267,10 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 			return
 		}
 		handlers.EmptyIframeHandler(w, r, tmpl, pageData)
-	}), "GET")
+	}, "GET")
 
 	// Homepage
-	router.HandleFunc("/", webMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		currentLang := utils.GetCurrentLanguage(r)
 		pageData := preparePageData(r, w, currentLang, services)
 		tmpl, err := masterTmpl.Clone()
@@ -299,7 +280,7 @@ func RegisterRoutes(router *utils.Router, services *services.Services) {
 			return
 		}
 		handlers.HomePageGetHandler(w, r, tmpl, pageData)
-	}), "GET")
+	}, "GET")
 
 	// Set the NotFoundHandler on the router
 	router.NotFoundHandler = func(w http.ResponseWriter, r *http.Request) {
