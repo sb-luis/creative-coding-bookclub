@@ -157,16 +157,8 @@ func (s *Service) GetSketchByMemberAndSlug(memberID int, slug string) (*model.Sk
 
 	// Handle the special "new" slug - return a default new sketch template
 	if slug == "new" {
-		defaultCode := `
-function setup() {
-    createCanvas(400, 400);
-}
-
-function draw() {
-    background(220);
-    fill(255, 0, 150);
-    ellipse(mouseX, mouseY, 50, 50);
-}`
+		// Try to get the bookclub member's sketch for today's date
+		defaultCode := s.getBookclubDefaultCode()
 
 		return &model.Sketch{
 			ID:           0,
@@ -671,4 +663,44 @@ func (s *Service) CreateSketchWithSlug(memberID int, req *model.CreateSketchRequ
 	}
 
 	return s.GetSketchByID(id)
+}
+
+// getBookclubDefaultCode returns the source code from the 'bookclub' member's sketch
+// for today's date, or the hardcoded default if not found
+func (s *Service) getBookclubDefaultCode() string {
+	// Hardcoded fallback default code
+	fallbackCode := `
+function setup() {
+    createCanvas(400, 400);
+}
+
+function draw() {
+    background(220);
+    fill(255, 0, 150);
+    ellipse(mouseX, mouseY, 50, 50);
+}`
+
+	// Generate today's date slug (same format as generateTimestampSlug)
+	todaySlug := time.Now().Format("2006-01-02")
+
+	// Try to find the 'bookclub' member
+	var bookclubMemberID int
+	err := s.db.QueryRow("SELECT id FROM members WHERE name = $1", "bookclub").Scan(&bookclubMemberID)
+	if err != nil {
+		log.Printf("Bookclub member not found or error querying: %v", err)
+		return fallbackCode
+	}
+
+	// Try to find the bookclub member's sketch for today's date
+	var sourceCode string
+	err = s.db.QueryRow(`
+		SELECT source_code FROM sketches 
+		WHERE member_id = $1 AND slug = $2`, bookclubMemberID, todaySlug).Scan(&sourceCode)
+	if err != nil {
+		log.Printf("Bookclub member's sketch for today (%s) not found: %v", todaySlug, err)
+		return fallbackCode
+	}
+
+	log.Printf("Using bookclub member's sketch (%s) as default code", todaySlug)
+	return sourceCode
 }
