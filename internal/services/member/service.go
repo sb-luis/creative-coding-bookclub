@@ -45,7 +45,7 @@ func (s *Service) CreateMember(name, passwordHash string) (*model.Member, error)
 	err = s.db.QueryRow(`
 		INSERT INTO members (name, password_hash, verified, created_at, updated_at) 
 		VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-		name, passwordHash, false, time.Now(), time.Now()).Scan(&id)
+		name, passwordHash, true, time.Now(), time.Now()).Scan(&id)
 	if err != nil {
 		log.Printf("Database error while creating member '%s': %v", name, err)
 		return nil, fmt.Errorf("failed to create member: %w", err)
