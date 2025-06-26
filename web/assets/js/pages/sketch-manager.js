@@ -153,11 +153,14 @@ async function loadSketches() {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    sketches = await response.json();
+    const sketchData = await response.json();
+    sketches = Array.isArray(sketchData) ? sketchData : []; 
     updateSketchSelector();
     console.log(`Loaded ${sketches.length} sketches for ${memberName}`);
   } catch (error) {
     console.error('Error loading sketches:', error);
+    sketches = []; // Ensure sketches is empty array on error
+    updateSketchSelector();
   }
 }
 
@@ -165,12 +168,15 @@ async function loadSketches() {
 function updateSketchSelector() {
   sketchSelector.innerHTML = '<option value="">Select a sketch...</option>';
 
-  sketches.forEach((sketch) => {
-    const option = document.createElement('option');
-    option.value = sketch.slug; // Using slug instead of id as the identifier
-    option.textContent = sketch.title;
-    sketchSelector.appendChild(option);
-  });
+  // Ensure sketches is an array and not null/undefined
+  if (Array.isArray(sketches) && sketches.length > 0) {
+    sketches.forEach((sketch) => {
+      const option = document.createElement('option');
+      option.value = sketch.slug; // Using slug instead of id as the identifier
+      option.textContent = sketch.title;
+      sketchSelector.appendChild(option);
+    });
+  }
   updateNavigationButtons();
 }
 
@@ -210,6 +216,10 @@ async function loadSketch(sketchSlug) {
     const memberName = memberData.name;
 
     // Find the sketch from the already loaded sketches array
+    if (!Array.isArray(sketches)) {
+      throw new Error('Sketches not loaded properly');
+    }
+    
     const foundSketch = sketches.find((sketch) => sketch.slug === sketchSlug);
 
     if (!foundSketch) {
@@ -434,11 +444,11 @@ async function saveSketch() {
       console.log('✅ Update successful! Response data:', responseData);
 
       // Update currentSketch with new data from response
-      const sketchIndex = sketches.findIndex(
+      const sketchIndex = Array.isArray(sketches) ? sketches.findIndex(
         (s) => s.slug === currentSketch.slug
-      );
+      ) : -1;
       console.log('🔍 Found sketch at index:', sketchIndex);
-      if (sketchIndex !== -1) {
+      if (sketchIndex !== -1 && Array.isArray(sketches)) {
         sketches[sketchIndex] = { ...sketches[sketchIndex], ...responseData };
         console.log('✅ Updated sketch in local array');
       }
@@ -482,6 +492,9 @@ async function saveSketch() {
       console.log('✅ Create successful! Response data:', responseData);
 
       // Add new sketch to list and set as current
+      if (!Array.isArray(sketches)) {
+        sketches = [];
+      }
       sketches.push(responseData);
       console.log(
         '✅ Added new sketch to local array. Total sketches:',
@@ -819,10 +832,10 @@ async function updateSketchMetadata() {
     console.log('✅ Metadata update successful:', responseData);
 
     // Update local sketch data
-    const sketchIndex = sketches.findIndex(
+    const sketchIndex = Array.isArray(sketches) ? sketches.findIndex(
       (s) => s.slug === currentSketch.slug
-    );
-    if (sketchIndex !== -1) {
+    ) : -1;
+    if (sketchIndex !== -1 && Array.isArray(sketches)) {
       sketches[sketchIndex] = { ...sketches[sketchIndex], ...responseData };
     }
     currentSketch = { ...currentSketch, ...responseData };
@@ -874,8 +887,9 @@ function updateSketchStatus() {
 
 // Update navigation buttons
 function updateNavigationButtons() {
-  prevSketchBtn.disabled = sketches.length <= 1;
-  nextSketchBtn.disabled = sketches.length <= 1;
+  const sketchesLength = Array.isArray(sketches) ? sketches.length : 0;
+  prevSketchBtn.disabled = sketchesLength <= 1;
+  nextSketchBtn.disabled = sketchesLength <= 1;
 }
 
 // Update play/stop button
@@ -891,7 +905,8 @@ function updatePlayStopButton() {
 
 // Load sketch by index for navigation
 function loadSketchByIndex(index) {
-  if (index < 0 || index >= sketches.length) {
+  const sketchesLength = Array.isArray(sketches) ? sketches.length : 0;
+  if (index < 0 || index >= sketchesLength) {
     console.warn(`Invalid sketch index: ${index}`);
     return;
   }
@@ -910,28 +925,30 @@ function loadSketchByIndex(index) {
 
 // Navigate to previous sketch
 function navigateToPreviousSketch() {
-  if (sketches.length > 1) {
+  const sketchesLength = Array.isArray(sketches) ? sketches.length : 0;
+  if (sketchesLength > 1) {
     if (hasUnsavedChanges) {
       if (!confirm('You have unsaved changes. Are you sure you want to switch sketches?')) {
         return;
       }
     }
     
-    const newIndex = currentSketchIndex > 0 ? currentSketchIndex - 1 : sketches.length - 1;
+    const newIndex = currentSketchIndex > 0 ? currentSketchIndex - 1 : sketchesLength - 1;
     loadSketchByIndex(newIndex);
   }
 }
 
 // Navigate to next sketch
 function navigateToNextSketch() {
-  if (sketches.length > 1) {
+  const sketchesLength = Array.isArray(sketches) ? sketches.length : 0;
+  if (sketchesLength > 1) {
     if (hasUnsavedChanges) {
       if (!confirm('You have unsaved changes. Are you sure you want to switch sketches?')) {
         return;
       }
     }
     
-    const newIndex = currentSketchIndex < sketches.length - 1 ? currentSketchIndex + 1 : 0;
+    const newIndex = currentSketchIndex < sketchesLength - 1 ? currentSketchIndex + 1 : 0;
     loadSketchByIndex(newIndex);
   }
 }
