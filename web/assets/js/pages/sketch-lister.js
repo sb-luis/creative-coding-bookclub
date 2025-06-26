@@ -199,14 +199,13 @@ sketchListerEl.addEventListener('click', (event) => {
   }
 });
 
-// Initialize sketch elements and load random sketch
+// Initialize sketch elements and load first sketch in the list
 sketchElements = Array.from(
   sketchListerEl.querySelectorAll('button.ccb-link[data-alias][data-page]')
 );
 
 if (sketchElements.length > 0) {
-  const randomIndex = Math.floor(Math.random() * sketchElements.length);
-  loadSketchByIndex(randomIndex);
+  loadSketchByIndex(0);
 } else {
   console.log('No sketches with required data-alias and data-page found.');
 }
