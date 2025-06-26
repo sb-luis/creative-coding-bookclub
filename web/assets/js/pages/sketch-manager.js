@@ -303,7 +303,7 @@ async function saveSketch() {
     return;
   }
 
-  // For new sketches, we need a title. Use a default if none exists.
+  // For new sketches, we only need source code. Metadata is handled in the backend 
   let title, description, tags;
 
   if (currentSketch) {
@@ -312,10 +312,9 @@ async function saveSketch() {
     description = currentSketch.description || '';
     tags = currentSketch.tags || [];
   } else {
-    // New sketch - use default values
-    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-    title = `Sketch ${timestamp}`;
-    description = 'Auto-saved sketch';
+    // New sketch - 
+    title = 'Auto-generated';
+    description = 'Auto-generated sketch';
     tags = [];
   }
 
@@ -356,16 +355,6 @@ async function saveSketch() {
     return;
   }
 
-  const sketchData = {
-    title: title,
-    description: description,
-    keywords: tags.join(', '),
-    tags: tags,
-    external_libs: ['https://cdn.jsdelivr.net/npm/p5@1.11.7/lib/p5.min.js'],
-    source_code: sourceCode,
-  };
-
-  console.log('📦 Prepared sketch data:', sketchData);
 
   try {
     let response;
@@ -391,13 +380,6 @@ async function saveSketch() {
     const userData = await userResponse.json();
     console.log('✅ Current user data:', userData);
     const memberName = userData.name;
-
-    // Create a URL-friendly slug from the title
-    const sketchSlug = title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-    console.log('🏷️ Generated slug:', sketchSlug);
 
     if (currentSketch && currentSketch.slug) {
       console.log(
@@ -455,18 +437,22 @@ async function saveSketch() {
       currentSketch = { ...currentSketch, ...responseData };
       console.log('✅ Updated currentSketch:', currentSketch);
     } else {
-      console.log('🆕 Creating new sketch with slug:', sketchSlug);
-      const createUrl = `/api/sketches/${memberName}/${sketchSlug}`;
+      console.log('🆕 Creating new sketch...');
+      const createUrl = `/api/sketches/${memberName}/new`; // Use 'new' as placeholder - backend will ignore this
       console.log('📡 Create URL:', createUrl);
 
-      // Create new sketch
+      // Create new sketch - only send source code
+      const createData = {
+        source_code: sourceCode,
+      };
+
       response = await fetch(createUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify(sketchData),
+        body: JSON.stringify(createData),
       });
 
       console.log('📡 Create response status:', response.status);
@@ -519,8 +505,9 @@ async function saveSketch() {
       );
     }
 
-    // Show success message to user
-    alert(`Sketch "${title}" saved successfully!`);
+    // Show success message to user - use the title from the response
+    const sketchTitle = responseData && responseData.title ? responseData.title : (currentSketch && currentSketch.title ? currentSketch.title : 'Sketch');
+    alert(`Sketch "${sketchTitle}" saved successfully!`);
   } catch (error) {
     console.error('💥 Error in saveSketch:', error);
     console.error('💥 Error stack:', error.stack);

@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/sb-luis/creative-coding-bookclub/internal/model"
 	"github.com/sb-luis/creative-coding-bookclub/internal/services"
@@ -22,6 +23,37 @@ const (
 	MaxTagsCount         = 10
 	MaxExternalLibsCount = 5
 )
+
+// generateTimestampSlug creates a unique date-based slug for sketches
+func generateTimestampSlug(services *services.Services, memberID int) (string, error) {
+	// Generate base date slug (format: YYYY-MM-DD)
+	now := time.Now()
+	baseSlug := now.Format("2006-01-02")
+
+	// Check if base slug exists
+	exists, err := services.Sketch.SketchExistsByMemberAndSlug(memberID, baseSlug)
+	if err != nil {
+		return "", fmt.Errorf("failed to check slug existence: %w", err)
+	}
+
+	if !exists {
+		return baseSlug, nil
+	}
+
+	// If base slug exists, try with incremental numbers (02, 03, 04, etc.)
+	for i := 2; i <= 99; i++ {
+		candidateSlug := fmt.Sprintf("%s-%02d", baseSlug, i)
+		exists, err := services.Sketch.SketchExistsByMemberAndSlug(memberID, candidateSlug)
+		if err != nil {
+			return "", fmt.Errorf("failed to check slug existence for %s: %w", candidateSlug, err)
+		}
+		if !exists {
+			return candidateSlug, nil
+		}
+	}
+
+	return "", fmt.Errorf("failed to generate unique slug after 100 attempts")
+}
 
 // Precompiled regex patterns for validation
 var (
@@ -106,14 +138,9 @@ func validateExternalLibs(libs []string) error {
 
 // Request structs for sketch endpoints
 
-// SketchCreateRequest represents the payload for creating a new sketch
+// SketchCreateRequest represents the payload for creating a new sketch (only source code)
 type SketchCreateRequest struct {
-	Title        string   `json:"title"`
-	Description  string   `json:"description"`
-	Keywords     string   `json:"keywords"`
-	Tags         []string `json:"tags"`
-	ExternalLibs []string `json:"external_libs"`
-	SourceCode   string   `json:"source_code"`
+	SourceCode string `json:"source_code"`
 }
 
 // SketchUpdateRequest represents the payload for updating source code only (PUT)
@@ -266,6 +293,7 @@ func SketchCodeHandler(services *services.Services) http.HandlerFunc {
 // PROTECTED ENDPOINTS (AUTH REQUIRED)
 
 // CreateSketchHandler handles POST requests to create a new sketch
+// CreateSketchHandler handles POST requests to create a new sketch with timestamp-based naming
 func CreateSketchHandler(services *services.Services) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Set content type for JSON response
@@ -278,13 +306,11 @@ func CreateSketchHandler(services *services.Services) http.HandlerFunc {
 			return
 		}
 
-		// Get member name and sketch slug from URL
+		// Get member name from URL
 		memberName := utils.PathVariable(r, "memberName")
-		sketchSlug := utils.PathVariable(r, "sketchSlug")
-
-		if memberName == "" || sketchSlug == "" {
-			log.Printf("Invalid request: missing member name or sketch slug")
-			http.Error(w, `{"error":"Member name and sketch slug are required"}`, http.StatusBadRequest)
+		if memberName == "" {
+			log.Printf("Invalid request: missing member name")
+			http.Error(w, `{"error":"Member name is required"}`, http.StatusBadRequest)
 			return
 		}
 
@@ -292,19 +318,6 @@ func CreateSketchHandler(services *services.Services) http.HandlerFunc {
 		member, err := services.Member.GetMemberByID(memberID)
 		if err != nil || member.Name != memberName {
 			http.Error(w, `{"error":"You can only create sketches for your own account"}`, http.StatusForbidden)
-			return
-		}
-
-		// Check if sketch with this slug already exists for this member
-		exists, err := services.Sketch.SketchExistsByMemberAndSlug(memberID, sketchSlug)
-		if err != nil {
-			log.Printf("Error checking if sketch exists: %v", err)
-			http.Error(w, `{"error":"Internal server error"}`, http.StatusInternalServerError)
-			return
-		}
-
-		if exists {
-			http.Error(w, `{"error":"A sketch with this slug already exists"}`, http.StatusConflict)
 			return
 		}
 
@@ -316,49 +329,31 @@ func CreateSketchHandler(services *services.Services) http.HandlerFunc {
 			return
 		}
 
-		// Validate required fields
-		if req.Title == "" {
-			http.Error(w, `{"error":"Title is required"}`, http.StatusBadRequest)
-			return
-		}
+		// Validate required field
 		if req.SourceCode == "" {
 			http.Error(w, `{"error":"Source code is required"}`, http.StatusBadRequest)
 			return
 		}
 
-		// Validate metadata fields
-		if err := validateTitle(req.Title); err != nil {
-			http.Error(w, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusBadRequest)
-			return
-		}
-		if err := validateDescription(req.Description); err != nil {
-			http.Error(w, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusBadRequest)
-			return
-		}
-		if err := validateKeywords(req.Keywords); err != nil {
-			http.Error(w, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusBadRequest)
-			return
-		}
-		if err := validateTags(req.Tags); err != nil {
-			http.Error(w, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusBadRequest)
-			return
-		}
-		if err := validateExternalLibs(req.ExternalLibs); err != nil {
-			http.Error(w, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusBadRequest)
+		// Generate unique timestamp-based slug
+		sketchSlug, err := generateTimestampSlug(services, memberID)
+		if err != nil {
+			log.Printf("Error generating timestamp slug for member %d: %v", memberID, err)
+			http.Error(w, `{"error":"Failed to generate unique sketch name"}`, http.StatusInternalServerError)
 			return
 		}
 
-		// Create sketch request
+		// Create sketch request with default metadata
 		createReq := &model.CreateSketchRequest{
-			Title:        req.Title,
-			Description:  req.Description,
-			Keywords:     req.Keywords,
-			Tags:         req.Tags,
-			ExternalLibs: req.ExternalLibs,
+			Title:        sketchSlug, // Use the timestamp slug as the title
+			Description:  "Auto-generated sketch",
+			Keywords:     "creative-coding, sketch",
+			Tags:         []string{"auto-generated"},
+			ExternalLibs: []string{"https://cdn.jsdelivr.net/npm/p5@1.11.7/lib/p5.min.js"},
 			SourceCode:   req.SourceCode,
 		}
 
-		// Override slug with the one from URL
+		// Create sketch with generated slug
 		sketch, err := services.Sketch.CreateSketchWithSlug(memberID, createReq, sketchSlug)
 		if err != nil {
 			log.Printf("Error creating sketch for member %d: %v", memberID, err)
