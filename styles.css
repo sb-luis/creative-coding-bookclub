@@ -1,0 +1,63 @@
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif; 
+    font-size: 18px;
+    line-height: 1.6;
+    color: #0e0e0e;
+    background-color: #d4d4d4;
+}
+
+/* Header */
+#header-logo {
+    display: block;
+    margin: auto;
+}
+
+header canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Main Content */
+main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+}
+
+/* Typography */
+p {
+    margin-bottom: 1rem;
+}
+
+b, strong {
+    font-weight: 600;
+    color: #1a202c;
+}
+
+/* Links */
+a {
+    color: #ca002c;
+    text-decoration: underline;
+}
+
+a:hover {
+    background: #ca002c;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* iframe */
+iframe {
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
